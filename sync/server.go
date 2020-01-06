@@ -49,7 +49,7 @@ func Proc(conn *net.UDPConn, duration time.Duration, lby *vtlobby.VTLobby) {
 
 func checkLocationAndReturn( udpMsg string, lby *vtlobby.VTLobby ) string {
 	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	pHostViewer := vtlobby.GetHostViewer(lby.Viewers)
+	pHostViewer := vtlobby.AskForHostViewer(lby.Viewers)
 
 	for i, viewer := range lby.Viewers {
 		if viewer.Name == curName {
