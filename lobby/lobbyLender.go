@@ -1,46 +1,54 @@
 package vt_lobby
 
 import (
-	vtConfig "../config"
-	vtsync "../sync"
-	"fmt"
 	"github.com/kpango/glg"
-	"net"
 	"strconv"
+	"strings"
 )
+
+// contrast prototype
+//   0      1         2            3           4 ...
+// “$name,$password,$max_offset,$host_name,$viewer1_name,..”
+//
+func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
+	lobbyData := strings.Split( lobbyContrast, ",")
+	offset, err := strconv.Atoi(lobbyData[2])
+	if err != nil {
+		glg.Log( err )
+	}
+	newLobby := &VTLobby{
+		Name:      lobbyData[0],
+		Password:  lobbyData[1],
+		Viewers:   nil,
+		MaxOffset: offset,
+	}
+	// add host viewer
+	host := &VTViewer{
+		Name:     lobbyData[3],
+		Location: "00:00",
+		IsHost:   true,
+		IsPause:  false,
+	}
+	newLobby.Viewers = append(newLobby.Viewers, *host)
+	// add guest viewers
+	for i := 4; i < len(lobbyData); i++  {
+		viewer := &VTViewer{
+			Name:     lobbyData[i],
+			Location: "00:00",
+			IsHost:   false,
+			IsPause:  false,
+		}
+		newLobby.Viewers = append(newLobby.Viewers, *viewer)
+	}
+	return newLobby
+}
 
 // start sync
 func StartLobby( lobby *VTLobby ) {
-	glg.Info(
-		lobby.Name +
-			" Lobby started with viewers count:" +
-			strconv.Itoa( len( lobby.Viewers ) ) +
-			" Max Location Offset: " +
-			strconv.Itoa( lobby.MaxOffset ) )
 
-	conn, _ := vtsync.Init()
-	defer conn.Close()
-	vtsync.Proc( conn, 1, lobby )
 }
 
-func WaitForBorrower() {
-	listener, err := net.Listen("tcp", vtConfig.VtTcpAddr)
-	defer listener.Close()
-	if err != nil {
-		glg.Error(err)
-	}
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			glg.Error(err)
-			continue
-		}
-		glg.Info("A Client connected :" + conn.RemoteAddr().String())
-		go tcpPipe(conn)
-	}
-}
-
-func AskForHostViewer( viewers []VTViewer) *VTViewer {
+func AskForWhoIsHostViewerIn( viewers []VTViewer ) *VTViewer {
 	for i, viewer := range viewers  {
 		if viewer.IsHost {
 			return &viewers[i]

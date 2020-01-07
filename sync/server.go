@@ -2,8 +2,9 @@ package vt_sync
 
 import (
 	vtlobby "../lobby"
+	stError "stgogo/comn/err"
+	"github.com/kpango/glg"
 	"net"
-	stlog "stgogo/comn/log"
 	stmath "stgogo/comn/math"
 	"strconv"
 	"strings"
@@ -14,42 +15,47 @@ import (
 func Init() (*net.UDPConn, error) {
 	udpAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:8800")
 	if err != nil {
-		stlog.Error.Println("ResolveUDPAddr err:", err)
+		glg.Error("ResolveUDPAddr err:", err)
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", udpAddr)
 	if err != nil {
-		stlog.Error.Println("ListenUDP err:", err)
+		glg.Error("ListenUDP err:", err)
 		return nil, err
 	}
 	return conn, err
 }
 
 // main process of video sync
-func Proc(conn *net.UDPConn, duration time.Duration, lby *vtlobby.VTLobby) {
+func StartUsingLobby(freshInterval time.Duration, lby *vtlobby.VTLobby) {
+	glg.Info(
+		lby.Name +
+			"\nLobby started with viewers count:" +
+			strconv.Itoa( len( lby.Viewers ) ) +
+			"\nMax Location Offset: " +
+			strconv.Itoa( lby.MaxOffset ) )
+
+	conn, _ := Init()
+	defer conn.Close()
+
 	for {
-		time.Sleep(duration)
+		time.Sleep(freshInterval)
 
 		buf := make([]byte, 1024)
 		n, addr, err := conn.ReadFromUDP(buf)
-		if err != nil {
-			stlog.Error.Println( err )
-			return
-		}
-		recvUdpMsg := string(buf[:n])
-		stlog.Info.Println("[Client]", recvUdpMsg)
+		if stError.Exsit(err) { return }
 
-		_, err = conn.WriteToUDP( []byte( checkLocationAndReturn(recvUdpMsg, lby) ), addr,)
-		if err != nil {
-			stlog.Error.Println( err )
-			return
-		}
+		recvUdpMsg := string(buf[:n])
+		glg.Info("[Client]", recvUdpMsg)
+
+		_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lby) ), addr,)
+		if stError.Exsit(err) { return }
 	}
 }
 
-func checkLocationAndReturn( udpMsg string, lby *vtlobby.VTLobby ) string {
+func CheckLocationAndReturn( udpMsg string, lby *vtlobby.VTLobby ) string {
 	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	pHostViewer := vtlobby.AskForHostViewer(lby.Viewers)
+	pHostViewer := vtlobby.AskForWhoIsHostViewerIn(lby.Viewers)
 
 	for i, viewer := range lby.Viewers {
 		if viewer.Name == curName {
@@ -75,6 +81,8 @@ func checkLocationAndReturn( udpMsg string, lby *vtlobby.VTLobby ) string {
 	return "OK"
 }
 
+
+
 func splitMinusAndSecond( currentTime string ) (int, int) {
 	mAnds := strings.Split( currentTime, ":" )
 	m, _ := strconv.Atoi( mAnds[0] )
@@ -84,9 +92,11 @@ func splitMinusAndSecond( currentTime string ) (int, int) {
 
 func splitNameAndLocationAndIsPauseFlag( udpMsg string ) ( string, string, string ) {
 	nAl := strings.Split(udpMsg, "," )
-	if len(nameAndLocation) == 1 {
-		stlog.Error.Println("Invalid UDP Message")
+	if len(nAl) == 1 {
+		glg.Error("Invalid UDP Message")
 		return "", "", ""
 	}
 	return nAl[0], nAl[1], nAl[2]
 }
+
+

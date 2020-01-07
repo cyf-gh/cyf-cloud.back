@@ -2,21 +2,21 @@ package main
 
 import (
 	vtConfig "./config"
+	vtServer "./sync"
 	"github.com/kpango/glg"
 	"runtime"
+	"stgogo/comn/config"
 	"strconv"
 )
 
-func initGlobal() {
+func main() {
 	glg.Info("Server Started...")
 	glg.Info( "goroutine Run with Core Count: " + strconv.Itoa(runtime.GOMAXPROCS(runtime.NumCPU())))
-}
-
-func main() {
 	vtConfig.ConfigAll()
-	initGlobal()
 
-	// TODO
+	st_config_log.Start()
 
-	vtConfig.Dispose()
+	vtServer.Run()
+
+	st_config_log.End()
 }
