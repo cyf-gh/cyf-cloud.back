@@ -12,6 +12,8 @@ import (
 var VtUdpAddr string
 var VtTcpAddr string
 var VtLogAddr string
+var VtFreshLogInterval int64
+var VtFreshUdpInterval int64
 
 func configServerInfo() {
 	cfg, _ := ini.Load("./vtserver.cfg")
@@ -19,7 +21,9 @@ func configServerInfo() {
 	VtLogAddr = cfg.Section("server").Key("log").String()
 	VtTcpAddr = cfg.Section("server").Key("tcp").String()
 	VtUdpAddr = cfg.Section("server").Key("udp").String()
-	//
+
+	VtFreshUdpInterval, _ = cfg.Section("fresh_interval").Key("udp").Int64()
+	VtFreshLogInterval, _ = cfg.Section("fresh_interval").Key("log").Int64()
 }
 
 func ConfigAll() {

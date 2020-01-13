@@ -1,51 +1,63 @@
 package vt_lobby
 
 import (
-	"github.com/kpango/glg"
+	st_comn_err "stgogo/comn/err"
 	"strconv"
 	"strings"
 )
 
 // contrast prototype
-//   0      1         2            3           4 ...
-// “$name,$password,$max_offset,$host_name,$viewer1_name,..”
+//   0      1         2            3           4 			5		  ...
+// “$name,$password,$max_offset,$host_name,$video_url,$is_share_cookie”
 //
 func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
 	lobbyData := strings.Split( lobbyContrast, ",")
+	name := lobbyData[0]
+	password := lobbyData[1]
 	offset, err := strconv.Atoi(lobbyData[2])
-	if err != nil {
-		glg.Log( err )
-	}
+	hostName := lobbyData[3]
+	videoUrl := lobbyData[4]
+	isShareCookie := lobbyData[5]
+
+
+	st_comn_err.Exsit( err )
 	newLobby := &VTLobby{
-		Name:      lobbyData[0],
-		Password:  lobbyData[1],
+		Name:      name,
+		Password:  password,
 		Viewers:   nil,
 		MaxOffset: offset,
+		VideoUrl: videoUrl,
+		IsShareCookie: isShareCookie == "share",
 	}
 	// add host viewer
 	host := &VTViewer{
-		Name:     lobbyData[3],
+		Name:     hostName,
 		Location: "00:00",
 		IsHost:   true,
 		IsPause:  false,
 	}
 	newLobby.Viewers = append(newLobby.Viewers, *host)
-	// add guest viewers
-	for i := 4; i < len(lobbyData); i++  {
-		viewer := &VTViewer{
-			Name:     lobbyData[i],
-			Location: "00:00",
-			IsHost:   false,
-			IsPause:  false,
-		}
-		newLobby.Viewers = append(newLobby.Viewers, *viewer)
-	}
 	return newLobby
 }
 
-// start sync
-func StartLobby( lobby *VTLobby ) {
+func FindLobbyByViewer( viewerName string, lobbies []*VTLobby ) *VTLobby {
+	for _, lb := range lobbies {
+		for _, v := range lb.Viewers {
+			if v.Name == viewerName {
+				return lb
+			}
+		}
+	}
+	return nil
+}
 
+func IsSameNameLobbyExist( name string, lobbies []*VTLobby ) bool {
+	for _, lb := range lobbies  {
+		if (*lb).Name == name {
+			return true
+		}
+	}
+	return false
 }
 
 func AskForWhoIsHostViewerIn( viewers []VTViewer ) *VTViewer {
@@ -55,4 +67,32 @@ func AskForWhoIsHostViewerIn( viewers []VTViewer ) *VTViewer {
 		}
 	}
 	return nil
+}
+
+func DeleteLobbyNamed( name string, lobbies []*VTLobby  ) bool {
+	for i, lb := range lobbies  {
+		if (*lb).Name == name {
+			lobbies = append(lobbies[:i], lobbies[i+1:]...)
+			return true
+		}
+	}
+	return false
+}
+
+func IsLobbyExist( name string, lobbies []*VTLobby  ) ( bool, *VTLobby) {
+	for _, lb := range lobbies  {
+		if (*lb).Name == name {
+			return true, lb
+		}
+	}
+	return false, nil
+}
+
+func IsViewerExist( name string, lobby VTLobby ) bool {
+	for _, v := range lobby.Viewers  {
+		if v.Name == name {
+			return true
+		}
+	}
+	return false
 }

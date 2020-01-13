@@ -2,9 +2,9 @@ package vt_sync
 
 import (
 	vtlobby "../lobby"
-	stError "stgogo/comn/err"
 	"github.com/kpango/glg"
 	"net"
+	stError "stgogo/comn/err"
 	stmath "stgogo/comn/math"
 	"strconv"
 	"strings"
@@ -12,32 +12,28 @@ import (
 )
 
 // initialize udp connect object
-func Init() (*net.UDPConn, error) {
-	udpAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:8800")
-	if err != nil {
-		glg.Error("ResolveUDPAddr err:", err)
-		return nil, err
+func RunUDPSyncServer( addr string, lobs []*vtlobby.VTLobby, freshInterval time.Duration ) {
+	udpAddr, err := net.ResolveUDPAddr("udp",addr )
+	stError.Exsit(err)
+	glg.Info( "\tUDP Server started at\t" + addr)
+
+	for {
+		conn, err := net.ListenUDP("udp", udpAddr)
+		stError.Exsit(err)
+		StartSync( conn, freshInterval, lobs )
 	}
-	conn, err := net.ListenUDP("udp", udpAddr)
-	if err != nil {
-		glg.Error("ListenUDP err:", err)
-		return nil, err
-	}
-	return conn, err
 }
 
 // main process of video sync
-func StartUsingLobby(freshInterval time.Duration, lby *vtlobby.VTLobby) {
+func StartSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlobby.VTLobby ) {
+	/*
 	glg.Info(
 		lby.Name +
-			"\nLobby started with viewers count:" +
+			"\nLobby started with viewers count:\t" +
 			strconv.Itoa( len( lby.Viewers ) ) +
-			"\nMax Location Offset: " +
+			"\nMax Location Offset:\t" +
 			strconv.Itoa( lby.MaxOffset ) )
-
-	conn, _ := Init()
-	defer conn.Close()
-
+	*/
 	for {
 		time.Sleep(freshInterval)
 
@@ -46,15 +42,20 @@ func StartUsingLobby(freshInterval time.Duration, lby *vtlobby.VTLobby) {
 		if stError.Exsit(err) { return }
 
 		recvUdpMsg := string(buf[:n])
-		glg.Info("[Client]", recvUdpMsg)
+		glg.Log( recvUdpMsg )
 
-		_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lby) ), addr,)
+		_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lobs ) ), addr,)
 		if stError.Exsit(err) { return }
 	}
 }
 
-func CheckLocationAndReturn( udpMsg string, lby *vtlobby.VTLobby ) string {
+func CheckLocationAndReturn( udpMsg string, lobs []*vtlobby.VTLobby ) string {
 	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
+	lby := vtlobby.FindLobbyByViewer( curName, lobs )
+	if lby == nil {
+		glg.Error("No viewer called " + curName)
+		 return "NO SUCH GUEST"
+	}
 	pHostViewer := vtlobby.AskForWhoIsHostViewerIn(lby.Viewers)
 
 	for i, viewer := range lby.Viewers {
