@@ -8,8 +8,7 @@ import (
 
 func TestJoinLobby(t *testing.T) {
 	vtsync.Lobbies = append(vtsync.Lobbies, vtmocks.GetMockLobby())
-	vtsync.ProcRequest("join_lobby@g,cyf1", vtsync.DoResponse, nil )
-
+	vtsync.ProcRequest("join_lobby@g,cyf1,123", vtsync.DoResponse, nil )
 	for _, lob:= range vtsync.Lobbies {
 		for _, v := range lob.Viewers {
 			if v.Name == "cyf1" {

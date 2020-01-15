@@ -20,12 +20,12 @@ func RunUDPSyncServer( addr string, lobs []*vtlobby.VTLobby, freshInterval time.
 	for {
 		conn, err := net.ListenUDP("udp", udpAddr)
 		stError.Exsit(err)
-		StartSync( conn, freshInterval, lobs )
+		StartUdpSync( conn, freshInterval, lobs )
 	}
 }
 
 // main process of video sync
-func StartSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlobby.VTLobby ) {
+func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlobby.VTLobby ) {
 	/*
 	glg.Info(
 		lby.Name +

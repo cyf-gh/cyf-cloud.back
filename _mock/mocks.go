@@ -40,10 +40,12 @@ func GetMockLobby() *vtlobby.VTLobby {
 	}
 
 	mockLobby := &vtlobby.VTLobby{
-		Name:      "g",
-		Password:  "123",
-		Viewers:  []vtlobby.VTViewer{},
-		MaxOffset: 3,
+		Name:          "g",
+		Password:      "123",
+		VideoUrl:      "https://bilibili.com/av123456",
+		IsShareCookie: false,
+		Viewers:       []vtlobby.VTViewer{},
+		MaxOffset:     3,
 	}
 	mockLobby.Viewers = append(mockLobby.Viewers, *viewer_yj, *viewer_cyf, *viewer_b1, *viewer_b2, *viewer_b3)
 
