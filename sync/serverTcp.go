@@ -2,11 +2,11 @@ package vt_sync
 
 import (
 	vtLobby "../lobby"
+	ypm_parse "GoYPM/parse"
 	"github.com/kpango/glg"
 	"net"
 	stErr "stgogo/comn/err"
 	stMem "stgogo/mem"
-	"strings"
 )
 
 var Lobbies = []*vtLobby.VTLobby{}
@@ -45,7 +45,7 @@ func DoResponse( msg string, conn *net.Conn ) {
 	if conn == nil {
 		return
 	} else {
-		glg.Log( "[DoResponse] ", msg )
+		glg.Log( "[TCP] " + msg )
 		_, err := (*conn).Write([]byte(msg))
 		stErr.Exsit(err)
 	}
@@ -53,9 +53,8 @@ func DoResponse( msg string, conn *net.Conn ) {
 
 // tcp message request process function
 func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
-	reqTypeAndParams := strings.Split( rawString, "@")
-	head := reqTypeAndParams[0]
-	body := reqTypeAndParams[1]
+	head, body ,err := ypm_parse.SplitHeadBody( rawString )
+	stErr.Exsit(err)
 	switch head {
 	case "create_lobby":
 		// add lobby to lobbies array
@@ -72,7 +71,11 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
 		// sync finished and delete lobby
 		break
 	case "join_lobby":
-		lobNameAndViewerName := strings.Split( body, ",")
+		lobNameAndViewerName := ypm_parse.SplitParaments(body)
+		if len(lobNameAndViewerName) != 3 {
+			doResp("INVALID_PARAM", conn )
+			return
+		}
 		lobName := lobNameAndViewerName[0]
 		viewerName := lobNameAndViewerName[1]
 		lobPswd := lobNameAndViewerName[2]

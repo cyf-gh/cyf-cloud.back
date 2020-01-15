@@ -2,6 +2,7 @@ package vt_sync
 
 import (
 	vtlobby "../lobby"
+	ypm_parse "GoYPM/parse"
 	"github.com/kpango/glg"
 	"net"
 	stError "stgogo/comn/err"
@@ -44,8 +45,32 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlob
 		recvUdpMsg := string(buf[:n])
 		glg.Log( recvUdpMsg )
 
-		_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lobs ) ), addr,)
-		if stError.Exsit(err) { return }
+		head, body, err := ypm_parse.SplitHeadBody( recvUdpMsg )
+
+		if stError.Exsit(err) {
+			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lobs ) ), addr)
+			if stError.Exsit(err) { continue }
+		} else {
+			switch head {
+			// TODO: process operations
+			case "get_lobby_viewers":
+				lobbyName := body
+				viewerStr := ""
+				exists, lob := vtlobby.IsLobbyExist(lobbyName, Lobbies)
+				if !exists {
+					_, err = conn.WriteToUDP( []byte( "NO_SUCH_LOBBY"), addr )
+				} else {
+					for _, v := range lob.Viewers {
+						viewerStr += v.Name + ","
+					}
+				}
+				_, err = conn.WriteToUDP( []byte( "NO_SUCH_LOBBY"), addr )
+				return
+			default:
+				glg.Error("Unknown tcp request\t" + recvUdpMsg)
+				break
+			}
+		}
 	}
 }
 
