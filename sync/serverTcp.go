@@ -7,6 +7,7 @@ import (
 	"net"
 	stErr "stgogo/comn/err"
 	stMem "stgogo/mem"
+	"sync"
 )
 
 var Lobbies = []*vtLobby.VTLobby{}
@@ -14,7 +15,7 @@ var Lobbies = []*vtLobby.VTLobby{}
 //
 // main loop which listen to the tcp request permanently
 //
-func RunTcpServer( addr string ) {
+func RunTcpServer( addr string, lock *sync.Mutex ) {
 	listener, err := net.Listen("tcp", addr)
 	defer listener.Close()
 	stErr.Exsit(err)
@@ -32,7 +33,7 @@ func RunTcpServer( addr string ) {
 		stMem.CutAdapt( bMsg, bbMsg )
 		msg := string(bbMsg)
 		glg.Info( (conn).RemoteAddr().String() + "\tsays\t"+ msg )
-		ProcRequest( msg, DoResponse, &conn )
+		ProcRequest( msg, DoResponse, &conn, lock )
 		glg.Info(" client disconnected : " + conn.RemoteAddr().String())
 		conn.Close()
 	}
@@ -52,7 +53,7 @@ func DoResponse( msg string, conn *net.Conn ) {
 }
 
 // tcp message request process function
-func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
+func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *sync.Mutex ) {
 	head, body ,err := ypm_parse.SplitHeadBody( rawString )
 	stErr.Exsit(err)
 	switch head {
@@ -64,10 +65,15 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
 			glg.Info(newLobby.Name + " is already exist but someone still want to borrow one.")
 			break
 		}
+		lock.Lock()
 		Lobbies = append(Lobbies, newLobby)
+		lock.Unlock()
 		// response ready signal
 		doResp("OK", conn )
 		glg.Info("lobby " + newLobby.Name + " created!")
+		for _, l := range Lobbies  {
+			glg.Info(*l)
+		}
 		// sync finished and delete lobby
 		break
 	case "join_lobby":
@@ -95,6 +101,7 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
 					IsHost:   false,
 					IsPause:  false,
 				})
+				glg.Log(lob)
 				doResp(lob.VideoUrl, conn )
 				return
 			}
@@ -109,7 +116,10 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn ) {
 		doResp( lobbyNames, conn )
 		return
 	case "delete_lobby":
-		if !vtLobby.DeleteLobbyNamed( body, Lobbies ) {
+		lock.Lock()
+		t := vtLobby.DeleteLobbyNamed( body, Lobbies )
+		lock.Unlock()
+		if !t  {
 			doResp("NO_SUCH_LOBBY", conn )
 		} else {
 			doResp("OK", conn )

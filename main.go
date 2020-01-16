@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"stgogo/comn/config"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -17,8 +18,9 @@ func main() {
 
 	st_config_log.Start( vtConfig.VtLogAddr, time.Duration( vtConfig.VtFreshLogInterval ) )
 
-	go vtServer.RunUDPSyncServer( vtConfig.VtUdpAddr, vtServer.Lobbies, time.Duration( vtConfig.VtFreshUdpInterval ) )
-	vtServer.RunTcpServer( vtConfig.VtTcpAddr )
+	lock := &sync.Mutex{}
+	go vtServer.RunTcpServer( vtConfig.VtTcpAddr, lock )
+	vtServer.RunUDPSyncServer( vtConfig.VtUdpAddr, time.Duration( vtConfig.VtFreshUdpInterval ) )
 
 	st_config_log.End()
 }

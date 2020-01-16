@@ -13,20 +13,18 @@ import (
 )
 
 // initialize udp connect object
-func RunUDPSyncServer( addr string, lobs []*vtlobby.VTLobby, freshInterval time.Duration ) {
+func RunUDPSyncServer( addr string, freshInterval time.Duration ) {
 	udpAddr, err := net.ResolveUDPAddr("udp",addr )
 	stError.Exsit(err)
 	glg.Info( "\tUDP Server started at\t" + addr)
 
-	for {
-		conn, err := net.ListenUDP("udp", udpAddr)
-		stError.Exsit(err)
-		StartUdpSync( conn, freshInterval, lobs )
-	}
+	conn, err := net.ListenUDP("udp", udpAddr)
+	stError.Exsit(err)
+	StartUdpSync( conn, freshInterval )
 }
 
 // main process of video sync
-func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlobby.VTLobby ) {
+func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 	/*
 	glg.Info(
 		lby.Name +
@@ -35,22 +33,18 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlob
 			"\nMax Location Offset:\t" +
 			strconv.Itoa( lby.MaxOffset ) )
 	*/
+	buf := make([]byte, 1024)
 	for {
 		time.Sleep(freshInterval)
 
-		buf := make([]byte, 1024)
 		n, addr, err := conn.ReadFromUDP(buf)
 		if stError.Exsit(err) { return }
 
 		recvUdpMsg := string(buf[:n])
 		glg.Log( recvUdpMsg )
 
-		head, body, err := ypm_parse.SplitHeadBody( recvUdpMsg )
-
-		if stError.Exsit(err) {
-			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg, lobs ) ), addr)
-			if stError.Exsit(err) { continue }
-		} else {
+		if ypm_parse.IsOperationPackage(recvUdpMsg) {
+			head, body, _ := ypm_parse.SplitHeadBody( recvUdpMsg )
 			switch head {
 			// TODO: process operations
 			case "get_lobby_viewers":
@@ -70,13 +64,19 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration, lobs []*vtlob
 				glg.Error("Unknown tcp request\t" + recvUdpMsg)
 				break
 			}
+		} else {
+			for _, l := range Lobbies  {
+				glg.Info(*l)
+			}
+			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg ) ), addr)
+			if stError.Exsit(err) { continue }
 		}
 	}
 }
 
-func CheckLocationAndReturn( udpMsg string, lobs []*vtlobby.VTLobby ) string {
+func CheckLocationAndReturn( udpMsg string ) string {
 	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	lby := vtlobby.FindLobbyByViewer( curName, lobs )
+	lby := vtlobby.FindLobbyByViewer( curName, Lobbies )
 	if lby == nil {
 		glg.Error("No viewer called " + curName)
 		 return "NO SUCH GUEST"
