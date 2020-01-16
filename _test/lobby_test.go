@@ -1,14 +1,23 @@
 package vt_test
 
 import (
+	vtmocks "../_mock"
 	vtLobby "../lobby"
+	vtsync "../sync"
 	"testing"
 )
 
 func TestCreateLobbyFromContrast(t *testing.T) {
-	lob := vtLobby.CreateNewLobbyByContrast("new_lobby,123123,2,yj,cyf,c1,c2")
-	if lob.Name != "new_lobby" || lob.Password != "123123" || len(lob.Viewers) != 4 || lob.Viewers[0].Name != "yj" {
-		t.Fail()
+	lob := vtLobby.CreateNewLobbyByContrast("new_lobby,123123,2,yj,https://baidu.com,share")
+	if lob.Name != "new_lobby" || lob.Password != "123123" || lob.Viewers[0].Name != "yj" {
+		t.Fatal()
 	}
-	t.Log("ok\tcreate lobby from contrast")
+}
+
+func TestFindLobbyByViewer( t *testing.T ) {
+	vtsync.Lobbies = append(vtsync.Lobbies, vtmocks.GetMockLobby())
+
+	if !( vtLobby.FindLobbyByViewer( "cyf", vtsync.Lobbies ).Name == "g" ) {
+		t.Fatal()
+	}
 }
