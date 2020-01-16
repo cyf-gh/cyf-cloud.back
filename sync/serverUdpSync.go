@@ -100,14 +100,17 @@ func CheckLocationAndReturn( udpMsg string ) string {
 			offset = stmath.Abs( offset )
 
 			if offset >= lby.MaxOffset  {
-				return pHostViewer.Location
+				return strconv.Itoa( hm ) + ":" + strconv.Itoa( hs + VideoFlushInterval() )
 			}
 		}
 	}
 	return "OK"
 }
 
-
+// offset of video flush interval
+func VideoFlushInterval() int {
+	return 1
+}
 
 func splitMinusAndSecond( currentTime string ) (int, int) {
 	mAnds := strings.Split( currentTime, ":" )
