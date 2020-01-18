@@ -53,13 +53,14 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 				exists, lob := vtlobby.IsLobbyExist(lobbyName, Lobbies)
 				if !exists {
 					_, err = conn.WriteToUDP( []byte( "NO_SUCH_LOBBY"), addr )
+					break
 				} else {
 					for _, v := range lob.Viewers {
-						viewerStr += v.Name + ","
+						viewerStr += vtlobby.ViewerToString( v ) + ","
 					}
 				}
-				_, err = conn.WriteToUDP( []byte( "NO_SUCH_LOBBY"), addr )
-				return
+				_, err = conn.WriteToUDP( []byte( viewerStr ), addr )
+				break
 			default:
 				glg.Error("Unknown tcp request\t" + recvUdpMsg)
 				break

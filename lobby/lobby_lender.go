@@ -1,9 +1,9 @@
 package vt_lobby
 
 import (
+	ypm_parse "GoYPM/parse"
 	st_comn_err "stgogo/comn/err"
 	"strconv"
-	"strings"
 )
 
 // contrast prototype
@@ -11,13 +11,13 @@ import (
 // “$name,$password,$max_offset,$host_name,$video_url,$is_share_cookie”
 //
 func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
-	lobbyData := strings.Split( lobbyContrast, ",")
+	lobbyData := ypm_parse.SplitParaments( lobbyContrast )
 	name := lobbyData[0]
 	password := lobbyData[1]
 	offset, err := strconv.Atoi(lobbyData[2])
 	hostName := lobbyData[3]
 	videoUrl := lobbyData[4]
-	isShareCookie := lobbyData[5]
+	cookieData := lobbyData[5]
 
 
 	st_comn_err.Exsit( err )
@@ -27,7 +27,8 @@ func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
 		Viewers:   nil,
 		MaxOffset: offset,
 		VideoUrl: videoUrl,
-		IsShareCookie: isShareCookie == "share",
+		IsShareCookie: !( cookieData == "no" ),
+		Cookie: cookieData,
 	}
 	// add host viewer
 	host := &VTViewer{
@@ -79,7 +80,21 @@ func DeleteLobbyNamed( name string, lobbies []*VTLobby  ) bool {
 	return false
 }
 
-func IsLobbyExist( name string, lobbies []*VTLobby  ) ( bool, *VTLobby) {
+func DeleteViewerIn( viewerName string, lobbyName string, lobbies []*VTLobby ) bool {
+	for _, lb := range lobbies  {
+		if (*lb).Name == lobbyName {
+			for j, v := range (*lb).Viewers  {
+				if v.Name == viewerName {
+					(*lb).Viewers = append( (*lb).Viewers[:j], (*lb).Viewers[j+1:]...)
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func IsLobbyExist( name string, lobbies []*VTLobby  ) ( bool, *VTLobby ) {
 	for _, lb := range lobbies  {
 		if (*lb).Name == name {
 			return true, lb
@@ -95,4 +110,16 @@ func IsViewerExist( name string, lobby VTLobby ) bool {
 		}
 	}
 	return false
+}
+
+func ViewerToString( viewer VTViewer ) string {
+	host := "GUEST"
+	status := "Playing"
+	if viewer.IsHost {
+		host = "HOST"
+	}
+	if viewer.IsPause {
+		status = "Pause"
+	}
+	return host + "\t" + viewer.Name + "\t" + viewer.Location + "\t" + status
 }

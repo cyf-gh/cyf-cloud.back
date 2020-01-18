@@ -7,38 +7,11 @@ import (
 	"net"
 	stErr "stgogo/comn/err"
 	stMem "stgogo/mem"
+	"strings"
 	"sync"
 )
 
 var Lobbies = []*vtLobby.VTLobby{}
-
-//
-// main loop which listen to the tcp request permanently
-//
-func RunTcpServer( addr string, lock *sync.Mutex ) {
-	listener, err := net.Listen("tcp", addr)
-	defer listener.Close()
-	stErr.Exsit(err)
-	for {
-		conn, err := listener.Accept()
-		glg.Info("client connected :" + conn.RemoteAddr().String())
-		if stErr.Exsit(err) {
-			continue
-		}
-
-		bMsg := make([]byte, 1024)
-		msgLen, err := conn.Read(bMsg)
-		stErr.Exsit(err)
-		bbMsg := make([]byte, msgLen)
-		stMem.CutAdapt( bMsg, bbMsg )
-		msg := string(bbMsg)
-		glg.Info( (conn).RemoteAddr().String() + "\tsays\t"+ msg )
-		ProcRequest( msg, DoResponse, &conn, lock )
-		glg.Info(" client disconnected : " + conn.RemoteAddr().String())
-		conn.Close()
-	}
-}
-
 
 type CBResponse func( msg string, conn *net.Conn )
 
@@ -52,11 +25,51 @@ func DoResponse( msg string, conn *net.Conn ) {
 	}
 }
 
+//
+// main loop which listen to the tcp request permanently
+//
+func RunTcpServer( addr string, lock *sync.Mutex ) {
+	listener, err := net.Listen("tcp", addr)
+	defer listener.Close()
+	bMsg := make([]byte, 10000)
+	stErr.Exsit(err)
+	for {
+		conn, err := listener.Accept()
+		glg.Info("client connected :" + conn.RemoteAddr().String())
+		if stErr.Exsit(err) {
+			continue
+		}
+		msgLen, err := conn.Read(bMsg)
+		stErr.Exsit(err)
+		bbMsg := make([]byte, msgLen)
+		stMem.CutAdapt( bMsg, bbMsg )
+		msg := string(bbMsg)
+		glg.Info( (conn).RemoteAddr().String() + "\tsays\t"+ msg )
+		ProcRequest( msg, DoResponse, &conn, lock )
+		glg.Info(" client disconnected : " + conn.RemoteAddr().String())
+		conn.Close()
+	}
+}
+
 // tcp message request process function
 func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *sync.Mutex ) {
 	head, body ,err := ypm_parse.SplitHeadBody( rawString )
 	stErr.Exsit(err)
 	switch head {
+	// exit_lobby@viewer_name,lobby_name
+	case "exit_lobby":
+		params := ypm_parse.SplitParaments( body )
+		viewerName := params[0]
+		lobbyName := params[1]
+		if vtLobby.DeleteViewerIn( viewerName, lobbyName, Lobbies ) {
+			glg.Info( viewerName + " Exit")
+			doResp("OK", conn )
+			break
+		}
+		glg.Info( rawString + "[exit_lobby] FAILED" )
+		doResp("FAILED", conn )
+		break
+
 	case "create_lobby":
 		// add lobby to lobbies array
 		newLobby := vtLobby.CreateNewLobbyByContrast( body )
@@ -76,6 +89,8 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		}
 		// sync finished and delete lobby
 		break
+
+
 	case "join_lobby":
 		lobNameAndViewerName := ypm_parse.SplitParaments(body)
 		if len(lobNameAndViewerName) != 3 {
@@ -102,19 +117,24 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 					IsPause:  false,
 				})
 				glg.Log(lob)
-				doResp(lob.VideoUrl, conn )
+				doResp(lob.VideoUrl + "$_$" + lob.Cookie, conn )
 				return
 			}
 		}
 		doResp("NO_SUCH_LOBBY", conn )
 		return
+
+
 	case "query_lobbies":
 		lobbyNames := ""
 		for _, lob := range Lobbies {
 			 lobbyNames += lob.Name + ","
 		}
+		lobbyNames = strings.TrimSuffix( lobbyNames, "," )
 		doResp( lobbyNames, conn )
 		return
+
+
 	case "delete_lobby":
 		lock.Lock()
 		t := vtLobby.DeleteLobbyNamed( body, Lobbies )
@@ -124,6 +144,8 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		} else {
 			doResp("OK", conn )
 		}
+
+
 	case "get_lobby_viewers":
 		lobbyName := body
 		viewerStr := ""
@@ -137,6 +159,8 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		}
 		doResp( viewerStr, conn )
 		return
+
+
 	default:
 		glg.Error("Unknown tcp request\t" + rawString)
 		break

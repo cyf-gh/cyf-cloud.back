@@ -7,50 +7,49 @@ import (
 	"testing"
 )
 
-func BenchmarkSsync(b *testing.B) {
+func Benchmark_Ssync(b *testing.B) {
 	lobs := []*vtlobby.VTLobby{ vtTestMock.GetMockLobby() }
 	b.Log("normal play benchmark")
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if i % 2 == 1 {
-			vtsync.CheckLocationAndReturn( "cyf,00:03,s", lobs )
-			vtsync.CheckLocationAndReturn( "yj,00:03,s", lobs )
+			vtsync.CheckLocationAndReturn( "cyf,00:03,s" )
+			vtsync.CheckLocationAndReturn( "yj,00:03,s" )
 		} else {
-			vtsync.CheckLocationAndReturn( "cyf,00:02,s", lobs )
-			vtsync.CheckLocationAndReturn( "yj,00:02,s", lobs )
+			vtsync.CheckLocationAndReturn( "cyf,00:02,s" )
+			vtsync.CheckLocationAndReturn( "yj,00:02,s" )
 		}
 	}
 }
 
-func TestCheckLocationAndReturn(t *testing.T) {
-	lobs := []*vtlobby.VTLobby{ vtTestMock.GetMockLobby() }
-	vtsync.CheckLocationAndReturn( "yj,00:03,s", lobs )
+func Test_CheckLocationAndReturn(t *testing.T) {
+	vtsync.CheckLocationAndReturn( "yj,00:03,s" )
 
-	if vtsync.CheckLocationAndReturn( "cyf,00:34,s", lobs ) != "00:03" {
+	if vtsync.CheckLocationAndReturn( "cyf,00:34,s" ) != "00:03" {
 		t.Error()
 	}
 	t.Log("ok\ttime adjust")
 
-	if vtsync.CheckLocationAndReturn( "cyf,00:03,s", lobs ) != "OK" {
+	if vtsync.CheckLocationAndReturn( "cyf,00:03,s" ) != "OK" {
 		t.Error()
 	}
 	t.Log("ok\tsame time and return OK")
 
-	if vtsync.CheckLocationAndReturn( "cyf,00:04,s", lobs ) != "OK" {
+	if vtsync.CheckLocationAndReturn( "cyf,00:04,s" ) != "OK" {
 		t.Error()
 	}
 	t.Log("ok\tin offset time and return OK")
 
-	vtsync.CheckLocationAndReturn( "yj,00:03,p", lobs )
+	vtsync.CheckLocationAndReturn( "yj,00:03,p" )
 
-	if vtsync.CheckLocationAndReturn( "cyf,00:03,s", lobs ) != "p" {
+	if vtsync.CheckLocationAndReturn( "cyf,00:03,s" ) != "p" {
 		t.Error()
 	}
 	t.Log("ok\tpause")
 
-	vtsync.CheckLocationAndReturn( "yj,00:03,s", lobs )
+	vtsync.CheckLocationAndReturn( "yj,00:03,s" )
 
-	if vtsync.CheckLocationAndReturn( "cyf,00:03,p", lobs ) != "s" {
+	if vtsync.CheckLocationAndReturn( "cyf,00:03,p" ) != "s" {
 		t.Error()
 	}
 	t.Log("ok\tstart")

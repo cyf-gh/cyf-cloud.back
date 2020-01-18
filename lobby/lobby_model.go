@@ -6,7 +6,7 @@ type VTViewer struct {
 }
 
 type VTLobby struct {
-	Name, Password, VideoUrl string
+	Name, Password, VideoUrl, Cookie string
 	IsShareCookie bool
 	Viewers []VTViewer
 	MaxOffset int
