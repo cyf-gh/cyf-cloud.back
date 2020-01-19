@@ -18,4 +18,3 @@ func Test_JoinLobby(t *testing.T) {
 	}
 	t.Fail()
 }
-

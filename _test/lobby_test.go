@@ -32,3 +32,32 @@ func Test_DeleteViewerInLobby( t *testing.T ) {
 		t.Fatal()
 	}
 }
+
+func Test_DeleteOneSlice(t *testing.T) {
+	ints := []int { 1 }
+	ints = append(ints[:0], ints[0+1:]...)
+	if len(ints) != 0 {
+		t.Fatal()
+	}
+}
+
+func Test_ClearDiscardLobby( t*testing.T ) {
+	lobs := []*vtLobby.VTLobby{ vtmocks.GetMockLobby() }
+	lobs = vtLobby.ClearDiscardLobby( lobs )
+	if !( len(lobs) == 0 ) {
+		t.Log(lobs[0])
+		t.Fatal()
+	}
+
+	// m, _ := time.ParseDuration("10m")
+	// t.Log( time.Now().After( lobs[0].LastUpdateTime.Add( m ) ) )
+}
+
+func Test_DeleteLobbyByName( t*testing.T ) {
+	lobs := []*vtLobby.VTLobby{ vtmocks.GetMockLobby() }
+	_, lobs = vtLobby.DeleteLobbyNamed( "g", lobs )
+	if !( len(lobs)==0 ) {
+		t.Log(lobs[0])
+		t.Fatal()
+	}
+}

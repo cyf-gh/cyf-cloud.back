@@ -4,6 +4,7 @@ import (
 	ypm_parse "GoYPM/parse"
 	st_comn_err "stgogo/comn/err"
 	"strconv"
+	"time"
 )
 
 // contrast prototype
@@ -29,6 +30,7 @@ func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
 		VideoUrl: videoUrl,
 		IsShareCookie: !( cookieData == "no" ),
 		Cookie: cookieData,
+		LastUpdateTime: time.Now(),
 	}
 	// add host viewer
 	host := &VTViewer{
@@ -70,14 +72,17 @@ func AskForWhoIsHostViewerIn( viewers []VTViewer ) *VTViewer {
 	return nil
 }
 
-func DeleteLobbyNamed( name string, lobbies []*VTLobby  ) bool {
+func DeleteLobbyNamed( name string, lobbies []*VTLobby  ) (bool, []*VTLobby) {
 	for i, lb := range lobbies  {
 		if (*lb).Name == name {
-			lobbies = append(lobbies[:i], lobbies[i+1:]...)
-			return true
+			return true, DeleteLobbyAt( lobbies, i )
 		}
 	}
-	return false
+	return false, lobbies
+}
+
+func DeleteLobbyAt( lobbies []*VTLobby, i int ) []*VTLobby {
+	return append(lobbies[:i], lobbies[i+1:]...)
 }
 
 func DeleteViewerIn( viewerName string, lobbyName string, lobbies []*VTLobby ) bool {
@@ -122,4 +127,19 @@ func ViewerToString( viewer VTViewer ) string {
 		status = "Pause"
 	}
 	return host + "\t" + viewer.Name + "\t" + viewer.Location + "\t" + status
+}
+
+func UpdateLobbyLastUsedTime( lobby *VTLobby ) {
+	lobby.LastUpdateTime = time.Now()
+}
+
+func ClearDiscardLobby( lobbies []*VTLobby ) []*VTLobby {
+	m, _ := time.ParseDuration("10m")
+	for i, lb := range lobbies {
+		lastUpdateTime := lb.LastUpdateTime
+		if time.Now().After( lastUpdateTime.Add( m ) ) {
+			lobbies = DeleteLobbyAt( lobbies, i )
+		}
+	}
+	return lobbies
 }

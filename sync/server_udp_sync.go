@@ -46,7 +46,7 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 		if ypm_parse.IsOperationPackage(recvUdpMsg) {
 			head, body, _ := ypm_parse.SplitHeadBody( recvUdpMsg )
 			switch head {
-			// TODO: process operations
+
 			case "get_lobby_viewers":
 				lobbyName := body
 				viewerStr := ""
@@ -61,6 +61,13 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 				}
 				_, err = conn.WriteToUDP( []byte( viewerStr ), addr )
 				break
+
+
+			case "ping":
+				_, err = conn.WriteToUDP( []byte( "OK" ), addr )
+				break
+
+
 			default:
 				glg.Error("Unknown tcp request\t" + recvUdpMsg)
 				break
@@ -69,9 +76,10 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 			for _, l := range Lobbies  {
 				glg.Info(*l)
 			}
-			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn(recvUdpMsg ) ), addr)
+			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn( recvUdpMsg ) ), addr)
 			if stError.Exsit(err) { continue }
 		}
+		vtlobby.ClearDiscardLobby( Lobbies )
 	}
 }
 
@@ -105,6 +113,7 @@ func CheckLocationAndReturn( udpMsg string ) string {
 			}
 		}
 	}
+	vtlobby.UpdateLobbyLastUsedTime(lby)
 	return "OK"
 }
 

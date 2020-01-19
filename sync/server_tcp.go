@@ -70,6 +70,7 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		doResp("FAILED", conn )
 		break
 
+
 	case "create_lobby":
 		// add lobby to lobbies array
 		newLobby := vtLobby.CreateNewLobbyByContrast( body )
@@ -122,7 +123,7 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 			}
 		}
 		doResp("NO_SUCH_LOBBY", conn )
-		return
+		break
 
 
 	case "query_lobbies":
@@ -132,18 +133,20 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		}
 		lobbyNames = strings.TrimSuffix( lobbyNames, "," )
 		doResp( lobbyNames, conn )
-		return
+		break
 
 
 	case "delete_lobby":
 		lock.Lock()
-		t := vtLobby.DeleteLobbyNamed( body, Lobbies )
+		t := true
+		t, Lobbies = vtLobby.DeleteLobbyNamed( body, Lobbies )
 		lock.Unlock()
 		if !t  {
 			doResp("NO_SUCH_LOBBY", conn )
 		} else {
 			doResp("OK", conn )
 		}
+		break
 
 
 	case "get_lobby_viewers":
@@ -158,7 +161,11 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 			}
 		}
 		doResp( viewerStr, conn )
-		return
+		break
+
+	case "ping":
+		doResp( "OK", conn )
+		break
 
 
 	default:
