@@ -73,9 +73,6 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 				break
 			}
 		} else {
-			for _, l := range Lobbies  {
-				glg.Info(*l)
-			}
 			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn( recvUdpMsg ) ), addr)
 			if stError.Exsit(err) { continue }
 		}

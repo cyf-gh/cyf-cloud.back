@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c1548441-86b5-431b-9205-fb35a4e5409e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/_mock/mocks.go" beforeDir="false" afterPath="$PROJECT_DIR$/_mock/mocks.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/lobby_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/_test/lobby_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/_test/server_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/_test/server_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lobby/lobby_lender.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_lender.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lobby/lobby_model.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sync/server_tcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_tcp.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sync/server_udp_sync.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_udp_sync.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
