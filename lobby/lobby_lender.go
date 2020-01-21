@@ -43,15 +43,15 @@ func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
 	return newLobby
 }
 
-func FindLobbyByViewer( viewerName string, lobbies []*VTLobby ) *VTLobby {
-	for _, lb := range lobbies {
+func FindLobbyByViewer( viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
+	for i, lb := range lobbies {
 		for _, v := range lb.Viewers {
 			if v.Name == viewerName {
-				return lb
+				return lb, i
 			}
 		}
 	}
-	return nil
+	return nil, -1
 }
 
 func IsSameNameLobbyExist( name string, lobbies []*VTLobby ) bool {

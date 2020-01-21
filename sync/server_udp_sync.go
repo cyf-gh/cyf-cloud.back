@@ -82,7 +82,7 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 
 func CheckLocationAndReturn( udpMsg string ) string {
 	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	lby := vtlobby.FindLobbyByViewer( curName, Lobbies )
+	lby, index := vtlobby.FindLobbyByViewer( curName, Lobbies )
 	if lby == nil {
 		glg.Error("No viewer called " + curName)
 		 return "NO SUCH GUEST"
@@ -95,7 +95,10 @@ func CheckLocationAndReturn( udpMsg string ) string {
 			lby.Viewers[i].Location = curLocation
 			lby.Viewers[i].IsPause = isPause == "p"
 			// host viewer is always OK
-			if viewer.IsHost { return "OK" }
+			if viewer.IsHost {
+				Lobbies[index] = lby
+				return "OK"
+			}
 
 			if pHostViewer.IsPause != lby.Viewers[i].IsPause {
 				if pHostViewer.IsPause { return "p" } else { return "s" }
@@ -111,6 +114,7 @@ func CheckLocationAndReturn( udpMsg string ) string {
 		}
 	}
 	vtlobby.UpdateLobbyLastUsedTime(lby)
+	Lobbies[index] = lby
 	return "OK"
 }
 
