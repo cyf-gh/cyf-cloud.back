@@ -43,10 +43,10 @@ func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
 	return newLobby
 }
 
-func FindLobbyByViewer( viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
+func FindLobbyByViewer( lobbyName string, viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
 	for i, lb := range lobbies {
 		for _, v := range lb.Viewers {
-			if v.Name == viewerName {
+			if v.Name == viewerName && lb.Name == lobbyName {
 				return lb, i
 			}
 		}

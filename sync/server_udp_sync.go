@@ -73,7 +73,9 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 				break
 			}
 		} else {
-			_, err = conn.WriteToUDP( []byte( CheckLocationAndReturn( recvUdpMsg ) ), addr)
+			resp := CheckLocationAndReturn( recvUdpMsg )
+			glg.Log(resp)
+			_, err = conn.WriteToUDP( []byte( resp ), addr)
 			if stError.Exsit(err) { continue }
 		}
 		vtlobby.ClearDiscardLobby( Lobbies )
@@ -81,8 +83,8 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 }
 
 func CheckLocationAndReturn( udpMsg string ) string {
-	curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	lby, index := vtlobby.FindLobbyByViewer( curName, Lobbies )
+	curLobbyName, curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
+	lby, index := vtlobby.FindLobbyByViewer( curLobbyName, curName, Lobbies )
 	if lby == nil {
 		glg.Error("No viewer called " + curName)
 		 return "NO SUCH GUEST"
@@ -130,13 +132,13 @@ func splitMinusAndSecond( currentTime string ) (int, int) {
 	return m, s
 }
 
-func splitNameAndLocationAndIsPauseFlag( udpMsg string ) ( string, string, string ) {
+func splitNameAndLocationAndIsPauseFlag( udpMsg string ) ( string, string, string, string ) {
 	nAl := strings.Split(udpMsg, "," )
 	if len(nAl) == 1 {
 		glg.Error("Invalid UDP Message")
-		return "", "", ""
+		return "", "", "", ""
 	}
-	return nAl[0], nAl[1], nAl[2]
+	return nAl[0], nAl[1], nAl[2], nAl[3]
 }
 
 
