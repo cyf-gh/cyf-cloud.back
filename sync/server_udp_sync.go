@@ -78,12 +78,12 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 			_, err = conn.WriteToUDP( []byte( resp ), addr)
 			if stError.Exsit(err) { continue }
 		}
-		vtlobby.ClearDiscardLobby( Lobbies )
+		Lobbies = vtlobby.ClearDiscardLobby( Lobbies )
 	}
 }
 
 func CheckLocationAndReturn( udpMsg string ) string {
-	curLobbyName, curName, curLocation, isPause := splitNameAndLocationAndIsPauseFlag( udpMsg )
+	curLobbyName, curName, curLocation, isPause, url := splitNameAndLocationAndIsPauseFlag( udpMsg )
 	lby, index := vtlobby.FindLobbyByViewer( curLobbyName, curName, Lobbies )
 	if lby == nil {
 		glg.Error("No viewer called " + curName)
@@ -98,10 +98,16 @@ func CheckLocationAndReturn( udpMsg string ) string {
 			lby.Viewers[i].IsPause = isPause == "p"
 			// host viewer is always OK
 			if viewer.IsHost {
+				lby.VideoUrl = url
 				Lobbies[index] = lby
 				return "OK"
+			} else {
+				if lby.VideoUrl != url {
+					return lby.VideoUrl
+				}
 			}
 
+			// url difference is processed firstly
 			if pHostViewer.IsPause != lby.Viewers[i].IsPause {
 				if pHostViewer.IsPause { return "p" } else { return "s" }
 			}
@@ -132,13 +138,13 @@ func splitMinusAndSecond( currentTime string ) (int, int) {
 	return m, s
 }
 
-func splitNameAndLocationAndIsPauseFlag( udpMsg string ) ( string, string, string, string ) {
+func splitNameAndLocationAndIsPauseFlag( udpMsg string ) ( string, string, string, string, string ) {
 	nAl := strings.Split(udpMsg, "," )
 	if len(nAl) == 1 {
 		glg.Error("Invalid UDP Message")
-		return "", "", "", ""
+		return "", "", "", "", ""
 	}
-	return nAl[0], nAl[1], nAl[2], nAl[3]
+	return nAl[0], nAl[1], nAl[2], nAl[3], nAl[4]
 }
 
 
