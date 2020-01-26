@@ -107,10 +107,11 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 					doResp("PSWD_INCOR", conn )
 					return
 				}
+				/* // is allowed 20/1/26
 				if vtLobby.IsViewerExist( viewerName, *lob ) {
 					doResp("ALREADY_IN_LOBBY", conn )
 					return
-				}
+				}*/
 				lob.Viewers = append(lob.Viewers, vtLobby.VTViewer{
 					Name:     viewerName,
 					Location: "00:00",

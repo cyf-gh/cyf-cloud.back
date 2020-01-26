@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c1548441-86b5-431b-9205-fb35a4e5409e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sync/server_udp_sync.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_udp_sync.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sync/server_tcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_tcp.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -228,9 +228,10 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state x="501" y="249" width="867" height="365" key="org.intellij.images.editor.actions.BackgroundImageDialog/0.0.1536.864@0.0.1536.864" timestamp="1578731466616" />
-    <state x="2354" y="0" width="1050" height="1048" key="search.everywhere.popup" timestamp="1579419598090">
-      <screen x="1920" y="0" width="1920" height="1050" />
+    <state x="347" y="0" width="840" height="833" key="search.everywhere.popup" timestamp="1580024837711">
+      <screen x="0" y="0" width="1536" height="834" />
     </state>
+    <state x="347" y="0" width="840" height="833" key="search.everywhere.popup/0.0.1536.834/1920.0.1920.1050@0.0.1536.834" timestamp="1580024837711" />
     <state x="2354" y="0" width="1050" height="1048" key="search.everywhere.popup/0.0.1536.834/1920.0.1920.1050@1920.0.1920.1050" timestamp="1579419598090" />
     <state x="347" y="-1" width="840" height="1034" key="search.everywhere.popup/0.0.1536.834@0.0.1536.834" timestamp="1578468056227" />
     <state x="347" y="0" width="840" height="863" key="search.everywhere.popup/0.0.1536.864/1920.0.1920.1080@0.0.1536.864" timestamp="1579097487728" />
