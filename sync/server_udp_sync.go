@@ -50,7 +50,7 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 			case "get_lobby_viewers":
 				lobbyName := body
 				viewerStr := ""
-				exists, lob := vtlobby.IsLobbyExist(lobbyName, Lobbies)
+				exists, lob := vtlobby.IsLobbyExist(lobbyName, vtlobby.Lobbies)
 				if !exists {
 					_, err = conn.WriteToUDP( []byte( "NO_SUCH_LOBBY"), addr )
 					break
@@ -78,13 +78,14 @@ func StartUdpSync( conn *net.UDPConn, freshInterval time.Duration ) {
 			_, err = conn.WriteToUDP( []byte( resp ), addr)
 			if stError.Exsit(err) { continue }
 		}
-		Lobbies = vtlobby.ClearDiscardLobby( Lobbies )
+		vtlobby.Lobbies = vtlobby.ClearDiscardLobby( vtlobby.Lobbies )
 	}
 }
 
 func CheckLocationAndReturn( udpMsg string ) string {
 	curLobbyName, curName, curLocation, isPause, url := splitNameAndLocationAndIsPauseFlag( udpMsg )
-	lby, index := vtlobby.FindLobbyByViewer( curLobbyName, curName, Lobbies )
+	glg.Log(url)
+	lby, index := vtlobby.FindLobbyByViewer( curLobbyName, curName, vtlobby.Lobbies )
 	if lby == nil {
 		glg.Error("No viewer called " + curName)
 		 return "NO SUCH GUEST"
@@ -97,16 +98,17 @@ func CheckLocationAndReturn( udpMsg string ) string {
 			lby.Viewers[i].Location = curLocation
 			lby.Viewers[i].IsPause = isPause == "p"
 			// host viewer is always OK
+			/*
 			if viewer.IsHost {
 				lby.VideoUrl = url
-				Lobbies[index] = lby
+				vtlobby.Lobbies[index] = lby
 				return "OK"
 			} else {
 				if lby.VideoUrl != url {
 					return lby.VideoUrl
 				}
 			}
-
+*/
 			// url difference is processed firstly
 			if pHostViewer.IsPause != lby.Viewers[i].IsPause {
 				if pHostViewer.IsPause { return "p" } else { return "s" }
@@ -122,7 +124,7 @@ func CheckLocationAndReturn( udpMsg string ) string {
 		}
 	}
 	vtlobby.UpdateLobbyLastUsedTime(lby)
-	Lobbies[index] = lby
+	vtlobby.Lobbies[index] = lby
 	return "OK"
 }
 

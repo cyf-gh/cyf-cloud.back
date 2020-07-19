@@ -1,4 +1,11 @@
+///
+///
+///  本文件已废弃，改用 http 2020.7.19
+///
+///
 package vt_sync
+
+/*
 
 import (
 	vtLobby "../lobby"
@@ -107,11 +114,11 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 					doResp("PSWD_INCOR", conn )
 					return
 				}
-				/* // is allowed 20/1/26
+				// is allowed 20/1/26
 				if vtLobby.IsViewerExist( viewerName, *lob ) {
 					doResp("ALREADY_IN_LOBBY", conn )
 					return
-				}*/
+				}
 				lob.Viewers = append(lob.Viewers, vtLobby.VTViewer{
 					Name:     viewerName,
 					Location: "00:00",
@@ -174,3 +181,4 @@ func ProcRequest( rawString string, doResp CBResponse, conn *net.Conn, lock *syn
 		break
 	}
 }
+*/

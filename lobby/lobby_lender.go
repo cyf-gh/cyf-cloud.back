@@ -1,47 +1,9 @@
 package vt_lobby
 
 import (
-	ypm_parse "GoYPM/parse"
-	st_comn_err "stgogo/comn/err"
-	"strconv"
 	"time"
 )
-
-// contrast prototype
-//   0      1         2            3           4 			5		  ...
-// “$name,$password,$max_offset,$host_name,$video_url,$is_share_cookie”
-//
-func CreateNewLobbyByContrast( lobbyContrast string ) *VTLobby {
-	lobbyData := ypm_parse.SplitParaments( lobbyContrast )
-	name := lobbyData[0]
-	password := lobbyData[1]
-	offset, err := strconv.Atoi(lobbyData[2])
-	hostName := lobbyData[3]
-	videoUrl := lobbyData[4]
-	cookieData := lobbyData[5]
-
-
-	st_comn_err.Exsit( err )
-	newLobby := &VTLobby{
-		Name:      name,
-		Password:  password,
-		Viewers:   nil,
-		MaxOffset: offset,
-		VideoUrl: videoUrl,
-		IsShareCookie: !( cookieData == "no" ),
-		Cookie: cookieData,
-		LastUpdateTime: time.Now(),
-	}
-	// add host viewer
-	host := &VTViewer{
-		Name:     hostName,
-		Location: "00:00",
-		IsHost:   true,
-		IsPause:  false,
-	}
-	newLobby.Viewers = append(newLobby.Viewers, *host)
-	return newLobby
-}
+var Lobbies = []*VTLobby{}
 
 func FindLobbyByViewer( lobbyName string, viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
 	for i, lb := range lobbies {

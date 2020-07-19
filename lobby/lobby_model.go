@@ -10,9 +10,8 @@ type VTViewer struct {
 }
 
 type VTLobby struct {
-	Name, Password, VideoUrl, Cookie string
-	IsShareCookie bool
+	Name, Password, VideoLs string
 	Viewers []VTViewer
-	MaxOffset int
+	MaxOffset, VideoIndex int
 	LastUpdateTime time.Time
 }

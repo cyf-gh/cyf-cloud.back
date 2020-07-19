@@ -19,8 +19,8 @@ func main() {
 	st_config_log.Start( vtConfig.VtLogAddr, time.Duration( vtConfig.VtFreshLogInterval ) )
 
 	lock := &sync.Mutex{}
-	go vtServer.RunTcpServer( vtConfig.VtTcpAddr, lock )
+	// go vtServer.RunTcpServer( vtConfig.VtTcpAddr, lock )
+	go vtServer.RunHttpSyncServer( vtConfig.VtTcpAddr, lock )
 	vtServer.RunUDPSyncServer( vtConfig.VtUdpAddr, time.Duration( vtConfig.VtFreshUdpInterval ) )
-
 	st_config_log.End()
 }
