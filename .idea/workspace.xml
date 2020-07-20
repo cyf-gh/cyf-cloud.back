@@ -5,9 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lobby/lobby_lender.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_lender.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lobby/lobby_model.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_model.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sync/server_tcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_tcp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sync/server_udp_sync.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_udp_sync.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sync/server_http.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_http.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,37 +106,53 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2596" y="214" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595168412918" />
-    <state width="1204" height="296" key="GridCell.Tab.0.bottom" timestamp="1595173780011">
+    <state width="1473" height="443" key="GridCell.Tab.0.bottom" timestamp="1595256061463">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173780011" />
-    <state width="1204" height="296" key="GridCell.Tab.0.center" timestamp="1595173780011">
+    <state width="1473" height="443" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061463" />
+    <state width="1473" height="443" key="GridCell.Tab.0.center" timestamp="1595256061463">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173780011" />
-    <state width="1204" height="296" key="GridCell.Tab.0.left" timestamp="1595173780011">
+    <state width="1473" height="443" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061463" />
+    <state width="1473" height="443" key="GridCell.Tab.0.left" timestamp="1595256061463">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173780011" />
-    <state width="1204" height="296" key="GridCell.Tab.0.right" timestamp="1595173780011">
+    <state width="1473" height="443" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061463" />
+    <state width="1473" height="443" key="GridCell.Tab.0.right" timestamp="1595256061463">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173780011" />
-    <state width="1204" height="296" key="GridCell.Tab.1.bottom" timestamp="1595173779935">
+    <state width="1473" height="443" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061463" />
+    <state width="1473" height="443" key="GridCell.Tab.1.bottom" timestamp="1595256061464">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.1.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173779935" />
-    <state width="1204" height="296" key="GridCell.Tab.1.center" timestamp="1595173779935">
+    <state width="1473" height="443" key="GridCell.Tab.1.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061464" />
+    <state width="1473" height="443" key="GridCell.Tab.1.center" timestamp="1595256061464">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.1.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173779935" />
-    <state width="1204" height="296" key="GridCell.Tab.1.left" timestamp="1595173779935">
+    <state width="1473" height="443" key="GridCell.Tab.1.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061464" />
+    <state width="1473" height="443" key="GridCell.Tab.1.left" timestamp="1595256061464">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.1.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173779935" />
-    <state width="1204" height="296" key="GridCell.Tab.1.right" timestamp="1595173779935">
+    <state width="1473" height="443" key="GridCell.Tab.1.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061464" />
+    <state width="1473" height="443" key="GridCell.Tab.1.right" timestamp="1595256061464">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1204" height="296" key="GridCell.Tab.1.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595173779935" />
+    <state width="1473" height="443" key="GridCell.Tab.1.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595256061464" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/lobby/lobby_lender.go</url>
+          <line>63</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="GoApplicationRunConfiguration">
+        <watch expression="vtLobby.Lobbies" language="go" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

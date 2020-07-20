@@ -15,3 +15,8 @@ type VTLobby struct {
 	MaxOffset, VideoIndex int
 	LastUpdateTime time.Time
 }
+
+type VTVideoDesc struct {
+	Ls string
+	Index int
+}

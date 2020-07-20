@@ -5,15 +5,73 @@ import (
 )
 var Lobbies = []*VTLobby{}
 
-func FindLobbyByViewer( lobbyName string, viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
+/// 已废弃
+func FindLobbyByViewer( aa string, viewerName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
 	for i, lb := range lobbies {
 		for _, v := range lb.Viewers {
-			if v.Name == viewerName && lb.Name == lobbyName {
+			if v.Name == viewerName && aa == lb.Name {
 				return lb, i
 			}
 		}
 	}
 	return nil, -1
+}
+
+func FindLobbyByHost( userName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
+	for i, lb := range lobbies {
+		for _, v := range lb.Viewers {
+			if v.Name == userName {
+				if v.IsHost {
+					return lb, i
+				}
+			}
+		}
+	}
+	return nil, -1
+}
+
+func FindLobbyByUser( userName string, lobbies []*VTLobby ) ( *VTLobby, int, bool ) {
+	for i, lb := range lobbies {
+		for _, v := range lb.Viewers {
+			if v.Name == userName {
+				return lb, i, v.IsHost
+			}
+		}
+	}
+	return nil, -1, false
+}
+
+func CheckUserStatus( userName string, lobbies []*VTLobby ) string {
+	for _, lb := range lobbies {
+		for _, v := range lb.Viewers {
+			if v.Name == userName {
+				if v.IsHost {
+					return "HOST"
+				} else {
+					return "GUEST"
+				}
+			}
+		}
+	}
+	return "IDLE"
+}
+
+func ExitLobby( userName string, lobbies []*VTLobby ) (string,[]*VTLobby)  {
+	for i, lb := range lobbies {
+		for _, v := range lb.Viewers {
+			if v.Name == userName {
+				if v.IsHost {
+					lobbies = DeleteLobbyAt( lobbies, i )
+					return "LOBBY_DELETED", lobbies
+				} else {
+					if DeleteViewerIn( userName, lb.Name, Lobbies ) {
+						return "LOBBY_EXIT", lobbies
+					}
+				}
+			}
+		}
+	}
+	return "NO_SUCH_LOBBY", lobbies
 }
 
 func IsSameNameLobbyExist( name string, lobbies []*VTLobby ) bool {
@@ -96,7 +154,7 @@ func UpdateLobbyLastUsedTime( lobby *VTLobby ) {
 }
 
 func ClearDiscardLobby( lobbies []*VTLobby ) []*VTLobby {
-	m, _ := time.ParseDuration("10m")
+	m, _ := time.ParseDuration("1m")
 	for i, lb := range lobbies {
 		lastUpdateTime := lb.LastUpdateTime
 		if time.Now().After( lastUpdateTime.Add( m ) ) {
