@@ -10,7 +10,7 @@ type VTViewer struct {
 }
 
 type VTLobby struct {
-	Name, Password, VideoLs string
+	Name, Password, VideoLs, Md5, IsPause, Location string
 	Viewers []VTViewer
 	MaxOffset, VideoIndex int
 	LastUpdateTime time.Time
@@ -19,4 +19,5 @@ type VTLobby struct {
 type VTVideoDesc struct {
 	Ls string
 	Index int
+	Md5 string
 }

@@ -17,17 +17,17 @@ func FindLobbyByViewer( aa string, viewerName string, lobbies []*VTLobby ) ( *VT
 	return nil, -1
 }
 
-func FindLobbyByHost( userName string, lobbies []*VTLobby ) ( *VTLobby, int ) {
+func FindLobbyByHost( userName string, lobbies []*VTLobby ) ( *VTLobby, int, int ) {
 	for i, lb := range lobbies {
-		for _, v := range lb.Viewers {
+		for hi, v := range lb.Viewers {
 			if v.Name == userName {
 				if v.IsHost {
-					return lb, i
+					return lb, i, hi
 				}
 			}
 		}
 	}
-	return nil, -1
+	return nil, -1, -1
 }
 
 func FindLobbyByUser( userName string, lobbies []*VTLobby ) ( *VTLobby, int, bool ) {

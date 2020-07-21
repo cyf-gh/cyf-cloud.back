@@ -108,7 +108,7 @@ func PingGet(w http.ResponseWriter, r *http.Request) {
 
 func SendVideoInfoPost(w http.ResponseWriter, r *http.Request) {
 	hostName := r.URL.Query()["hostname"][0]
-	lobby, i := vtLobby.FindLobbyByHost( hostName, vtLobby.Lobbies )
+	lobby, i, _ := vtLobby.FindLobbyByHost( hostName, vtLobby.Lobbies )
 	if lobby == nil {
 		resp( &w, "NO_AUTH")
 		return
@@ -123,6 +123,7 @@ func SendVideoInfoPost(w http.ResponseWriter, r *http.Request) {
 	}
 	lobby.VideoLs = videoDesc.Ls
 	lobby.VideoIndex = videoDesc.Index
+	lobby.Md5 = videoDesc.Md5
 	vtLobby.Lobbies[i] = lobby
 	glg.Info("Video[" + videoDesc.Ls + "]\n P:[" + strconv.Itoa( videoDesc.Index ) + "]")
 	resp( &w, "OK")
@@ -144,6 +145,36 @@ func UserWhereGet (w http.ResponseWriter, r *http.Request) {
 	resp( &w, lobby.Name + "," + host + "," + lobby.Password )
 }
 
+/// sync ///
+func SendSyncHostGet(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query()["name"][0]
+	location := r.URL.Query()["location"][0]
+	pause := r.URL.Query()["ispause"][0] // p, s
+	lobby, i, hi := vtLobby.FindLobbyByHost( name, vtLobby.Lobbies )
+	if lobby == nil {
+		return
+	}
+	lobby.IsPause = pause
+	lobby.Location = location
+	glg.Log("========SYNC========")
+	glg.Log("[HOST]"+ name)
+	glg.Log("[LOCATION]"+ location)
+	glg.Log("[IS PAUSE]" + pause)
+	glg.Log("========SYNC========")
+	Lock.Lock()
+	vtLobby.Lobbies[i] = lobby
+	Lock.Unlock()
+}
+
+func SendSyncGuestGet(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query()["name"][0]
+	lb, i, ishost := vtLobby.FindLobbyByUser( name, vtLobby.Lobbies )
+	if i == -1 || ishost || lb == nil {
+		resp( &w, "ERR" )
+	}
+	resp( &w, lb.Md5 + "," + lb.IsPause + "," + lb.Location )
+}
+
 func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	Lock = lock
 	http.HandleFunc("/ping", PingGet)
@@ -155,5 +186,7 @@ func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	http.HandleFunc("/lobbies", QueryLobbiesGet)
 	http.HandleFunc( "/user/status", CheckUserStatus )
 	http.HandleFunc( "/user/where", UserWhereGet )
+	http.HandleFunc( "/sync/host", SendSyncHostGet )
+	// http.HandleFunc( "/sync/guest",  )
 	http.ListenAndServe(httpAddr,nil)
 }
