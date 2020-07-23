@@ -150,16 +150,19 @@ func SendSyncHostGet(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
 	location := r.URL.Query()["location"][0]
 	pause := r.URL.Query()["ispause"][0] // p, s
-	lobby, i, hi := vtLobby.FindLobbyByHost( name, vtLobby.Lobbies )
+	part :=  r.URL.Query()["p"][0]
+	lobby, i, _ := vtLobby.FindLobbyByHost( name, vtLobby.Lobbies )
 	if lobby == nil {
 		return
 	}
 	lobby.IsPause = pause
 	lobby.Location = location
+	lobby.VideoIndex, _ = strconv.Atoi( part )
 	glg.Log("========SYNC========")
 	glg.Log("[HOST]"+ name)
 	glg.Log("[LOCATION]"+ location)
 	glg.Log("[IS PAUSE]" + pause)
+	glg.Log("[PART]" + part)
 	glg.Log("========SYNC========")
 	Lock.Lock()
 	vtLobby.Lobbies[i] = lobby
@@ -172,7 +175,18 @@ func SendSyncGuestGet(w http.ResponseWriter, r *http.Request) {
 	if i == -1 || ishost || lb == nil {
 		resp( &w, "ERR" )
 	}
-	resp( &w, lb.Md5 + "," + lb.IsPause + "," + lb.Location )
+	// md5,p/s,location,part
+	resp( &w, lb.Md5 + "," + lb.IsPause + "," + lb.Location + "," + strconv.Itoa( lb.VideoIndex ) )
+}
+
+func GetCurrentVideoDesc(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query()["name"][0]
+	lb, i, ishost := vtLobby.FindLobbyByUser( name, vtLobby.Lobbies )
+	if i == -1 || ishost || lb == nil {
+		resp( &w, "ERR" )
+	}
+	// ls,index
+	resp( &w, lb.VideoLs + "`" + strconv.Itoa( lb.VideoIndex ) )
 }
 
 func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
@@ -187,6 +201,8 @@ func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	http.HandleFunc( "/user/status", CheckUserStatus )
 	http.HandleFunc( "/user/where", UserWhereGet )
 	http.HandleFunc( "/sync/host", SendSyncHostGet )
+	http.HandleFunc( "/sync/guest", SendSyncGuestGet )
+	http.HandleFunc( "/lobby/videodesc", GetCurrentVideoDesc )
 	// http.HandleFunc( "/sync/guest",  )
 	http.ListenAndServe(httpAddr,nil)
 }

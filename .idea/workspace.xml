@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c1548441-86b5-431b-9205-fb35a4e5409e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lobby/lobby_lender.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_lender.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lobby/lobby_model.go" beforeDir="false" afterPath="$PROJECT_DIR$/lobby/lobby_model.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sync/server_http.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_http.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,6 +34,9 @@
   <component name="GOROOT" path="$PROJECT_DIR$/../../.GoSDK" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/sync/server_http.go" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1VTDJx5OTXoYkJLMHMzFr6Ea6xh" />
   <component name="ProjectLevelVcsManager">
@@ -106,22 +107,22 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2596" y="214" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595168412918" />
-    <state width="1473" height="443" key="GridCell.Tab.0.bottom" timestamp="1595345991205">
+    <state width="1473" height="371" key="GridCell.Tab.0.bottom" timestamp="1595422702948">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1473" height="443" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595345991205" />
-    <state width="1473" height="443" key="GridCell.Tab.0.center" timestamp="1595345991205">
+    <state width="1473" height="371" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595422702948" />
+    <state width="1473" height="371" key="GridCell.Tab.0.center" timestamp="1595422702947">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1473" height="443" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595345991205" />
-    <state width="1473" height="443" key="GridCell.Tab.0.left" timestamp="1595345991205">
+    <state width="1473" height="371" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595422702947" />
+    <state width="1473" height="371" key="GridCell.Tab.0.left" timestamp="1595422702947">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1473" height="443" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595345991205" />
-    <state width="1473" height="443" key="GridCell.Tab.0.right" timestamp="1595345991205">
+    <state width="1473" height="371" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595422702947" />
+    <state width="1473" height="371" key="GridCell.Tab.0.right" timestamp="1595422702947">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1473" height="443" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595345991205" />
+    <state width="1473" height="371" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1040@1920.0.1920.1040" timestamp="1595422702947" />
     <state width="1473" height="443" key="GridCell.Tab.1.bottom" timestamp="1595345991205">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
