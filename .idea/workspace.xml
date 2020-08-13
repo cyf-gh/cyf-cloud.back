@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="c1548441-86b5-431b-9205-fb35a4e5409e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sync/server_http.go" beforeDir="false" afterPath="$PROJECT_DIR$/sync/server_http.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
