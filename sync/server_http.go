@@ -1,6 +1,7 @@
 package vt_sync
 
 import (
+	ccV1 "../v1"
 	vtLobby "../lobby"
 	"encoding/json"
 	"github.com/kpango/glg"
@@ -204,5 +205,8 @@ func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	http.HandleFunc( "/sync/guest", SendSyncGuestGet )
 	http.HandleFunc( "/lobby/videodesc", GetCurrentVideoDesc )
 	// http.HandleFunc( "/sync/guest",  )
+
+	http.HandleFunc( "/v1/donate/rank", ccV1.DonateRankGet )
+
 	http.ListenAndServe(httpAddr,nil)
 }
