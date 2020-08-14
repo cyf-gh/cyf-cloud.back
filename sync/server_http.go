@@ -37,6 +37,7 @@ func QueryLobbiesGet(w http.ResponseWriter, r *http.Request) {
 		lobbyNames += lob.Name + ","
 	}
 	lobbyNames = strings.TrimSuffix( lobbyNames, "," )
+	glg.Log(lobbyNames)
 	resp( &w, lobbyNames )
 }
 
@@ -90,6 +91,7 @@ func CreatelobbyGet(w http.ResponseWriter, r *http.Request){
 	if vtLobby.IsSameNameLobbyExist( newLobby.Name, vtLobby.Lobbies ) {
 		resp(&w,"LOBBY_EXISTED")
 		glg.Info(newLobby.Name + " is already exist but someone still wants to borrow one.")
+		return
 	}
 	Lock.Lock()
 	vtLobby.Lobbies = append(vtLobby.Lobbies, newLobby)
@@ -196,7 +198,6 @@ func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	http.HandleFunc("/lobby/enter", EnterlobbyGet)
 	http.HandleFunc("/lobby/create", CreatelobbyGet)
 	http.HandleFunc("/lobby/exit", ExitLobbyGet)
-	http.HandleFunc("/lobby", ExitLobbyGet)
 	http.HandleFunc( "/lobby/update/videodesc", SendVideoInfoPost )
 	http.HandleFunc("/lobbies", QueryLobbiesGet)
 	http.HandleFunc( "/user/status", CheckUserStatus )
