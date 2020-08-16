@@ -26,6 +26,9 @@ func ExitLobbyGet(w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query()["username"][0]
 	var res string
 	Lock.Lock()
+	// LOBBY_DELETED
+	// LOBBY_EXIT
+	// NO_SUCH_LOBBY
 	res, vtLobby.Lobbies = vtLobby.ExitLobby(username, vtLobby.Lobbies)
 	Lock.Unlock()
 	resp( &w, res )
@@ -124,6 +127,7 @@ func SendVideoInfoPost(w http.ResponseWriter, r *http.Request) {
 		resp( &w, "INTERVAL_ERR")
 		return
 	}
+	// web 版本ls即为src
 	lobby.VideoLs = videoDesc.Ls
 	lobby.VideoIndex = videoDesc.Index
 	lobby.Md5 = videoDesc.Md5
@@ -131,7 +135,6 @@ func SendVideoInfoPost(w http.ResponseWriter, r *http.Request) {
 	glg.Info("Video[" + videoDesc.Ls + "]\n P:[" + strconv.Itoa( videoDesc.Index ) + "]")
 	resp( &w, "OK")
 }
-
 func UserWhereGet (w http.ResponseWriter, r *http.Request) {
 	username := r.URL.Query()["username"][0]
 	lobby, _, ishost := vtLobby.FindLobbyByUser( username, vtLobby.Lobbies )
@@ -184,27 +187,49 @@ func SendSyncGuestGet(w http.ResponseWriter, r *http.Request) {
 
 func GetCurrentVideoDesc(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query()["name"][0]
+	t := r.URL.Query()["t"][0]
 	lb, i, ishost := vtLobby.FindLobbyByUser( name, vtLobby.Lobbies )
 	if i == -1 || ishost || lb == nil {
 		resp( &w, "ERR" )
+		return
+	}
+	if t == "web" {
+		resp( &w, lb.VideoLs )
+		return
 	}
 	// ls,index
 	resp( &w, lb.VideoLs + "`" + strconv.Itoa( lb.VideoIndex ) )
 }
 
+func GetUserStatus(w http.ResponseWriter, r *http.Request) {
+	lobbyname := r.URL.Query()["lobbyname"][0]
+	exists, lob := vtLobby.IsLobbyExist(lobbyname, vtLobby.Lobbies)
+	if !exists {
+		resp( &w, "NO_SUCH_LOBBY" )
+		return
+	}
+	jsons, errs := json.Marshal(lob.Viewers)
+	if errs != nil {
+		glg.Log(errs)
+		return
+	}
+	resp( &w, string(jsons) )
+}
+
 func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	Lock = lock
-	http.HandleFunc("/ping", PingGet)
-	http.HandleFunc("/lobby/enter", EnterlobbyGet)
-	http.HandleFunc("/lobby/create", CreatelobbyGet)
-	http.HandleFunc("/lobby/exit", ExitLobbyGet)
-	http.HandleFunc( "/lobby/update/videodesc", SendVideoInfoPost )
-	http.HandleFunc("/lobbies", QueryLobbiesGet)
-	http.HandleFunc( "/user/status", CheckUserStatus )
-	http.HandleFunc( "/user/where", UserWhereGet )
-	http.HandleFunc( "/sync/host", SendSyncHostGet )
-	http.HandleFunc( "/sync/guest", SendSyncGuestGet )
-	http.HandleFunc( "/lobby/videodesc", GetCurrentVideoDesc )
+	http.HandleFunc("/v1/vt/ping", PingGet)
+	http.HandleFunc("/v1/vt/lobby/enter", EnterlobbyGet)
+	http.HandleFunc("/v1/vt/lobby/create", CreatelobbyGet)
+	http.HandleFunc("/v1/vt/lobby/exit", ExitLobbyGet)
+	http.HandleFunc( "/v1/vt/lobby/update/videodesc", SendVideoInfoPost )
+	http.HandleFunc("/v1/vt/lobbies", QueryLobbiesGet)
+	http.HandleFunc( "/v1/vt/user/status", CheckUserStatus )
+	http.HandleFunc( "/v1/vt/user/where", UserWhereGet )
+	http.HandleFunc( "/v1/vt/sync/host", SendSyncHostGet )
+	http.HandleFunc( "/v1/vt/sync/guest", SendSyncGuestGet )
+	http.HandleFunc( "/v1/vt/lobby/users/status", GetUserStatus )
+	http.HandleFunc( "/v1/vt/lobby/videodesc", GetCurrentVideoDesc )
 	// http.HandleFunc( "/sync/guest",  )
 
 	http.HandleFunc( "/v1/donate/rank", ccV1.DonateRankGet )
