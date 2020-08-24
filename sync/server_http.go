@@ -216,8 +216,25 @@ func GetUserStatus(w http.ResponseWriter, r *http.Request) {
 	resp( &w, string(jsons) )
 }
 
+/// hello
+func RootWelcomeGet(w http.ResponseWriter, r *http.Request) {
+	resp( &w, string("Welcome to api.cyf-cloud.cn!\ncyf-cloud's backend API interfaces.") )
+}
+
+func cyfWelcomeGet(w http.ResponseWriter, r *http.Request) {
+	resp( &w, string("Who is cyf?") )
+}
+
+func echoGet(w http.ResponseWriter, r *http.Request) {
+	a := r.URL.Query()["a"][0]
+	resp( &w, string(a) )
+}
+
 func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
 	Lock = lock
+	http.HandleFunc("/", RootWelcomeGet )
+	http.HandleFunc("/v1/cyf", cyfWelcomeGet )
+	http.HandleFunc("/v1/echo", echoGet )
 	http.HandleFunc("/v1/vt/ping", PingGet)
 	http.HandleFunc("/v1/vt/lobby/enter", EnterlobbyGet)
 	http.HandleFunc("/v1/vt/lobby/create", CreatelobbyGet)
