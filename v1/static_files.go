@@ -16,3 +16,11 @@ func DonateRankGet(w http.ResponseWriter, r *http.Request) {
 	}
 	resp( &w, string(json) )
 }
+
+func PluginListGet(w http.ResponseWriter, r *http.Request) {
+	json, err := ioutil.ReadFile("./.static/MCDRPluginCataJson/feed.json")
+	if err != nil {
+		panic(err)
+	}
+	resp( &w, string(json) )
+}
