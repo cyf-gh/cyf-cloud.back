@@ -1,26 +1,27 @@
 package main
 
 import (
-	vtConfig "./config"
-	vtServer "./sync"
+	"fmt"
 	"github.com/kpango/glg"
 	"runtime"
 	"stgogo/comn/config"
 	"strconv"
-	"sync"
-	"time"
+
+	Config  "./config"
+	ccHttp "./http"
 )
 
 func main() {
-	glg.Info("Server Started...")
-	glg.Info( "goroutine Run with Core Count: " + strconv.Itoa(runtime.GOMAXPROCS(runtime.NumCPU())))
-	vtConfig.ConfigAll()
+	glg.Info("Server Starting...")
+	glg.Info( "{goroutine} Run with Core Count: " + strconv.Itoa(runtime.GOMAXPROCS(runtime.NumCPU())))
+	Config.ConfigAll()
+	go ccHttp.RunHttpServer( Config.TcpAddr )
 
-	st_config_log.Start( vtConfig.VtLogAddr, time.Duration( vtConfig.VtFreshLogInterval ) )
-
-	lock := &sync.Mutex{}
-	// go vtServer.RunTcpServer( vtConfig.VtTcpAddr, lock )
-	go vtServer.RunHttpSyncServer( vtConfig.VtTcpAddr, lock )
-	vtServer.RunUDPSyncServer( vtConfig.VtUdpAddr, time.Duration( vtConfig.VtFreshUdpInterval ) )
+	/// ======================= proc input ===========================
+	var input string
+	for {
+		fmt.Scanln(&input)
+		glg.Log(input)
+	}
 	st_config_log.End()
 }

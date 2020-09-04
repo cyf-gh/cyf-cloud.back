@@ -1,18 +1,34 @@
-package vt_sync
+package vtMain
 
 import (
-	ccV1 "../v1"
-	vtLobby "../lobby"
 	"encoding/json"
 	"github.com/kpango/glg"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	vtLobby "./lobby"
 )
+
 var Lock *sync.Mutex
+
+func Init() {
+	Lock = &sync.Mutex{}
+	http.HandleFunc("/v1/vt/ping", PingGet)
+	http.HandleFunc("/v1/vt/lobby/enter", EnterlobbyGet)
+	http.HandleFunc("/v1/vt/lobby/create", CreatelobbyGet)
+	http.HandleFunc("/v1/vt/lobby/exit", ExitLobbyGet)
+	http.HandleFunc( "/v1/vt/lobby/update/videodesc", SendVideoInfoPost )
+	http.HandleFunc("/v1/vt/lobbies", QueryLobbiesGet)
+	http.HandleFunc( "/v1/vt/user/status", CheckUserStatus )
+	http.HandleFunc( "/v1/vt/user/where", UserWhereGet )
+	http.HandleFunc( "/v1/vt/sync/host", SendSyncHostGet )
+	http.HandleFunc( "/v1/vt/sync/guest", SendSyncGuestGet )
+	http.HandleFunc( "/v1/vt/lobby/users/status", GetUserStatus )
+	http.HandleFunc( "/v1/vt/lobby/videodesc", GetCurrentVideoDesc )
+}
 
 func resp(w* http.ResponseWriter, msg string) {
 	(*w).Write([]byte(msg))
@@ -217,120 +233,3 @@ func GetUserStatus(w http.ResponseWriter, r *http.Request) {
 	resp( &w, string(jsons) )
 }
 
-/// hello
-func RootWelcomeGet(w http.ResponseWriter, r *http.Request) {
-	resp( &w, string("Welcome to api.cyf-cloud.cn!\ncyf-cloud's backend API interfaces.") )
-}
-
-func cyfWelcomeGet(w http.ResponseWriter, r *http.Request) {
-	resp( &w, string("Who is cyf?") )
-}
-
-func echoGet(w http.ResponseWriter, r *http.Request) {
-	a := r.URL.Query()["a"][0]
-	resp( &w, string(a) )
-}
-
-
-type PlgsModel struct {
-	Name string `json:"name"`
-	Git string `json:"git"`
-	Desc string `json:"desc"`
-}
-var PlgPlugins map[string]string
-
-func generateScriptPost( w http.ResponseWriter, r *http.Request ) {
-	uuid := r.URL.Query()["u"][0]
-	sav := r.URL.Query()["clear"][0]
-	path := r.URL.Query()["path"][0]
-	var plgs[] PlgsModel
-
-	b, err := ioutil.ReadAll(r.Body)
-	err = json.Unmarshal( b, &plgs )
-	if err != nil {
-		glg.Log(err)
-		panic(err)
-		resp( &w, "INTERVAL_ERR")
-		return
-	}
-	if path[len(path)-1] == '/' {
-		path = strings.TrimRight(path, "/")
-	}
-	scriptClone := ""
-	for  _, plg := range plgs {
-		scriptClone += "git clone "+ plg.Git + "\n"
-	}
-	clearPluginFolder := ""
-
-	if sav == "false" {
-		clearPluginFolder = "rm -r $mcdrPath/plugins/*"
-	}
-	script := `
-echo [Info] MCDR Plugin Helper v0.1 by cyf
-
-mcdrPath=`+ path +`
-if [ ! -d $mcdrPath/plugins ]; then
-    echo "[Error] please check the MCDR directory"
-    return
-fi
-### clone所有插件 ###
-if [ ! -d ./.plg ]; then
-    mkdir ./plg
-fi
-cd ./plg
-`+ scriptClone + `
-cd ../
-### 确认删除原来的插件 ###	
-echo $mcdrPath
-echo [Info] Delete old plugin folder[Require confirm]
-`+clearPluginFolder+`
-### 开始复制插件 ###	
-echo [Info] Copying plugins...
-echo ==========
-ls ./plg | while read line
-do
-    plgPath=./plg/$line
-    if [ -d $plgPath ]; then
-        cp -r $plgPath/*.py  $mcdrPath/plugins/
-        echo [Success] $plgPath.py copied!!!
-    fi
-done
-echo ==========
-echo [Info] Done.
-`
-	PlgPlugins[uuid] = script
-	resp( &w, "OK" )
-}
-
-func mcdrPlgScriptGet( w http.ResponseWriter, r *http.Request ) {
-	uuid := r.URL.Query()["u"][0]
-	resp( &w, PlgPlugins[uuid] )
-}
-
-func RunHttpSyncServer( httpAddr string, lock *sync.Mutex ) {
-	Lock = lock
-	PlgPlugins = make(map[string]string)
-	http.HandleFunc("/", RootWelcomeGet )
-	http.HandleFunc("/v1/cyf", cyfWelcomeGet )
-	http.HandleFunc("/v1/echo", echoGet )
-	http.HandleFunc("/v1/vt/ping", PingGet)
-	http.HandleFunc("/v1/vt/lobby/enter", EnterlobbyGet)
-	http.HandleFunc("/v1/vt/lobby/create", CreatelobbyGet)
-	http.HandleFunc("/v1/vt/lobby/exit", ExitLobbyGet)
-	http.HandleFunc( "/v1/vt/lobby/update/videodesc", SendVideoInfoPost )
-	http.HandleFunc("/v1/vt/lobbies", QueryLobbiesGet)
-	http.HandleFunc( "/v1/vt/user/status", CheckUserStatus )
-	http.HandleFunc( "/v1/vt/user/where", UserWhereGet )
-	http.HandleFunc( "/v1/vt/sync/host", SendSyncHostGet )
-	http.HandleFunc( "/v1/vt/sync/guest", SendSyncGuestGet )
-	http.HandleFunc( "/v1/vt/lobby/users/status", GetUserStatus )
-	http.HandleFunc( "/v1/vt/lobby/videodesc", GetCurrentVideoDesc )
-	// http.HandleFunc( "/sync/guest",  )
-
-	http.HandleFunc( "/v1/donate/rank", ccV1.DonateRankGet )
-
-	http.HandleFunc("/v1/util/mcdr/plg/script/generate", generateScriptPost )
-	http.HandleFunc("/v1/util/mcdr/plg/scripts", mcdrPlgScriptGet )
-	http.HandleFunc( "/v1/util/mcdr/plg/feed", ccV1.PluginListGet )
-	http.ListenAndServe(httpAddr,nil)
-}

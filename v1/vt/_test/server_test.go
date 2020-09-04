@@ -1,7 +1,7 @@
 package vt_test
 
 import (
-	vtsync "../sync"
+	vtsync "../../../sync"
 	"sync"
 	"testing"
 )
