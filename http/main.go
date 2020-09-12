@@ -5,6 +5,7 @@ import (
 
 	v1 "../v1"
 	v1x1 "../v1x1"
+	orm "../v1x1/orm"
 )
 
 func resp(w* http.ResponseWriter, msg string) {
@@ -48,6 +49,6 @@ func makeHttpRouter() {
 // 路由路径为弱restful
 func RunHttpServer( httpAddr string) {
 	makeHttpRouter()
-
+	orm.InitEngine()
 	http.ListenAndServe(httpAddr, nil)
 }
