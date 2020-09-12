@@ -9,6 +9,14 @@ import (
 )
 
 func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx errCode.MakeHERxxx ) {
+	defer func() {
+		if err := recover(); err != nil {
+			glg.Error( err )
+			(*w).WriteHeader(http.StatusInternalServerError)
+			// 这时data返回体为空，客户端应当作出null检查动作
+		}
+	}()
+
 	her, statusCode := MakeHERxxx( desc, errCode )
 	her.Data = data
 	(*w).WriteHeader( statusCode )
@@ -18,15 +26,6 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 	CheckErr(err)
 
 	glg.Log( fmt.Sprintf( "[HttpReturn] - StatusCode:(%d) - HER (%s)", statusCode, her ))
-
-	defer func() {
-		if err := recover(); err != nil {
-			glg.Error( err )
-			(*w).WriteHeader(http.StatusInternalServerError)
-			// 这时data返回体为空，客户端应当作出null检查动作
-		}
-		her = nil
-	}()
 }
 
 // 检查是否存在错误，如果有则抛出异常

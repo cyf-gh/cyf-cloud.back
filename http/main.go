@@ -25,6 +25,7 @@ func echoGet(w http.ResponseWriter, r *http.Request) {
 	resp( &w, string(a) )
 }
 
+// 路由应在Init函数中完成
 func makeHttpRouter() {
 	/// ======================= video together ===========================
 	http.HandleFunc("/", RootWelcomeGet )

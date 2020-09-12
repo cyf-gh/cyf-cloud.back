@@ -1,6 +1,11 @@
 package v1x1
 
-func Init() {
+import (
+	"net/http"
+	"./file"
+)
 
+func Init() {
+	http.HandleFunc( "/v1x1/raw", file.GetFileRaw )
 }
 
