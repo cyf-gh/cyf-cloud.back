@@ -42,6 +42,11 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	glg.Log( registerModel )
 	err.CheckErr(e)
 
+	if len( registerModel.Cap ) != 4 {
+		err.HttpReturn(&w, "wrong captcha", err_code.ERR_INCORRECT, "", err_code.MakeHER200 )
+		return
+	}
+
 	if false == sec.CaptchaVerify( &w, registerModel.Cap, cid ) {
 		return
 	}
