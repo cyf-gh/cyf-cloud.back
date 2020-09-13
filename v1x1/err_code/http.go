@@ -4,6 +4,7 @@ package err_code
 const (
 	ERR_SECURITY = "-2" // 安全问题
 	ERR_SYS = "-1"		// 系统错误
+	ERR_INCORRECT = "-3"// 输入错误
 	ERR_OK = "0"		// ok
 )
 
@@ -47,5 +48,5 @@ func MakeHER404( desc, errcode string )  ( *HttpErrReturn, int ) {
 
 // http Server Error 服务器内部错误
 func MakeHER500( desc, errcode string )  ( *HttpErrReturn, int ) {
-	return MakeHER( desc, errcode) , 401
+	return MakeHER( desc, errcode) , 500
 }

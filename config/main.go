@@ -48,7 +48,7 @@ func ConfigAll() {
 
 	configServerInfo()
 	glg.Info(fmt.Sprintf("\nTCP: %s\nUDP: %s\nLOG: %s\n",  TcpAddr, UdpAddr, LogAddr ))
-	glg.Info(fmt.Sprintf("\nLog Interval: %s\nUdp Interval: %s\n", FreshLogInterval, FreshUdpInterval))
+	glg.Info(fmt.Sprintf("\nLog Interval: %d\nUdp Interval: %d\n", FreshLogInterval, FreshUdpInterval))
 	// 2020.9.4
 	glg.Warn("UDP is never used and TCP is http port")
 }

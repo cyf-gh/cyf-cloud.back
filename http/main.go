@@ -5,7 +5,9 @@ import (
 
 	v1 "../v1"
 	v1x1 "../v1x1"
+	v1x1http "../v1x1/http"
 	orm "../v1x1/orm"
+	security "../v1x1/security"
 )
 
 func resp(w* http.ResponseWriter, msg string) {
@@ -43,6 +45,7 @@ func makeHttpRouter() {
 
 	/// ======================= v1x1 ===========================
 	v1x1.Init()
+	v1x1http.Init()
 }
 
 // 创建所有的资源路由路径
@@ -50,5 +53,7 @@ func makeHttpRouter() {
 func RunHttpServer( httpAddr string) {
 	makeHttpRouter()
 	orm.InitEngine()
+
+	security.Init()
 	http.ListenAndServe(httpAddr, nil)
 }

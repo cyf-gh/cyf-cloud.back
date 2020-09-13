@@ -38,3 +38,17 @@ func GetAccount( id int64 ) (*Account, error) {
 	}
 	return a, nil
 }
+
+func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) {
+	a := &Account{}
+	exists, _ := engine.Where( loginType + " = ?", login).Get(&a)
+
+	if exists {
+		return nil, errors.New("no such account")
+	}
+
+	if a.Passwd != cryPswd {
+		return nil, errors.New("wrong password")
+	}
+	return a, nil
+}
