@@ -14,11 +14,16 @@ import (
 )
 
 type RegisterModel struct {
-	Name, Email, Phone, Pswd, Cap string
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Phone string  `json:"phone"`
+	Pswd string   `json:"pswd"`
+	Cap string  `json:"cap"`
 }
 
 // 注册
 func Register(w http.ResponseWriter, r *http.Request) {
+	enableCookies( &w )
 	defer func() {
 		if r := recover(); r  != nil {
 			_ = glg.Error(r)
@@ -27,26 +32,34 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}()
 	var e error
 	cl, e  := r.Cookie("cid")
-	cid := cl.Value
 	err.CheckErr(e)
+	cid := cl.Value
 	var registerModel RegisterModel
 
 	b, e := ioutil.ReadAll(r.Body)
 	err.CheckErr(e)
 	e = json.Unmarshal( b, &registerModel )
+	glg.Log( registerModel )
 	err.CheckErr(e)
 
-	sec.CaptchaVerify( &w, registerModel.Cap, cid )
+	if false == sec.CaptchaVerify( &w, registerModel.Cap, cid ) {
+		return
+	}
 
 	cryPswd := sec.CryptoPasswd( registerModel.Pswd )
 
-	e = orm.NewAccount( registerModel.Name, registerModel.Phone, registerModel.Cap, cryPswd )
+	if ( registerModel.Phone == "" ) {
+		registerModel.Phone = sec.GetRandom();
+	}
+	e = orm.NewAccount( registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd )
 	err.CheckErr(e)
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 }
 
 type LoginModel struct {
-	Login, Pswd, LoginType  string
+	Login string `json:"login"`
+	Pswd string `json:"pswd"`
+	LoginType  string  `json:"loginType"`
 	// LoginType 应在前端进行完解析为
 	// email name phone 三种之一
 }

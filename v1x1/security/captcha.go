@@ -46,12 +46,12 @@ func GenerateCaptcha(w http.ResponseWriter, r *http.Request) {
 	// id := "captcha:yufei"
 	item, _ := c.Driver.DrawCaptcha(content)
 	c.Store.Set(cid, answer)
+	glg.Log( "new captcha generated! answer is [" + answer + "]")
 	item.WriteTo(w)
 }
 
 func CaptchaVerify(w *http.ResponseWriter, code, cid string) bool {
 	if store.Verify(cid, code, true) {
-		err.HttpReturn( w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 		return true
 	} else {
 		err.HttpReturn( w, "wrong captcha", err_code.ERR_INCORRECT, "", err_code.MakeHER200 )

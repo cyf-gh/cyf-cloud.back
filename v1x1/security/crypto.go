@@ -1,9 +1,11 @@
 package security
 
 import (
+	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
 	"github.com/google/uuid"
+	"math/big"
 )
 
 func ToSHA512( str string ) string {
@@ -18,4 +20,9 @@ func CryptoPasswd( raw string ) string {
 
 func GenerateAccessToken() string {
 	return uuid.New().String()
+}
+
+func GetRandom() string {
+	result, _ := rand.Int(rand.Reader, big.NewInt(9223372036854775807))
+	return ToSHA512(result.String())
 }
