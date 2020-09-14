@@ -85,7 +85,7 @@ func Login( w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal( b, &loginModel )
 	err.CheckErr(e)
 
-	account, e := orm.GetAccountByLoginType( loginModel.Login, loginModel.Pswd, loginModel.LoginType )
+	account, e := orm.GetAccountByLoginType( loginModel.Login,sec.CryptoPasswd( loginModel.Pswd ), loginModel.LoginType )
 	err.CheckErr( e )
 
 	token := sec.GenerateAccessToken()

@@ -3,6 +3,7 @@ package http
 import "net/http"
 
 func Init() {
+	AccessTokens = make(map[string]int64)
 	http.HandleFunc("/v1x1/account/register", Register)
 	http.HandleFunc("/v1x1/account/login", Login)
 }

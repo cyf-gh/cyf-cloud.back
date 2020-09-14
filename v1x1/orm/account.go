@@ -40,10 +40,10 @@ func GetAccount( id int64 ) (*Account, error) {
 }
 
 func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) {
-	a := &Account{}
-	exists, _ := engine.Where( loginType + " = ?", login).Get(&a)
+	a := new(Account)
+	exists, _ := engine.Where( loginType + " = ?", login).Get(a)
 
-	if exists {
+	if !exists {
 		return nil, errors.New("no such account")
 	}
 
