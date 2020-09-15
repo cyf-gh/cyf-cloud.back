@@ -5,6 +5,7 @@ import (
 	"errors"
 )
 
+// 账户的基本信息
 type Account struct {
 	Id int64
 	Name string `xorm:"unique"`
@@ -13,13 +14,22 @@ type Account struct {
 	Passwd string
 }
 
+// 账户的额外信息
+type AccountEx struct {
+	Id int64
+	AccountId int64 `xorm:"unique"`
+	Avatar string
+}
+
 func Sync2Account() {
 	e := engine.Sync2(new(Account))
+	err.CheckErr( e )
+	e = engine.Sync2(new(AccountEx))
 	err.CheckErr( e )
 }
 
 func NewAccount( name, email, phone, passwd string ) error {
-	_, e := engine.Insert( &Account{
+	_, e := engine.Table("Account").Insert( &Account{
 		Name:   name,
 		Email:  email,
 		Phone:  phone,
@@ -30,7 +40,7 @@ func NewAccount( name, email, phone, passwd string ) error {
 
 func GetAccount( id int64 ) (*Account, error) {
 	a := &Account{}
-	has, e := engine.ID(id).Get(a)
+	has, e := engine.Table("Account").ID(id).Get(a)
 	if e != nil {
 		return nil, e
 	} else if !has {
@@ -41,7 +51,7 @@ func GetAccount( id int64 ) (*Account, error) {
 
 func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) {
 	a := new(Account)
-	exists, _ := engine.Where( loginType + " = ?", login).Get(a)
+	exists, _ := engine.Table("Account").Where( loginType + " = ?", login).Get(a)
 
 	if !exists {
 		return nil, errors.New("no such account")
