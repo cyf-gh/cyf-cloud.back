@@ -8,6 +8,10 @@ const (
 	ERR_OK = "0"		// ok
 )
 
+const (
+	ERR_INIT_ORM = "abort at creating orm" // 数据库初始化错误
+)
+
 // 用于返回http状态信息，格式为json
 type HttpErrReturn struct {
 	ErrCod string // 内部错误代码，与http状态码不同见第四行

@@ -6,7 +6,13 @@ import (
 	"fmt"
 	"github.com/kpango/glg"
 	"net/http"
+	"os"
 )
+
+func Exit( desc string ) {
+	glg.Error("server abort with description: "+  desc )
+	os.Exit( 1 )
+}
 
 func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx errCode.MakeHERxxx ) {
 	defer func() {

@@ -4,6 +4,7 @@ package orm
 
 import (
 	err "../err"
+	err_code "../err_code"
 	"github.com/kpango/glg"
 	_ "github.com/mattn/go-sqlite3"
 	"xorm.io/xorm"
@@ -12,22 +13,26 @@ import (
 var engine *xorm.Engine
 var engine_post *xorm.Engine
 
-func InitEngine() {
-	glg.Log("initizing orm...")
+// 有可能panic创建数据库引擎的错误
+func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
 	var e error
+	*ppEnginePost, e = xorm.NewEngine("sqlite3", dbPath + dbName )
+	err.CheckErr( e )
+	glg.Success("orm to " + dbName + " (sqlite3)")
+}
+
+func InitEngine( dbPath string ) {
+	glg.Log("initizing orm...")
 	defer func() {
 		if r := recover(); r != nil {
 			_ = glg.Error(r)
+			err.Exit( err_code.ERR_INIT_ORM )
 		}
 	}()
-	engine, e = xorm.NewEngine("sqlite3", "./.db/account.db")
-	err.CheckErr( e )
-	glg.Success("orm to account.db [sqlite]")
+	connectDb( &engine, "account.db", dbPath )
 	Sync2Account()
 
-	engine_post, e = xorm.NewEngine("sqlite3", "./.db/post.db")
-	err.CheckErr( e )
-	glg.Success("orm to post.db [sqlite]")
+	connectDb( &engine_post, "post.db", dbPath )
 	Sync2Post()
 
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")

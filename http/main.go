@@ -52,7 +52,7 @@ func makeHttpRouter() {
 // 路由路径为弱restful
 func RunHttpServer( httpAddr string) {
 	makeHttpRouter()
-	orm.InitEngine()
+	orm.InitEngine("./.db/")
 
 	security.Init()
 	http.ListenAndServe(httpAddr, nil)

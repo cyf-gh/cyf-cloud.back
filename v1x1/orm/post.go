@@ -39,7 +39,7 @@ func GetPostsByOwner( OwnerId int64 ) []Post {
 		}
 	}()
 
-	e := engine_post.Table("Post").Where( "OwnerId = ?", OwnerId).Find(posts)
+	e := engine_post.Table("Post").Where( "owner_id = ?", OwnerId).Find(&posts)
 	err.CheckErr( e )
 	return posts
 }
@@ -74,6 +74,24 @@ func ModifyPost( id int64, title, text string, owner int64, tags []string) {
 	_, e := engine_post.Table("Post").ID(id).Update(&Post{
 		Title:     title,
 		Text:      text,
+		TagIds:    tagIds,
+		OwnerId:   owner,
+	})
+	err.CheckErr( e )
+}
+
+// 修改文章，不修改内容
+// 减轻流量负担
+func ModifyPostNoText( id int64, title string, owner int64, tags []string) {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = glg.Error(r)
+		}
+	}()
+	tagIds := GetTagIds( tags )
+
+	_, e := engine_post.Table("Post").ID(id).Update(&Post{
+		Title:     title,
 		TagIds:    tagIds,
 		OwnerId:   owner,
 	})
