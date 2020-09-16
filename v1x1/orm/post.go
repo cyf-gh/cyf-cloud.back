@@ -45,12 +45,7 @@ func GetPostsByOwner( OwnerId int64 ) []Post {
 }
 
 // 向数据库添加一笔新文章
-func NewPost( title, text string, owner int64, tags []string) {
-	defer func() {
-		if r := recover(); r != nil {
-			_ = glg.Error(r)
-		}
-	}()
+func NewPost( title, text string, owner int64, tags []string) error {
 	tagIds := GetTagIds( tags )
 
 	_, e := engine_post.Table("Post").Insert( &Post{
@@ -59,16 +54,12 @@ func NewPost( title, text string, owner int64, tags []string) {
 		TagIds:    tagIds,
 		OwnerId: owner,
 	})
-	err.CheckErr( e )
+	// err.CheckErr( e )
+	return e
 }
 
 // 修改文章
-func ModifyPost( id int64, title, text string, owner int64, tags []string) {
-	defer func() {
-		if r := recover(); r != nil {
-			_ = glg.Error(r)
-		}
-	}()
+func ModifyPost( id int64, title, text string, owner int64, tags []string) error {
 	tagIds := GetTagIds( tags )
 
 	_, e := engine_post.Table("Post").ID(id).Update(&Post{
@@ -77,17 +68,12 @@ func ModifyPost( id int64, title, text string, owner int64, tags []string) {
 		TagIds:    tagIds,
 		OwnerId:   owner,
 	})
-	err.CheckErr( e )
+	return e
 }
 
 // 修改文章，不修改内容
 // 减轻流量负担
-func ModifyPostNoText( id int64, title string, owner int64, tags []string) {
-	defer func() {
-		if r := recover(); r != nil {
-			_ = glg.Error(r)
-		}
-	}()
+func ModifyPostNoText( id int64, title string, owner int64, tags []string) error {
 	tagIds := GetTagIds( tags )
 
 	_, e := engine_post.Table("Post").ID(id).Update(&Post{
@@ -95,7 +81,7 @@ func ModifyPostNoText( id int64, title string, owner int64, tags []string) {
 		TagIds:    tagIds,
 		OwnerId:   owner,
 	})
-	err.CheckErr( e )
+	return e
 }
 
 // 根据一系列tag的名字获取所有的tag的id
