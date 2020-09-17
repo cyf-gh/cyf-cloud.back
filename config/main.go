@@ -4,13 +4,13 @@
 package config
 
 import (
+	Err "../v1x1/err"
 	"fmt"
 	"github.com/kpango/glg"
 	"gopkg.in/ini.v1"
 	"os"
 	stConfigLog "stgogo/comn/config"
 	"time"
-	Err "../v1x1/err"
 )
 
 var UdpAddr string
@@ -50,6 +50,6 @@ func ConfigAll() {
 	glg.Info(fmt.Sprintf("\nTCP: %s\nUDP: %s\nLOG: %s\n",  TcpAddr, UdpAddr, LogAddr ))
 	glg.Info(fmt.Sprintf("\nLog Interval: %d\nUdp Interval: %d\n", FreshLogInterval, FreshUdpInterval))
 	// 2020.9.4
-	glg.Warn("UDP is never used and TCP is http port")
+	glg.Warn("UDP is never used and TCP is server port")
 }
 

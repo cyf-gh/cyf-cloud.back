@@ -14,17 +14,12 @@ type Account struct {
 	Passwd string
 }
 
-// 账户的额外信息
-type AccountEx struct {
-	Id int64
-	AccountId int64 `xorm:"unique"`
-	Avatar string
-}
-
 func Sync2Account() {
 	e := engine.Sync2(new(Account))
 	err.CheckErr( e )
 	e = engine.Sync2(new(AccountEx))
+	err.CheckErr( e )
+	e = engine.Sync2(new(AccountPermission))
 	err.CheckErr( e )
 }
 
@@ -62,3 +57,24 @@ func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) 
 	}
 	return a, nil
 }
+
+
+// 账户的额外信息
+type AccountEx struct {
+	Id int64
+	AccountId int64 `xorm:"unique"`
+	Avatar string // base64 数据
+	Info string // 个人简介，markdown数据
+}
+
+type AccountPermission struct {
+	Id int64
+	AccountId int64 `xorm:"unique"`
+	Level string // \see ACCOUNT_LEVEL_xxx
+}
+
+const (
+	ACCOUNT_LEVEL_ADMIN = "admin"	// 网站管理员
+	ACCOUNT_LEVEL_VIP = "vip"		// 网站vip
+	ACCOUNT_LEVEL_NORMAL = "n"		// normal - 一般会员
+)

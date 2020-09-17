@@ -9,6 +9,7 @@ import (
 	err "../err"
 	err_code "../err_code"
 	orm "../orm"
+	"runtime/debug"
 )
 
 // 发布新文章
@@ -21,6 +22,7 @@ type PostModel struct {
 func NewPost( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
+			debug.PrintStack()
 			_ = glg.Error(r)
 			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
 		}
@@ -35,6 +37,8 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 
 	account, e := GetAccountByCid( r )
 	err.CheckErr( e )
+	glg.Log( account )
+	glg.Log( post )
 	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds )
 	err.CheckErr( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
@@ -65,6 +69,8 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 
 	account, e := GetAccountByCid( r )
 	err.CheckErr( e )
+	glg.Log( account )
+	glg.Log( post )
 	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds )
 	err.CheckErr( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
@@ -72,13 +78,13 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 
 // 更改文章，没有文本内容
 // 应对流量节约的情况
-type ModifiedPostNoTextModel struct {
+type ModifiyPostNoTextModel struct {
 	Id int64
 	Title string
 	TagIds[] string
 }
 
-func ModifiedPostNoText( w http.ResponseWriter, r *http.Request) {
+func ModifiyPostNoText( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
 			_ = glg.Error(r)
@@ -86,7 +92,7 @@ func ModifiedPostNoText( w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	var post ModifiedPostNoTextModel
+	var post ModifiyPostNoTextModel
 
 	b, e := ioutil.ReadAll(r.Body)
 	err.CheckErr( e )

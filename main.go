@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	Config  "./config"
-	ccHttp "./http"
+	ccHttp "./server"
 )
 
 func main() {

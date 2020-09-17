@@ -31,9 +31,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 	var e error
-	cl, e  := r.Cookie("cid")
-	err.CheckErr(e)
-	cid := cl.Value
+	cid, e := GetCid( r )
 	var registerModel RegisterModel
 
 	b, e := ioutil.ReadAll(r.Body)
@@ -53,7 +51,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	cryPswd := sec.CryptoPasswd( registerModel.Pswd )
 
-	if ( registerModel.Phone == "" ) {
+	if registerModel.Phone == "" {
 		registerModel.Phone = sec.GetRandom();
 	}
 	e = orm.NewAccount( registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd )

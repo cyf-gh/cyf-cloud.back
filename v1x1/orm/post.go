@@ -1,3 +1,5 @@
+// TODO: 文章是否可以删除？
+// TODO: 文章的访问权限问题？
 package orm
 
 import (
@@ -46,9 +48,9 @@ func GetPostsByOwner( OwnerId int64 ) []Post {
 
 // 向数据库添加一笔新文章
 func NewPost( title, text string, owner int64, tags []string) error {
-	tagIds := GetTagIds( tags )
+	tagIds, e  := GetTagIds( tags )
 
-	_, e := engine_post.Table("Post").Insert( &Post{
+	_, e = engine_post.Table("Post").Insert( &Post{
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
@@ -60,9 +62,9 @@ func NewPost( title, text string, owner int64, tags []string) error {
 
 // 修改文章
 func ModifyPost( id int64, title, text string, owner int64, tags []string) error {
-	tagIds := GetTagIds( tags )
+	tagIds, e := GetTagIds( tags )
 
-	_, e := engine_post.Table("Post").ID(id).Update(&Post{
+	_, e = engine_post.Table("Post").ID(id).Update(&Post{
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
@@ -74,9 +76,9 @@ func ModifyPost( id int64, title, text string, owner int64, tags []string) error
 // 修改文章，不修改内容
 // 减轻流量负担
 func ModifyPostNoText( id int64, title string, owner int64, tags []string) error {
-	tagIds := GetTagIds( tags )
+	tagIds, e := GetTagIds( tags )
 
-	_, e := engine_post.Table("Post").ID(id).Update(&Post{
+	_, e = engine_post.Table("Post").ID(id).Update(&Post{
 		Title:     title,
 		TagIds:    tagIds,
 		OwnerId:   owner,
@@ -86,14 +88,8 @@ func ModifyPostNoText( id int64, title string, owner int64, tags []string) error
 
 // 根据一系列tag的名字获取所有的tag的id
 // 如果tag不存在则会被创建
-func GetTagIds( tags []string ) []int64 {
+func GetTagIds( tags []string ) ( []int64, error ) {
 	var tagIds []int64
-
-	defer func() {
-		if r := recover(); r != nil {
-			_ = glg.Error(r)
-		}
-	}()
 
 	for _, tagText := range tags  {
 		t := new(Tag)
@@ -106,11 +102,13 @@ func GetTagIds( tags []string ) []int64 {
 				Text:tagText,
 				IsCatalog:false,
 			})
-			err.CheckErr( e )
+			if e != nil {
+				return nil, e
+			}
 			goto GetTag // 再次获取tag
 		}
 		// 这里t应该已经被填充
 		tagIds = append(tagIds, t.Id)
 	}
-	return tagIds
+	return tagIds, nil
 }

@@ -1,0 +1,235 @@
+{
+	"info": {
+		"_postman_id": "88937abc-fdfa-4dcb-ae7f-caecccda20c5",
+		"name": "cyf-cloud Api",
+		"description": "# cyf-cloud Api 指南\r\n\r\n## Cookie\r\n* cid - client id - 客户端唯一标识\r\n* atk - access token -服务器授权令牌",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "post",
+			"item": [
+				{
+					"name": "New Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "cid=cyhaoshuaicyfhaoshuaicyfhaoshuaicyfhaoshuai"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"Title\":\"Hello From Postman\",\r\n\t\"Text\": \"##From Postman Markdown\",\r\n\t\"TagIds\": [\r\n        \"pmTag1\",\"pmTag2\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:2334/v1x1/post/create",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2334",
+							"path": [
+								"v1x1",
+								"post",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "cid=cyhaoshuaicyfhaoshuaicyfhaoshuaicyfhaoshuai"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": 5,\r\n\t\"Title\":\"Hello From Postman(modified)\",\r\n\t\"Text\": \"##From Postman Markdown(modified)\",\r\n\t\"TagIds\": [\r\n        \"pmTag1\",\"pmTag2\", \"pmTag_New\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:2334/v1x1/post/modify",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2334",
+							"path": [
+								"v1x1",
+								"post",
+								"modify"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify Post No Text",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "cid=cyhaoshuaicyfhaoshuaicyfhaoshuaicyfhaoshuai"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Id\": 5,\r\n\t\"Title\":\"Hello From Postman(modified by no text)\",\r\n\t\"TagIds\": [\r\n        \"pmTag1\",\"pmTag2\", \"pmTag_New\", \"no text modified\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:2334/v1x1/post/modifyNT",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2334",
+							"path": [
+								"v1x1",
+								"post",
+								"modifyNT"
+							]
+						},
+						"description": "仅修改了文章的标题、作者、标签等信息。此请求中不包含文章内容。\r\n（设计用于节省流量）"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "account",
+			"item": [
+				{
+					"name": "Register Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"type": "text",
+								"value": "cid=123123"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"cyfcyfcyf\",\r\n    \"email\": \"1234@qq.com\",\r\n    \"phone\": \"\",\r\n    \"pswd\": \"123123\",\r\n    \"cap\":\"1fq7\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:2334/v1x1/account/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2334",
+							"path": [
+								"v1x1",
+								"account",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Security",
+			"item": [
+				{
+					"name": "Get Captcha",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "cid=123123",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2334/v1x1/security/captcha?time=1&a=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2334",
+							"path": [
+								"v1x1",
+								"security",
+								"captcha"
+							],
+							"query": [
+								{
+									"key": "time",
+									"value": "1",
+									"description": "询问验证码次数（有待商榷）"
+								},
+								{
+									"key": "a",
+									"value": "1",
+									"description": "用于防止客户端缓存导致无法获取新验证码，与后端无关"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "ef404c5f-e6e6-41da-a985-a9879f76ce4b",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "e278f69a-c735-462d-a367-363ab883701f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

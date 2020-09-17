@@ -30,27 +30,27 @@ func MakeHER( desc, errcode string) *HttpErrReturn {
 
 type MakeHERxxx func( desc, errcode string ) ( *HttpErrReturn, int )
 
-// http Ok 请求返回成功
+// server Ok 请求返回成功
 func MakeHER200( desc, errcode string ) ( *HttpErrReturn, int ) {
 	return MakeHER( desc, errcode ), 200
 }
 
-// http Bad Request 请求非法，请检查错误信息后重试
+// server Bad Request 请求非法，请检查错误信息后重试
 func MakeHER400( desc, errcode string ) ( *HttpErrReturn, int ) {
 	return MakeHER( desc, errcode), 400
 }
 
-// http Unauthorized 未授权
+// server Unauthorized 未授权
 func MakeHER401( desc, errcode string )  ( *HttpErrReturn, int ) {
 	return MakeHER( desc, errcode), 401
 }
 
-// http Not Found 没有这个资源
+// server Not Found 没有这个资源
 func MakeHER404( desc, errcode string )  ( *HttpErrReturn, int ) {
 	return MakeHER( desc, errcode), 404
 }
 
-// http Server Error 服务器内部错误
+// server Server Error 服务器内部错误
 func MakeHER500( desc, errcode string )  ( *HttpErrReturn, int ) {
 	return MakeHER( desc, errcode) , 500
 }

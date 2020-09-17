@@ -1,4 +1,4 @@
-package httpMain
+package server
 
 import (
 	"net/http"
@@ -34,7 +34,7 @@ func makeHttpRouter() {
 	http.HandleFunc("/", RootWelcomeGet )
 	http.HandleFunc("/cyf", cyfWelcomeGet )
 	http.HandleFunc("/echo", echoGet )
-	// http.HandleFunc( "/sync/guest",  )
+	// server.HandleFunc( "/sync/guest",  )
 
 	/// ======================= v1 ===========================
 	v1.Init()

@@ -1,17 +1,19 @@
-# cyf-server.back
+# cyf-cloud.back
 
-cyf-server的服务器端，使用Golang编写。
+cyf-cloud的服务器端，使用Golang编写。
 
-## 0 开箱即用
+## 基本
 
-### 0.1 安装依赖
+### API 版本
+* v1（停止维护）
+* v1x1 
 
-```shell
-$ . install_dep.sh
-```
+### 依赖
+#### 数据库
+* SQLite3
 
+### 配置文件 
 #### server.cfg
-
 ```
 [server]
     udp=":2333"			# UDP监听端口号
