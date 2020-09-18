@@ -4,6 +4,8 @@ cyf-cloud的服务器端，使用Golang编写。
 
 ## 基本
 
+[编码规范](https://github.com/cyf-gh/api.cyf-cloud/blob/master/CODE_STD.md)
+
 ### API 版本
 * v1（停止维护）
 * v1x1 
@@ -21,5 +23,5 @@ cyf-cloud的服务器端，使用Golang编写。
     log="127.0.0.1:2335" # 日志服务
 [fresh_interval]
     log="2000"			# 写日志频率
-    udp="1"				# UDP暂歇频率，单位毫秒
+    udp="1"			# UDP暂歇频率，单位毫秒
 ```
