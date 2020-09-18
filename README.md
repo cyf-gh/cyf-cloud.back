@@ -8,7 +8,7 @@ cyf-cloud的服务器端，使用Golang编写。
 
 ### API 版本
 * v1（停止维护）
-* v1x1 
+* [v1x1](https://github.com/cyf-gh/api.cyf-cloud/blob/master/v1x1/README.md)
 
 ### 依赖
 #### 数据库
