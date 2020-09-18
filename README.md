@@ -13,6 +13,7 @@ cyf-cloud的服务器端，使用Golang编写。
 ### 依赖
 #### 数据库
 * SQLite3
+* Redis
 
 ### 配置文件 
 #### server.cfg
