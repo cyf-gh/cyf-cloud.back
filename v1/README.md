@@ -1,9 +1,12 @@
 # v1
+随便瞎写的乱七八糟API，历史代码不再维护。
 
 ## 模块
--[x] vt - VideoTogether的网页预览版本
--[x] DonateRank - 捐赠榜json文件
--[x] mcdr_plgs - MCDR插件辅助安装
+- [x] vt - VideoTogether的网页预览版本
+
+- [x] DonateRank - 捐赠榜json文件
+
+- [x] mcdr_plgs - MCDR插件辅助安装
 
 ## TODO
 无
