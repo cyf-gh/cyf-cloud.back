@@ -35,6 +35,7 @@ func InitEngine( dbPath string ) {
 	connectDb( &engine_post, "post.db", dbPath )
 	Sync2Post()
 
+
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
 	// err.CheckErr( e )
 }
