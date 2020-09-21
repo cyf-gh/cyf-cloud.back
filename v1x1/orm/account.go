@@ -44,6 +44,15 @@ func GetAccount( id int64 ) (*Account, error) {
 	return a, nil
 }
 
+func GetAccountByName( name string )  (*Account, error) {
+	a := new(Account)
+	exists, _ := engine.Table("Account").Where(  "name = ?", name).Get(a)
+	if !exists {
+		return nil, errors.New("no such account")
+	}
+	return a, nil
+}
+
 func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) {
 	a := new(Account)
 	exists, _ := engine.Table("Account").Where( loginType + " = ?", login).Get(a)
@@ -57,7 +66,6 @@ func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) 
 	}
 	return a, nil
 }
-
 
 // 账户的额外信息
 type AccountEx struct {

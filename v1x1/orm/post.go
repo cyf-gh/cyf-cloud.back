@@ -4,7 +4,6 @@ package orm
 
 import (
 	err "../err"
-	"github.com/kpango/glg"
 )
 
 // 上传的文章
@@ -14,6 +13,7 @@ type Post struct {
 	Text string
 	TagIds[] int64
 	OwnerId int64
+	IsPrivate bool
 }
 
 // 上传的tag标签结构
@@ -33,17 +33,10 @@ func Sync2Post() {
 }
 
 // 通过某一个人获取所有他的文章
-func GetPostsByOwner( OwnerId int64 ) []Post {
+func GetPostsByOwner( OwnerId int64 ) ( []Post, error ) {
 	var posts []Post
-	defer func() {
-		if r := recover(); r != nil {
-			_ = glg.Error(r)
-		}
-	}()
-
 	e := engine_post.Table("Post").Where( "owner_id = ?", OwnerId).Find(&posts)
-	err.CheckErr( e )
-	return posts
+	return posts, e
 }
 
 // 向数据库添加一笔新文章

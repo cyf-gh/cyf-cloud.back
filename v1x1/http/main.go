@@ -13,6 +13,7 @@ func Init() {
 	http.HandleFunc("/v1x1/post/create", NewPost)
 	http.HandleFunc("/v1x1/post/modify", ModifyPost)
 	http.HandleFunc("/v1x1/post/modifyNT", ModifiyPostNoText)
+	http.HandleFunc("/v1x1/posts", GetPosts )
 }
 
 func enableCookies(w *http.ResponseWriter) {

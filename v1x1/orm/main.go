@@ -12,6 +12,7 @@ import (
 
 var engine *xorm.Engine
 var engine_post *xorm.Engine
+var engine_chat *xorm.Engine
 
 // 有可能panic创建数据库引擎的错误
 func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
@@ -34,6 +35,9 @@ func InitEngine( dbPath string ) {
 
 	connectDb( &engine_post, "post.db", dbPath )
 	Sync2Post()
+
+	connectDb( &engine_chat, "chat.db", dbPath )
+	Sync2Chat()
 
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
 	// err.CheckErr( e )

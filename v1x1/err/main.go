@@ -7,6 +7,7 @@ import (
 	"github.com/kpango/glg"
 	"net/http"
 	"os"
+	"runtime/debug"
 )
 
 func Exit( desc string ) {
@@ -44,4 +45,10 @@ func CheckErr( err error ) {
 	if err != nil {
 		panic( err )
 	}
+}
+
+func HttpRecoverBasic( w *http.ResponseWriter, re interface{} ) {
+	debug.PrintStack()
+	_ = glg.Error( re )
+	HttpReturn( w, fmt.Sprint( re ), errCode.ERR_SYS, "", errCode.MakeHER200 )
 }
