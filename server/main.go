@@ -8,33 +8,15 @@ import (
 	v1x1http "../v1x1/http"
 	orm "../v1x1/orm"
 	security "../v1x1/security"
+	mw "../middleware"
+	mwu "../middleware/util"
 )
-
-func resp(w* http.ResponseWriter, msg string) {
-	(*w).Write([]byte(msg))
-}
-
-/// hello
-func RootWelcomeGet(w http.ResponseWriter, r *http.Request) {
-	resp( &w, string("🌸Welcome to api.cyf-cloud.cn!🌸") )
-}
-
-func cyfWelcomeGet(w http.ResponseWriter, r *http.Request) {
-	resp( &w, string("<a href=\"https://www.cyf-cloud.cn\">") )
-}
-
-func echoGet(w http.ResponseWriter, r *http.Request) {
-	a := r.URL.Query()["a"][0]
-	resp( &w, string(a) )
-}
 
 // 路由应在Init函数中完成
 func makeHttpRouter() {
-	/// ======================= video together ===========================
-	http.HandleFunc("/", RootWelcomeGet )
-	http.HandleFunc("/cyf", cyfWelcomeGet )
-	http.HandleFunc("/echo", echoGet )
+
 	// server.HandleFunc( "/sync/guest",  )
+	InitBasicRequests()
 
 	/// ======================= v1 ===========================
 	v1.Init()
@@ -48,12 +30,23 @@ func makeHttpRouter() {
 	v1x1http.Init()
 }
 
+func InitMiddlewares() {
+	mw.Register( mwu.LogUsedTime() )
+	mw.Register( mwu.EnableCookie() )
+}
+
 // 创建所有的资源路由路径
 // 路由路径为弱restful
 func RunHttpServer( httpAddr string) {
 	makeHttpRouter()
+	// 初始化orm层
 	orm.InitEngine("./.db/")
 
+	// 初始化安全层
 	security.Init()
+
+	// 添加所有中间件
+	InitMiddlewares()
+
 	http.ListenAndServe(httpAddr, nil)
 }

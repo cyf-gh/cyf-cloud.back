@@ -1,7 +1,10 @@
 package security
 
-import "net/http"
+import (
+	"net/http"
+	mwh "../../middleware/helper"
+)
 
 func Init() {
-	http.HandleFunc("/v1x1/security/captcha", GenerateCaptcha)
+	http.HandleFunc("/v1x1/security/captcha", mwh.WrapGet( GenerateCaptcha ) )
 }
