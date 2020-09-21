@@ -23,7 +23,7 @@ func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
 }
 
 func InitEngine( dbPath string ) {
-	glg.Log("initizing orm...")
+	glg.Log("orm loading...")
 	defer func() {
 		if r := recover(); r != nil {
 			_ = glg.Error(r)
@@ -41,4 +41,5 @@ func InitEngine( dbPath string ) {
 
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
 	// err.CheckErr( e )
+	glg.Log("orm finished loading...")
 }
