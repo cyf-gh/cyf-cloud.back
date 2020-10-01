@@ -2,8 +2,8 @@ package vt_test
 
 import (
 	vtTestMock "../_mock"
-	vtsync "../sync"
 	vtlobby "../lobby"
+	vtsync "../sync"
 	"testing"
 )
 

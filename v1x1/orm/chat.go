@@ -1,8 +1,8 @@
 package orm
 
 import (
-	"time"
 	err "../err"
+	"time"
 )
 
 type Chat struct {

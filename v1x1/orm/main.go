@@ -1,4 +1,4 @@
-// orm/main.go
+// orm/mainServer.go
 // 负责数据库读取
 package orm
 
@@ -14,6 +14,7 @@ var engine *xorm.Engine
 var engine_post *xorm.Engine
 var engine_chat *xorm.Engine
 
+// 初始化sqlite数据库orm
 // 有可能panic创建数据库引擎的错误
 func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
 	var e error

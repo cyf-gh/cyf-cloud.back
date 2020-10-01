@@ -43,7 +43,7 @@ func getFuncName( f MiddewareFunc ) string {
 // 越是后添加的中间件越包裹在内层
 func Register( f MiddewareFunc ) {
 	mwFuncs = append(mwFuncs, f )
-	glg.Log( "[Middleware]" + getFuncName( f ) + " registered(prefix)\t[index]:" + strconv.Itoa( len(mwFuncs ) ) )
+	glg.Log( "[Middleware]" + getFuncName( f ) + " registered(prefix)\t[index]:" + strconv.Itoa( len(mwFuncs ) - 1 ) )
 }
 
 // 注销中间件

@@ -1,29 +1,39 @@
 package main
 
 import (
-	"fmt"
 	"github.com/kpango/glg"
+	"io/ioutil"
 	"runtime"
 	"stgogo/comn/config"
 	"strconv"
 
-	Config  "./config"
+	"./cli"
+	Config "./config"
 	ccHttp "./server"
 )
 
-func main() {
-	glg.Info("Server Starting...")
-	glg.Info( "{goroutine} Run with Core Count: " + strconv.Itoa(runtime.GOMAXPROCS(runtime.NumCPU())))
-	// 进行配置
-	Config.ConfigAll()
-	// 启动http服务器
-	go ccHttp.RunHttpServer( Config.TcpAddr )
-
-	/// ======================= proc input ===========================
-	var input string
-	for {
-		fmt.Scanln(&input)
-		glg.Log(input)
+func PrintBanner() {
+	b, e := ioutil.ReadFile("./banner.txt")
+	if e != nil {
+		glg.Fail("load banner")
+		glg.Error( e )
 	}
+	print( string(b) )
+	println("")
+}
+
+func main() {
+	PrintBanner()
+
+	glg.Info("server starting...")
+	glg.Info( "{goroutine} run with Core Count: " + strconv.Itoa(runtime.GOMAXPROCS(runtime.NumCPU())))
+	// 进行配置
+	Config.All()
+	// 启动http服务器
+	go ccHttp.RunHttpServer( Config.TcpAddr, Config.RedisCfg, Config.SqlitePath )
+
+	// 启动命令
+	cli.Run()
+
 	st_config_log.End()
 }

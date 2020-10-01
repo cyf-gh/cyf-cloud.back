@@ -2,9 +2,9 @@
 package middlewareUtil
 
 import (
+	"../../middleware"
 	"github.com/kpango/glg"
 	"net/http"
-	"../../middleware"
 	"time"
 )
 

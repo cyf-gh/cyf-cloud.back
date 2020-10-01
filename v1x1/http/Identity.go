@@ -1,9 +1,9 @@
 package http
 
 import (
+	orm "../orm"
 	"github.com/kpango/glg"
 	"net/http"
-	orm "../orm"
 )
 
 func GetCid( r *http.Request ) ( string, error ) {
