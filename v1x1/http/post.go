@@ -1,15 +1,13 @@
 package http
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/kpango/glg"
-	"io/ioutil"
-	"net/http"
 	err "../err"
 	err_code "../err_code"
 	orm "../orm"
-	"runtime/debug"
+	"encoding/json"
+	"github.com/kpango/glg"
+	"io/ioutil"
+	"net/http"
 )
 
 // 发布新文章
@@ -22,9 +20,7 @@ type PostModel struct {
 func NewPost( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
-			debug.PrintStack()
-			_ = glg.Error(r)
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
+			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 
@@ -35,7 +31,7 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal( b, &post )
 	err.CheckErr( e )
 
-	account, e := GetAccountByCid( r )
+	account, e := GetAccountByAtk( r )
 	err.CheckErr( e )
 	glg.Log( account )
 	glg.Log( post )
@@ -55,8 +51,7 @@ type ModifiedPostModel struct {
 func ModifyPost( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
-			_ = glg.Error(r)
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
+			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 
@@ -67,7 +62,7 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal( b, &post )
 	err.CheckErr( e )
 
-	account, e := GetAccountByCid( r )
+	account, e := GetAccountByAtk( r )
 	err.CheckErr( e )
 	glg.Log( account )
 	glg.Log( post )
@@ -87,8 +82,7 @@ type ModifiyPostNoTextModel struct {
 func ModifiyPostNoText( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
-			_ = glg.Error(r)
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
+			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 
@@ -99,9 +93,34 @@ func ModifiyPostNoText( w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal( b, &post )
 	err.CheckErr( e )
 
-	account, e := GetAccountByCid( r )
+	account, e := GetAccountByAtk( r )
 	err.CheckErr( e )
 	e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds )
 	err.CheckErr( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+}
+
+func GetPosts( w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if r := recover(); r != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	user := r.FormValue("user")
+	var posts []orm.Post
+	var e error
+	var a * orm.Account
+
+	if user == "my" {
+		a, e = GetAccountByAtk( r )
+	} else {
+		// 则获取相应名字的所有文章
+		a, e = orm.GetAccountByName( user )
+	}
+	err.CheckErr( e )
+	posts, e = orm.GetPostsByOwner( a.Id )
+	err.CheckErr( e )
+	postsB, e := json.Marshal( posts )
+	err.CheckErr( e )
+	err.HttpReturn(&w, "ok", err_code.ERR_OK, string(postsB), err_code.MakeHER200 )
 }

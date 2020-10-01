@@ -17,8 +17,19 @@ func GetCid( r *http.Request ) ( string, error ) {
 	return cid, e
 }
 
-func GetAccountByCid( r *http.Request ) ( *orm.Account, error ) {
-	cid, e :=  GetCid(r)
+func GetAtk( r *http.Request ) ( string, error ) {
+	cl, e  := r.Cookie("atk")
+	if e != nil {
+		glg.Error("cid not found. it may be a post proxy problem")
+		return "", e
+	}
+	atk := cl.Value
+	glg.Success("atk is (" + atk + ")")
+	return atk, e
+}
+
+func GetAccountByAtk( r *http.Request ) ( *orm.Account, error ) {
+	cid, e :=  GetAtk(r)
 	if e != nil {
 		return nil, e
 	}

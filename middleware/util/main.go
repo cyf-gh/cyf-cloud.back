@@ -19,9 +19,10 @@ const (
 func LogUsedTime()  middleware.MiddewareFunc  {
 	return func( f http.HandlerFunc ) http.HandlerFunc {
 		return func( w http.ResponseWriter, r *http.Request ) {
+			glg.Log( r.URL.Path, "[time started recording]" )
 			start := time.Now()
 			defer func() {
-				glg.Log( r.URL.Path, "[time used]", time.Since( start ) )
+				glg.Log(  r.URL.Path, "[time used]", time.Since( start ) )
 			}()
 			f(w, r)
 		}

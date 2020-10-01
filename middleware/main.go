@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+func init() {
+}
+
 /*
 中间件例子：
 
@@ -48,7 +51,7 @@ func Unregister( f MiddewareFunc ) {
 	for i, fc := range mwFuncs {
 		if getFuncName( fc ) ==  getFuncName( f ) {
 			mwFuncs = append(mwFuncs[:i], mwFuncs[i+1:]...)
-			glg.Log( "[Middleware]" + getFuncName( f ) + " unregistered(prefix)\t[index]:" + strconv.Itoa( i ) )
+			glg.Log( "[Middleware]" + getFuncName( f ) + " unregistered(prefix) [index]:" + strconv.Itoa( i ) )
 			return
 		}
 	}
@@ -60,8 +63,8 @@ func Unregister( f MiddewareFunc ) {
 // mws：为nil则不运行额外的中间件
 // 总是包裹在最内层
 func HandlerWrapFully( handler http.HandlerFunc, mws ...MiddewareFunc ) http.HandlerFunc {
-	for _, m := range mwFuncs{
-		handler = m(handler)
+	for _, m := range mwFuncs {
+		handler = m( handler )
 	}
 	if mws != nil {
 		for _, m := range mws {

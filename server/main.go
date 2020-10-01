@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/kpango/glg"
 	"net/http"
 
 	v1 "../v1"
@@ -31,23 +32,24 @@ func makeHttpRouter() {
 }
 
 func InitMiddlewares() {
+	glg.Log( "middleware loading..." )
 	mw.Register( mwu.LogUsedTime() )
 	mw.Register( mwu.EnableCookie() )
-	mw.Register( mwu.EnableAllowOrigin() )
+	glg.Log( "middleware finished loading" )
 }
 
 // 创建所有的资源路由路径
 // 路由路径为弱restful
 func RunHttpServer( httpAddr string) {
+	// 添加所有中间件
+	InitMiddlewares()
+
 	makeHttpRouter()
 	// 初始化orm层
 	orm.InitEngine("./.db/")
 
 	// 初始化安全层
 	security.Init()
-
-	// 添加所有中间件
-	InitMiddlewares()
 
 	http.ListenAndServe(httpAddr, nil)
 }
