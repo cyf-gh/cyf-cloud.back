@@ -33,6 +33,7 @@ func makeHttpRouter() {
 func InitMiddlewares() {
 	mw.Register( mwu.LogUsedTime() )
 	mw.Register( mwu.EnableCookie() )
+	mw.Register( mwu.EnableAllowOrigin() )
 }
 
 // 创建所有的资源路由路径

@@ -38,6 +38,16 @@ func EnableCookie() middleware.MiddewareFunc {
 	}
 }
 
+// 启用跨域（测试中使用）
+func EnableAllowOrigin() middleware.MiddewareFunc {
+	return func( f http.HandlerFunc ) http.HandlerFunc {
+		return func( w http.ResponseWriter, r *http.Request ) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			f( w, r )
+		}
+	}
+}
+
 // 限定请求方法
 func Method( m string ) middleware.MiddewareFunc {
 	return func(f http.HandlerFunc) http.HandlerFunc {
@@ -50,3 +60,4 @@ func Method( m string ) middleware.MiddewareFunc {
 		}
 	}
 }
+
