@@ -27,16 +27,16 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 	var post PostModel
 
 	b, e := ioutil.ReadAll(r.Body)
-	err.CheckErr( e )
+	err.Check( e )
 	e = json.Unmarshal( b, &post )
-	err.CheckErr( e )
+	err.Check( e )
 
 	account, e := GetAccountByAtk( r )
-	err.CheckErr( e )
+	err.Check( e )
 	glg.Log( account )
 	glg.Log( post )
 	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds )
-	err.CheckErr( e )
+	err.Check( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 }
 
@@ -58,16 +58,16 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 	var post ModifiedPostModel
 
 	b, e := ioutil.ReadAll(r.Body)
-	err.CheckErr( e )
+	err.Check( e )
 	e = json.Unmarshal( b, &post )
-	err.CheckErr( e )
+	err.Check( e )
 
 	account, e := GetAccountByAtk( r )
-	err.CheckErr( e )
+	err.Check( e )
 	glg.Log( account )
 	glg.Log( post )
 	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds )
-	err.CheckErr( e )
+	err.Check( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 }
 
@@ -89,14 +89,14 @@ func ModifiyPostNoText( w http.ResponseWriter, r *http.Request) {
 	var post ModifiyPostNoTextModel
 
 	b, e := ioutil.ReadAll(r.Body)
-	err.CheckErr( e )
+	err.Check( e )
 	e = json.Unmarshal( b, &post )
-	err.CheckErr( e )
+	err.Check( e )
 
 	account, e := GetAccountByAtk( r )
-	err.CheckErr( e )
+	err.Check( e )
 	e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds )
-	err.CheckErr( e )
+	err.Check( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 }
 
@@ -117,10 +117,10 @@ func GetPosts( w http.ResponseWriter, r *http.Request) {
 		// 则获取相应名字的所有文章
 		a, e = orm.GetAccountByName( user )
 	}
-	err.CheckErr( e )
+	err.Check( e )
 	posts, e = orm.GetPostsByOwner( a.Id )
-	err.CheckErr( e )
+	err.Check( e )
 	postsB, e := json.Marshal( posts )
-	err.CheckErr( e )
+	err.Check( e )
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, string(postsB), err_code.MakeHER200 )
 }

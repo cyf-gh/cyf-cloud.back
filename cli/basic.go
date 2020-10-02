@@ -1,17 +1,34 @@
 package cli
 
 import (
+	"github.com/kpango/glg"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/mem"
+	"io/ioutil"
 	"os"
 	"time"
 )
+
+var (
+	Banner string
+)
+
+func init() {
+	Banner = ""
+	b, e := ioutil.ReadFile("./banner.txt")
+	if e != nil {
+		glg.Fail("load banner")
+		glg.Error( e )
+	}
+	Banner = string(b)
+}
 
 func initClis() {
 	Register( "echo", &CliFuncPack{ echo, "Echo text", "basic" } )
 	Register( "help", &CliFuncPack{ help, "List all commands and descriptions", "basic" } )
 	Register( "stop", &CliFuncPack{ stop, "Abort application", "basic" } )
 	Register( "hds", &CliFuncPack{ hds, "Print system hardware information", "sys" } )
+	Register( "banner", &CliFuncPack{  PrintBanner, "Print application banner", "misc" })
 }
 
 func echo( ts []string ) error {
@@ -57,4 +74,10 @@ func getCpuPercent() float64 {
 func getMemPercent()uint64 {
 	memInfo, _ := mem.VirtualMemory()
 	return memInfo.Total
+}
+
+func PrintBanner( ts []string ) error {
+	print( Banner )
+	println("")
+	return nil
 }

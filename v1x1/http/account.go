@@ -23,7 +23,6 @@ type RegisterModel struct {
 
 // 注册
 func Register(w http.ResponseWriter, r *http.Request) {
-	enableCookies( &w )
 	defer func() {
 		if r := recover(); r  != nil {
 			_ = glg.Error(r)
@@ -35,10 +34,10 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	var registerModel RegisterModel
 
 	b, e := ioutil.ReadAll(r.Body)
-	err.CheckErr(e)
+	err.Check(e)
 	e = json.Unmarshal( b, &registerModel )
 	glg.Log( registerModel )
-	err.CheckErr(e)
+	err.Check(e)
 
 	if len( registerModel.Cap ) != 4 {
 		err.HttpReturn(&w, "wrong captcha", err_code.ERR_INCORRECT, "", err_code.MakeHER200 )
@@ -55,7 +54,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		registerModel.Phone = sec.GetRandom();
 	}
 	e = orm.NewAccount( registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd )
-	err.CheckErr(e)
+	err.Check(e)
 	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
 }
 
@@ -79,12 +78,12 @@ func Login( w http.ResponseWriter, r *http.Request) {
 	var loginModel LoginModel
 
 	b, e := ioutil.ReadAll(r.Body)
-	err.CheckErr(e)
+	err.Check(e)
 	e = json.Unmarshal( b, &loginModel )
-	err.CheckErr(e)
+	err.Check(e)
 
 	account, e := orm.GetAccountByLoginType( loginModel.Login,sec.CryptoPasswd( loginModel.Pswd ), loginModel.LoginType )
-	err.CheckErr( e )
+	err.Check( e )
 
 	token := sec.GenerateAccessToken()
 	// 添加token到token列表中

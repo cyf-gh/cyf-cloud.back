@@ -39,3 +39,11 @@ func Init( rc config.RedisConfig ) {
 	glg.Fail("redis ping")
 	os.Exit(1)
 }
+
+func Set( key, value string ) (interface{}, error)  {
+	return RedisPool.Get().Do("SET", key, value)
+}
+
+func Get( key string ) ( string, error) {
+	return redis.String( RedisPool.Get().Do("GET", key ) )
+}

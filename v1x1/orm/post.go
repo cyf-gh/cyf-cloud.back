@@ -27,9 +27,9 @@ type Tag struct {
 
 func Sync2Post() {
 	e := engine_post.Sync2(new(Post))
-	err.CheckErr( e )
+	err.Check( e )
 	e = engine_post.Sync2(new(Tag))
-	err.CheckErr( e )
+	err.Check( e )
 }
 
 // 通过某一个人获取所有他的文章
@@ -49,7 +49,7 @@ func NewPost( title, text string, owner int64, tags []string) error {
 		TagIds:    tagIds,
 		OwnerId: owner,
 	})
-	// err.CheckErr( e )
+	// err.Check( e )
 	return e
 }
 

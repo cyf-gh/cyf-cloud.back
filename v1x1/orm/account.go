@@ -16,11 +16,11 @@ type Account struct {
 
 func Sync2Account() {
 	e := engine.Sync2(new(Account))
-	err.CheckErr( e )
+	err.Check( e )
 	e = engine.Sync2(new(AccountEx))
-	err.CheckErr( e )
+	err.Check( e )
 	e = engine.Sync2(new(AccountPermission))
-	err.CheckErr( e )
+	err.Check( e )
 }
 
 func NewAccount( name, email, phone, passwd string ) error {

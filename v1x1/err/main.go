@@ -28,9 +28,9 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 	her.Data = data
 	(*w).WriteHeader( statusCode )
 	bs, err := json.Marshal(her) // 将her结构体转化为json
-	CheckErr(err)
+	Check(err)
 	_, err = (*w).Write(bs)
-	CheckErr(err)
+	Check(err)
 
 	glg.Log( fmt.Sprintf( "[HttpReturn] - StatusCode:(%d) - HER (%s)", statusCode, her ))
 }
@@ -41,7 +41,7 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 //        if err := recover(); err != nil {
 //	  	  }
 //    }()
-func CheckErr( err error ) {
+func Check( err error ) {
 	if err != nil {
 		panic( err )
 	}
@@ -51,4 +51,12 @@ func HttpRecoverBasic( w *http.ResponseWriter, re interface{} ) {
 	debug.PrintStack()
 	_ = glg.Error( re )
 	HttpReturn( w, fmt.Sprint( re ), errCode.ERR_SYS, "", errCode.MakeHER200 )
+}
+
+func HttpReturnOk( w *http.ResponseWriter ) {
+	HttpReturn(w, "ok", errCode.ERR_OK, "", errCode.MakeHER200 )
+}
+
+func HttpReturnOkWithData( w *http.ResponseWriter, data string ) {
+	HttpReturn(w, "ok", errCode.ERR_OK, data, errCode.MakeHER200 )
 }

@@ -29,7 +29,7 @@ type RedisConfig struct {
 
 func configServerInfo() {
 	cfg, err := ini.Load("./server.cfg")
-	Err.CheckErr(err)
+	Err.Check(err)
 
 	LogAddr = cfg.Section("server_address").Key("log").String()
 	TcpAddr = cfg.Section("server_address").Key("tcp").String()

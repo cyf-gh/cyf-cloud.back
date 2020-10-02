@@ -19,7 +19,7 @@ var engine_chat *xorm.Engine
 func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
 	var e error
 	*ppEnginePost, e = xorm.NewEngine("sqlite3", dbPath + dbName )
-	err.CheckErr( e )
+	err.Check( e )
 	glg.Success("orm to " + dbName + " (sqlite3)")
 }
 
@@ -41,6 +41,6 @@ func InitEngine( dbPath string ) {
 	Sync2Chat()
 
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
-	// err.CheckErr( e )
+	// err.Check( e )
 	glg.Log("orm finished loading...")
 }

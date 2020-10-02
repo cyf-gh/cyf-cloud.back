@@ -14,7 +14,7 @@ type Chat struct {
 
 func Sync2Chat() {
 	e := engine_post.Sync2(new(Chat))
-	err.CheckErr( e )
+	err.Check( e )
 }
 
 func NewChat( accountId int64, text string, date time.Time ) error {

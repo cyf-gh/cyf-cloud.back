@@ -26,10 +26,10 @@ func GetFileRaw( w http.ResponseWriter, r *http.Request ) {
 	}
 
 	current, e := user.Current()
-	err.CheckErr( e )
+	err.Check( e )
 
 	text, e := ioutil.ReadFile( current.HomeDir + "/.raw/" + dir)
-	err.CheckErr( e )
+	err.Check( e )
 
 	err.HttpReturn( &w, "ok", err_code.ERR_OK, string(text), err_code.MakeHER200 )
 }
