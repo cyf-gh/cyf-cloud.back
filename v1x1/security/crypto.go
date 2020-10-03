@@ -18,8 +18,9 @@ func CryptoPasswd( raw string ) string {
 	return ToSHA512( raw )
 }
 
-func GenerateAccessToken() string {
-	return uuid.New().String()
+// $atk${{uuid}}
+func GenerateAtk() string {
+	return "$atk$"+uuid.New().String()
 }
 
 func GetRandom() string {

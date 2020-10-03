@@ -7,26 +7,41 @@ import (
 	orm "../orm"
 	sec "../security"
 	"encoding/json"
-	"fmt"
 	"github.com/kpango/glg"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
-type RegisterModel struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	Phone string  `json:"phone"`
-	Pswd string   `json:"pswd"`
-	Cap string  `json:"cap"`
-}
-
+type (
+	RegisterModel struct {
+		Name string `json:"name"`
+		Email string `json:"email"`
+		Phone string  `json:"phone"`
+		Pswd string   `json:"pswd"`
+		Cap string  `json:"cap"`
+	}
+	LoginModel struct {
+		Login string `json:"login"`
+		Pswd string `json:"pswd"`
+		LoginType  string  `json:"loginType"`
+		// LoginType 应在前端进行完解析为
+		// email name phone 三种之一
+	}
+	InfoModel struct {
+		Name string
+		Email string
+		Phone string
+		Avatar string
+		Info string
+		Level string
+	}
+)
 // 注册
 func Register(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
-			_ = glg.Error(r)
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
+			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 	var e error
@@ -55,42 +70,118 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	}
 	e = orm.NewAccount( registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd )
 	err.Check(e)
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+	err.HttpReturnOk( &w )
 }
 
-type LoginModel struct {
-	Login string `json:"login"`
-	Pswd string `json:"pswd"`
-	LoginType  string  `json:"loginType"`
-	// LoginType 应在前端进行完解析为
-	// email name phone 三种之一
-}
-var AccessTokens map[string]int64
 
 // 登录
 func Login( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r  != nil {
-			_ = glg.Error(r)
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER200 )
+			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 	var loginModel LoginModel
 
-	b, e := ioutil.ReadAll(r.Body)
-	err.Check(e)
-	e = json.Unmarshal( b, &loginModel )
-	err.Check(e)
+	b, e := ioutil.ReadAll(r.Body); 		err.Check(e)
+	e = json.Unmarshal( b, &loginModel ); 	err.Check(e)
 
 	account, e := orm.GetAccountByLoginType( loginModel.Login,sec.CryptoPasswd( loginModel.Pswd ), loginModel.LoginType )
 	err.Check( e )
 
-	token := sec.GenerateAccessToken()
-	// 添加token到token列表中
-	AccessTokens[token] = account.Id
+	token, e := CreateAtk( account.Id ); 	err.Check( e )
 
-	tokenCl := http.Cookie{Name:"atk", Value:token, Path:"/", MaxAge:2592000}
+	tokenCl := http.Cookie{Name:"atk", Value:token, Path:"/", MaxAge:2626560 }
 	http.SetCookie(w, &tokenCl)
 
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+	err.HttpReturnOk( &w )
+}
+
+// 直接返回所有的信息
+func PrivateUserInfo( w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+
+	info, e := getRawInfoByAtk( r ); err.Check( e )
+
+	b, e := json.Marshal( info ); err.Check( e )
+	err.HttpReturnOkWithData( &w, string( b ) )
+}
+
+// 返回公开的信息
+func PublicUserInfo( w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	user := r.FormValue("user")
+	info, mask, e := getRawInfoByName( r, user ); err.Check( e )
+
+	b, e := json.Marshal( info ); err.Check( e )
+	pinfo, e := createInfoMask( b, mask ); err.Check( e )
+	err.HttpReturnOkWithData( &w, pinfo )
+}
+
+func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, error) {
+	info := &InfoModel{}
+
+	a, e := orm.GetAccountByName( userName )
+	if e != nil {
+		return nil, "", e
+	}
+	ae, e := orm.GetAccountEx( a.Id )
+	if e != nil {
+		return nil, "", e
+	}
+	info.Name = a.Name
+	info.Email = a.Email
+	info.Phone = a.Phone
+	info.Info = ae.Info
+	info.Avatar = ae.Avatar
+	info.Level = ae.Level
+	return info, ae.PrivateInfoMask, e
+}
+
+// 将账户信息转化为InfoModel
+func getRawInfoByAtk( r *http.Request ) (*InfoModel, error) {
+	info := &InfoModel {}
+	a, e := GetAccountByAtk( r )
+	if e != nil {
+		return nil, e
+	}
+	ae, e := GetAccountExByAtk( r )
+	if e != nil {
+		return nil, e
+	}
+	info.Name = a.Name
+	info.Email = a.Email
+	info.Phone = a.Phone
+	info.Info = ae.Info
+	info.Avatar = ae.Avatar
+	info.Level = ae.Level
+	return info, e
+}
+
+// 创建遮罩，使被遮罩的数据不可被访问
+func createInfoMask( b []byte, mask string ) ( string, error ) {
+	ms := strings.Split( mask, ",")
+	info := make(map[string]string)
+
+	if e := json.Unmarshal( b, &info ); e != nil {
+		return "", e
+	}
+	for _, m := range ms {
+		if _, ok := info[m]; ok {
+			info[m]="___cyfcloud_secret___"
+		}
+	}
+	bi, e := json.Marshal(info)
+	if e != nil {
+		return "", e
+	}
+	return string( bi ), e
 }

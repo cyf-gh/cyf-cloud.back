@@ -40,8 +40,20 @@ func Init( rc config.RedisConfig ) {
 	os.Exit(1)
 }
 
-func Set( key, value string ) (interface{}, error)  {
+func Set( key string, value interface{} ) (interface{}, error)  {
 	return RedisPool.Get().Do("SET", key, value)
+}
+
+func SetExp( key string, value interface{}, expSec int64 ) (interface{}, error) {
+	i, e := RedisPool.Get().Do("SET", key, value)
+	if e != nil {
+		return i, e
+	}
+	i, e = RedisPool.Get().Do("EXPlRE", key, expSec)
+	if e != nil {
+		return i, e
+	}
+	return i, e
 }
 
 func Get( key string ) ( string, error) {

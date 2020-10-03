@@ -2,7 +2,6 @@ package http
 
 import (
 	err "../err"
-	err_code "../err_code"
 	orm "../orm"
 	"encoding/json"
 	"github.com/kpango/glg"
@@ -37,7 +36,7 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 	glg.Log( post )
 	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds )
 	err.Check( e )
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+	err.HttpReturnOk( &w )
 }
 
 // 修改文章
@@ -68,7 +67,7 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 	glg.Log( post )
 	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds )
 	err.Check( e )
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+	err.HttpReturnOk( &w )
 }
 
 // 更改文章，没有文本内容
@@ -97,7 +96,7 @@ func ModifiyPostNoText( w http.ResponseWriter, r *http.Request) {
 	err.Check( e )
 	e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds )
 	err.Check( e )
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, "", err_code.MakeHER200 )
+	err.HttpReturnOk( &w )
 }
 
 func GetPosts( w http.ResponseWriter, r *http.Request) {
@@ -122,5 +121,5 @@ func GetPosts( w http.ResponseWriter, r *http.Request) {
 	err.Check( e )
 	postsB, e := json.Marshal( posts )
 	err.Check( e )
-	err.HttpReturn(&w, "ok", err_code.ERR_OK, string(postsB), err_code.MakeHER200 )
+	err.HttpReturnOkWithData( &w, string(postsB) )
 }

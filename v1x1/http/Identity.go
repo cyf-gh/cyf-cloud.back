@@ -4,6 +4,9 @@ import (
 	orm "../orm"
 	"github.com/kpango/glg"
 	"net/http"
+	sec "../security"
+	"../cache"
+	"strconv"
 )
 
 func GetCid( r *http.Request ) ( string, error ) {
@@ -28,10 +31,37 @@ func GetAtk( r *http.Request ) ( string, error ) {
 	return atk, e
 }
 
+func GetIdByAtk( r *http.Request ) ( int64, error ) {
+	atk, e :=  GetAtk(r)
+	if e != nil {
+		return -1, e
+	}
+	ids, e := cache.Get( atk )
+	if e != nil {
+		return -1, e
+	}
+	return strconv.ParseInt(ids, 10, 64)
+}
+
 func GetAccountByAtk( r *http.Request ) ( *orm.Account, error ) {
-	cid, e :=  GetAtk(r)
+	id, e := GetIdByAtk( r )
 	if e != nil {
 		return nil, e
 	}
-	return orm.GetAccount( AccessTokens[cid] )
+	return orm.GetAccount( id )
+}
+
+func GetAccountExByAtk( r *http.Request ) ( *orm.AccountEx, error ) {
+	id, e := GetIdByAtk( r )
+	if e != nil {
+		return nil, e
+	}
+	return orm.GetAccountEx( id )
+}
+
+func CreateAtk( id int64 ) (string, error) {
+	token := sec.GenerateAtk()
+	// 添加token到token列表中
+	_, e := cache.SetExp(token, id, 2626560 ) // 1个月
+	return token, e
 }

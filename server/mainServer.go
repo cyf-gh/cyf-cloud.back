@@ -44,16 +44,16 @@ func InitMiddlewares() {
 // 创建所有的资源路由路径
 // 路由路径为弱restful
 func RunHttpServer( httpAddr string, rc config.RedisConfig, sqlitePath string ) {
-	// 添加所有中间件
-	InitMiddlewares()
-	// 部署所有路由
-	makeHttpRouter()
 	// 初始化orm层
 	orm.InitEngine( sqlitePath )
 	// 初始化键值对数据库
 	cache.Init( rc )
 	// 初始化安全层
 	security.Init()
+	// 添加所有中间件
+	InitMiddlewares()
+	// 部署所有路由
+	makeHttpRouter()
 
 	http.ListenAndServe(httpAddr, nil)
 }

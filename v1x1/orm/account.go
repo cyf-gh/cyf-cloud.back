@@ -6,31 +6,72 @@ import (
 )
 
 // 账户的基本信息
-type Account struct {
-	Id int64
-	Name string `xorm:"unique"`
-	Email  string `xorm:"unique"`
-	Phone  string `xorm:"unique"`
-	Passwd string
-}
+type (
+	Account struct {
+		Id int64
+		Name string `xorm:"unique"`
+		Email  string `xorm:"unique"`
+		Phone  string `xorm:"unique"`
+		Passwd string
+	}
+	// 账户的额外信息
+	 AccountEx struct {
+		Id int64
+		AccountId int64 `xorm:"unique"`
+		Avatar string // base64 数据
+		Info string // 个人简介，markdown数据
+		Level string // \see ACCOUNT_LEVEL_xxx
+
+		Exp int64 // 等级？
+		PrivateInfoMask string // 用于遮罩哪些信息不可被外部访问
+	}
+)
+
+const (
+	ACCOUNT_LEVEL_ADMIN = "admin"	// 网站管理员
+	ACCOUNT_LEVEL_VIP = "vip"		// 网站vip
+	ACCOUNT_LEVEL_NORMAL = "n"		// 一般会员
+	ACCOUNT_LEVEL_UNREGISTERED = "unrgstr" // 还未验证账户
+
+	ACCOUNT_LEVEL_TEST = "t" 		// 测试账户，鸟用没有
+)
 
 func Sync2Account() {
 	e := engine.Sync2(new(Account))
 	err.Check( e )
 	e = engine.Sync2(new(AccountEx))
 	err.Check( e )
-	e = engine.Sync2(new(AccountPermission))
-	err.Check( e )
 }
 
 func NewAccount( name, email, phone, passwd string ) error {
-	_, e := engine.Table("Account").Insert( &Account{
+	id, e := engine.Table("Account").Insert( &Account{
 		Name:   name,
 		Email:  email,
 		Phone:  phone,
 		Passwd: passwd,
 	})
+	if e != nil { return e }
+
+	_, e = engine.Table("AccountEx").Insert( &AccountEx{
+		AccountId: id,
+		Avatar:    "",
+		Info:      "",
+		Level:     ACCOUNT_LEVEL_NORMAL,
+		Exp:       0,
+		PrivateInfoMask: "Phone",
+	})
 	return e
+}
+
+func GetAccountEx( id int64 ) ( *AccountEx, error ) {
+	ae := &AccountEx{}
+	has, e := engine.Table("AccountEx").Where("account_id = ?", id).Get(ae)
+	if e != nil {
+		return nil, e
+	} else if !has {
+		return nil, errors.New("account not found")
+	}
+	return ae, nil
 }
 
 func GetAccount( id int64 ) (*Account, error) {
@@ -67,22 +108,3 @@ func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) 
 	return a, nil
 }
 
-// 账户的额外信息
-type AccountEx struct {
-	Id int64
-	AccountId int64 `xorm:"unique"`
-	Avatar string // base64 数据
-	Info string // 个人简介，markdown数据
-}
-
-type AccountPermission struct {
-	Id int64
-	AccountId int64 `xorm:"unique"`
-	Level string // \see ACCOUNT_LEVEL_xxx
-}
-
-const (
-	ACCOUNT_LEVEL_ADMIN = "admin"	// 网站管理员
-	ACCOUNT_LEVEL_VIP = "vip"		// 网站vip
-	ACCOUNT_LEVEL_NORMAL = "n"		// normal - 一般会员
-)
