@@ -52,7 +52,7 @@ func NewAccount( name, email, phone, passwd string ) error {
 	})
 	if e != nil { return e }
 
-	_, e = engine.Table("AccountEx").Insert( &AccountEx{
+	_, e = engine.Table("account_ex").Insert( &AccountEx{
 		AccountId: id,
 		Avatar:    "",
 		Info:      "",
@@ -63,9 +63,30 @@ func NewAccount( name, email, phone, passwd string ) error {
 	return e
 }
 
+func SetAccountPhone( phone string, id int64 ) error {
+	a := &Account{}
+	a.Phone = phone
+	_, e := engine.Table("account").ID( id ).Update( a )
+	return e
+}
+
+func SetAccountExInfo( info string, id int64 ) error {
+	ae := &AccountEx{}
+	ae.Info = info
+	_, e := engine.Table("account_ex").Where("account_id = ?", id ).Update( ae )
+	return e
+}
+
+func SetAccountExAvatar( avatar string, id int64 ) error {
+	ae := &AccountEx{}
+	ae.Avatar = avatar
+	_, e := engine.Table("account_ex").Where("account_id = ?", id ).Update( ae )
+	return e
+}
+
 func GetAccountEx( id int64 ) ( *AccountEx, error ) {
 	ae := &AccountEx{}
-	has, e := engine.Table("AccountEx").Where("account_id = ?", id).Get(ae)
+	has, e := engine.Table("account_ex").Where("account_id = ?", id ).Get(ae)
 	if e != nil {
 		return nil, e
 	} else if !has {

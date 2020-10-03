@@ -36,7 +36,7 @@ func proc() {
 			glg.Error(r)
 		}
 	}()
-	print("cyf-cloud> ")
+	print("cyf-cloud >")
 	input, e := ir.ReadString('\n')
 
 	for input[0:1] == " " {
@@ -44,12 +44,13 @@ func proc() {
 	}
 	args := strings.Split( input, " ")
 
-	fa := strings.Replace( args[0], "\n", "", -1 )
-	fa = strings.Replace( fa, "\r", "", -1 )
-	f := CliFuncs[fa]
+	args[len(args)-1] = strings.TrimRight( args[len(args)-1], "\n")
+	args[len(args)-1] = strings.TrimRight( args[len(args)-1], "\r")
+
+	f := CliFuncs[args[0]]
 	// 是否有该命令
 	if f == nil {
-		fmt.Println("command \"" + fa + "\" does not exist")
+		fmt.Println("command \"" + args[0] + "\" does not exist")
 		return
 	}
 
@@ -62,7 +63,6 @@ func proc() {
 }
 
 func Run() {
-	print("cyf-cloud> ")
 	for {
 		proc()
 	}

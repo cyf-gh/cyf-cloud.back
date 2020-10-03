@@ -2,6 +2,7 @@
 package http
 
 import (
+	"../cache"
 	err "../err"
 	err_code "../err_code"
 	orm "../orm"
@@ -124,6 +125,58 @@ func PublicUserInfo( w http.ResponseWriter, r *http.Request) {
 	b, e := json.Marshal( info ); err.Check( e )
 	pinfo, e := createInfoMask( b, mask ); err.Check( e )
 	err.HttpReturnOkWithData( &w, pinfo )
+}
+
+func UploadAvatar( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+
+	b, e := ioutil.ReadAll(r.Body); err.Check( e )
+	id, e := GetIdByAtk( r )
+	e = orm.SetAccountExAvatar( string( b ), id ); err.Check( e )
+	err.HttpReturnOk( &w )
+}
+
+func UploadPhone( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+
+	phone := r.FormValue("phone")
+	id, e := GetIdByAtk( r )
+	e = orm.SetAccountPhone( phone, id ); err.Check( e )
+	err.HttpReturnOk( &w )
+}
+
+// 移除cookie操作由前端完成，后端仅消除atk
+func Logout( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+
+	atk, e := GetAtk( r ); err.Check( e )
+	e = cache.Del( atk ); err.Check( e )
+	err.HttpReturnOk( &w )
+}
+
+func UploadInfo( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+
+	info := r.FormValue("info")
+	atk, e := GetIdByAtk( r )
+	e = orm.SetAccountExInfo( info, atk ); err.Check( e )
+	err.HttpReturnOk( &w )
 }
 
 func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, error) {
