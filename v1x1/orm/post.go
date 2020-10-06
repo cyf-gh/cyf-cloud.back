@@ -33,9 +33,23 @@ func Sync2Post() {
 }
 
 // 通过某一个人获取所有他的文章
-func GetPostsByOwner( OwnerId int64 ) ( []Post, error ) {
+// 仅通过atk
+func GetPostsByOwnerAll( OwnerId int64 ) ( []Post, error ) {
 	var posts []Post
 	e := engine_post.Table("Post").Where( "owner_id = ?", OwnerId).Find(&posts)
+	return posts, e
+}
+
+// 通过某一个人获取所有公开文章
+func GetPostsByOwnerPublic( OwnerId int64 ) ( []Post, error ) {
+	var posts []Post
+	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 1", OwnerId).Find(&posts)
+	return posts, e
+}
+
+func GetPostsAll() ( []Post, error ) {
+	var posts []Post
+	e := engine_post.Table("Post").Where( "is_private = 1" ).Find(&posts)
 	return posts, e
 }
 

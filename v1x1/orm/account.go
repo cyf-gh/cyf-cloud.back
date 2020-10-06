@@ -22,6 +22,8 @@ type (
 		Info string // 个人简介，markdown数据
 		Level string // \see ACCOUNT_LEVEL_xxx
 
+		BgUrl string // 装扮信息
+
 		Exp int64 // 等级？
 		PrivateInfoMask string // 用于遮罩哪些信息不可被外部访问
 	}

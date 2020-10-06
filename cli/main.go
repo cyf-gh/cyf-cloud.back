@@ -36,7 +36,7 @@ func proc() {
 			glg.Error(r)
 		}
 	}()
-	print("cyf-cloud >")
+	print("cyf-cloud> ")
 	input, e := ir.ReadString('\n')
 
 	for input[0:1] == " " {

@@ -6,6 +6,7 @@ const (
 	ERR_SYS = "-1"		// 系统错误
 	ERR_INCORRECT = "-3"// 输入错误
 	ERR_OK = "0"		// ok
+	ERR_INVALID_ARGUMENT // 参数错误
 )
 
 const (

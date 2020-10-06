@@ -36,6 +36,7 @@ type (
 		Avatar string
 		Info string
 		Level string
+		BgUrl string
 	}
 )
 // 注册
@@ -196,6 +197,7 @@ func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, e
 	info.Info = ae.Info
 	info.Avatar = ae.Avatar
 	info.Level = ae.Level
+	info.BgUrl = ae.BgUrl
 	return info, ae.PrivateInfoMask, e
 }
 
