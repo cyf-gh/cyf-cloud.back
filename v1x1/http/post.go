@@ -118,14 +118,15 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 	// 获取文章
 	p, e = orm.GetPostById( id ); err.Check( e )
 
-	// 找出作者名字与tag名字
-	a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
+	myId, _ := GetIdByAtk( r ) // 没有权限也可以访问，可以为-1
 	// 只有不是本人的私有文章才不返回
-	if p.IsPrivate && a.Id != p.OwnerId {
+	if p.IsPrivate && myId != p.OwnerId {
 		err.HttpReturn( &w, "target post is private, cannot access", err_code.ERR_NO_AUTH, "", err_code.MakeHER200)
 		return
 	}
 
+	// 找出作者名字与tag名字
+	a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
 	tags, e := orm.GetTagNames( p.TagIds ); err.Check( e )
 
 	tP := &PostReaderModel{
