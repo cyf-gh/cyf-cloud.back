@@ -36,8 +36,8 @@ func makeHttpRouter() {
 func InitMiddlewares() {
 	glg.Log( "middleware loading..." )
 	mw.Register( mwu.LogUsedTime() )
-	mw.Register( mwu.EnableCookie() )
-	mw.Register( mwu.EnableAllowOrigin() )
+	// mw.Register( mwu.EnableCookie() )
+	// mw.Register( mwu.EnableAllowOrigin() )
 	glg.Log( "middleware finished loading" )
 }
 

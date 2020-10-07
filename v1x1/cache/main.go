@@ -44,12 +44,12 @@ func Set( key string, value interface{} ) (interface{}, error)  {
 	return RedisPool.Get().Do("SET", key, value)
 }
 
-func SetExp( key string, value interface{}, expSec int64 ) (interface{}, error) {
+func SetExp( key string, value interface{}, expSec int ) (interface{}, error) {
 	i, e := RedisPool.Get().Do("SET", key, value)
 	if e != nil {
 		return i, e
 	}
-	i, e = RedisPool.Get().Do("EXPlRE", key, expSec)
+	i, e = RedisPool.Get().Do("EXPIRE", key, strconv.Itoa( expSec ) )
 	if e != nil {
 		return i, e
 	}

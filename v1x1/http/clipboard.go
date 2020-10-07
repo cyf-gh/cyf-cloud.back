@@ -7,8 +7,8 @@ import (
 )
 
 func MakeClipboardKey( r *http.Request ) (string, error) {
-	atk, e := GetAtk( r )
-	return "clipboard" + atk, e;
+	a, e := GetAccountByAtk( r )
+	return "$clipboard$" + a.Name, e
 }
 
 func ClipboardPush(w http.ResponseWriter, r *http.Request) {

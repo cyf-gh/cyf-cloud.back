@@ -4,6 +4,7 @@ package orm
 
 import (
 	err "../err"
+	"time"
 )
 
 // 上传的文章
@@ -14,6 +15,7 @@ type Post struct {
 	TagIds[] int64
 	OwnerId int64
 	IsPrivate bool
+	Date string
 }
 
 // 上传的tag标签结构
@@ -53,8 +55,14 @@ func GetPostsAll() ( []Post, error ) {
 	return posts, e
 }
 
+func GetPostById( id int64) ( Post, error ) {
+	post := new(Post)
+	_, e := engine_post.Table("Post").ID( id ).Get(post)
+	return *post, e
+}
+
 // 向数据库添加一笔新文章
-func NewPost( title, text string, owner int64, tags []string) error {
+func NewPost( title, text string, owner int64, tags []string, private bool) error {
 	tagIds, e  := GetTagIds( tags )
 
 	_, e = engine_post.Table("Post").Insert( &Post{
@@ -62,6 +70,8 @@ func NewPost( title, text string, owner int64, tags []string) error {
 		Text:      text,
 		TagIds:    tagIds,
 		OwnerId: owner,
+		IsPrivate: private,
+		Date: time.Now().Format("2006-01-02 15:04:05"),
 	})
 	// err.Check( e )
 	return e
@@ -118,4 +128,20 @@ func GetTagIds( tags []string ) ( []int64, error ) {
 		tagIds = append(tagIds, t.Id)
 	}
 	return tagIds, nil
+}
+
+func GetTagNames( tagIds []int64 ) ( []string, error ) {
+	var (
+		tags []string
+	)
+
+	for _, id := range tagIds {
+		tag := new(Tag)
+		if exists, e := engine_post.Table("Tag").ID(id).Get(tag); exists && e == nil {
+			tags = append(tags, tag.Text)
+		} else {
+			return nil, e
+		}
+	}
+	return tags, nil
 }

@@ -23,9 +23,9 @@ func Init() {
 	http.HandleFunc("/v1x1/post/create", mwh.WrapPost( NewPost ) )
 	http.HandleFunc("/v1x1/post/modify", mwh.WrapPost( ModifyPost ) )
 	http.HandleFunc("/v1x1/post/modifyNT", mwh.WrapPost(ModifyPostNoText) )
-	http.HandleFunc("/v1x1/posts", mwh.WrapPost(  GetPosts ) )
-	http.HandleFunc("/v1x1/posts/self", mwh.WrapPost(  GetMyPosts ) )
-	http.HandleFunc("/v1x1/post", mwh.WrapPost(  GetMyPosts ) )
+	http.HandleFunc("/v1x1/posts", mwh.WrapGet(  GetPosts ) )
+	http.HandleFunc("/v1x1/posts/self", mwh.WrapGet(  GetMyPosts ) )
+	http.HandleFunc("/v1x1/post", mwh.WrapGet(  GetPost ) )
 
 	http.HandleFunc( "/v1x1/clipboard/push", mwh.WrapPost( ClipboardPush ) )
 	http.HandleFunc( "/v1x1/clipboard/fetch", mwh.WrapGet( ClipboardFetch ) )

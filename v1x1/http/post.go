@@ -1,24 +1,36 @@
+
 package http
 
 import (
 	err "../err"
-	errCod "../err_code"
+	"../err_code"
 	orm "../orm"
 	"encoding/json"
 	"errors"
 	"github.com/kpango/glg"
 	"io/ioutil"
 	"net/http"
+	"stgogo/comn/convert"
 	"strconv"
 	"strings"
 )
 
 // 发布新文章
-type PostModel struct {
-	Title string
-	Text string
-	TagIds[] string
-}
+type (
+	PostModel struct {
+		Title string
+		Text string
+		TagIds[] string
+		IsPrivate bool
+	}
+	PostReaderModel struct {
+		Title string
+		Text string
+		Tags[] string
+		Author string
+		Date string
+	}
+)
 
 func NewPost( w http.ResponseWriter, r *http.Request) {
 	defer func() {
@@ -29,17 +41,11 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 
 	var post PostModel
 
-	b, e := ioutil.ReadAll(r.Body)
-	err.Check( e )
-	e = json.Unmarshal( b, &post )
-	err.Check( e )
+	b, e := ioutil.ReadAll(r.Body); err.Check( e )
+	e = json.Unmarshal( b, &post ); err.Check( e )
 
-	account, e := GetAccountByAtk( r )
-	err.Check( e )
-	glg.Log( account )
-	glg.Log( post )
-	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds )
-	err.Check( e )
+	account, e := GetAccountByAtk( r ); err.Check( e ); glg.Log( account ); glg.Log( post )
+	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Check( e )
 	err.HttpReturnOk( &w )
 }
 
@@ -60,17 +66,11 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 
 	var post ModifiedPostModel
 
-	b, e := ioutil.ReadAll(r.Body)
-	err.Check( e )
-	e = json.Unmarshal( b, &post )
-	err.Check( e )
+	b, e := ioutil.ReadAll(r.Body); err.Check( e )
+	e = json.Unmarshal( b, &post ); err.Check( e )
 
-	account, e := GetAccountByAtk( r )
-	err.Check( e )
-	glg.Log( account )
-	glg.Log( post )
-	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds )
-	err.Check( e )
+	account, e := GetAccountByAtk( r ); err.Check( e ); glg.Log( account ); glg.Log( post )
+	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds ); err.Check( e )
 	err.HttpReturnOk( &w )
 }
 
@@ -99,8 +99,45 @@ func ModifyPostNoText( w http.ResponseWriter, r *http.Request) {
 	err.HttpReturnOk( &w )
 }
 
-func GetPost( w http.ResponseWriter, r *http.Request ) {
 
+
+func GetPost( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		id int64
+		e error
+		postsB []byte
+		p orm.Post
+	)
+	strId := r.FormValue("id")
+	id, e = convert.Atoi64( strId ); err.Check( e )
+	// 获取文章
+	p, e = orm.GetPostById( id ); err.Check( e )
+	if p.IsPrivate {
+		err.HttpReturn( &w, "target post is private, cannot access", err_code.ERR_NO_AUTH, "", err_code.MakeHER200)
+		return
+	}
+
+	// 找出作者名字与tag名字
+	a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
+	tags, e := orm.GetTagNames( p.TagIds ); err.Check( e )
+
+	tP := &PostReaderModel{
+		Title:  p.Title,
+		Text:   p.Text,
+		Tags:    tags,
+		Author: a.Name,
+		Date: p.Date,
+	}
+
+	{
+		postsB, e = json.Marshal( tP ); err.Check( e )
+	}
+	err.HttpReturnOkWithData( &w, string(postsB) )
 }
 
 func GetPosts( w http.ResponseWriter, r *http.Request) {
@@ -172,17 +209,16 @@ func getRange( rg string ) ( int, int, error ){
 		e error
 	)
 	// 如果range该参数为空，则不限定
-	if rg != "" {
-		// 限定获取文章的篇数
-		if rga = strings.Split( rg, ":"); len(rga) != 2 {
-			return -1, -1, errors.New("invalid range argument")
-		}
-		if head, e = strconv.Atoi( rga[0] ); e != nil {
-			return -1, -1, e
-		}
-		if end, e = strconv.Atoi( rga[1] ); e != nil {
-			return -1, -1, e
-		}
-		return head, end, nil
+	// 限定获取文章的篇数
+	if rga = strings.Split( rg, ":"); len(rga) != 2 {
+		return -1, -1, errors.New("invalid range argument")
 	}
+	if head, e = strconv.Atoi( rga[0] ); e != nil {
+		return -1, -1, e
+	}
+	if end, e = strconv.Atoi( rga[1] ); e != nil {
+		return -1, -1, e
+	}
+	return head, end, nil
 }
+
