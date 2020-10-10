@@ -2,8 +2,8 @@ package cli
 
 import (
 	c "../../cli"
-	"../cache"
 	cfg "../../config"
+	"../cache"
 )
 
 func Init() {

@@ -180,9 +180,19 @@ func UploadInfo( w http.ResponseWriter, r *http.Request ) {
 	err.HttpReturnOk( &w )
 }
 
-func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, error) {
-	info := &InfoModel{}
+func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) *InfoModel {
+	return &InfoModel{
+		Name:   a.Name,
+		Email:  a.Email,
+		Phone:  a.Phone,
+		Avatar: ae.Avatar,
+		Info:   ae.Info,
+		Level:  ae.Level,
+		BgUrl:  ae.BgUrl,
+	}
+}
 
+func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, error) {
 	a, e := orm.GetAccountByName( userName )
 	if e != nil {
 		return nil, "", e
@@ -191,19 +201,13 @@ func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, e
 	if e != nil {
 		return nil, "", e
 	}
-	info.Name = a.Name
-	info.Email = a.Email
-	info.Phone = a.Phone
-	info.Info = ae.Info
-	info.Avatar = ae.Avatar
-	info.Level = ae.Level
-	info.BgUrl = ae.BgUrl
+
+	info := copyInfoFromAAE( a ,ae )
 	return info, ae.PrivateInfoMask, e
 }
 
 // 将账户信息转化为InfoModel
 func getRawInfoByAtk( r *http.Request ) (*InfoModel, error) {
-	info := &InfoModel {}
 	a, e := GetAccountByAtk( r )
 	if e != nil {
 		return nil, e
@@ -212,12 +216,8 @@ func getRawInfoByAtk( r *http.Request ) (*InfoModel, error) {
 	if e != nil {
 		return nil, e
 	}
-	info.Name = a.Name
-	info.Email = a.Email
-	info.Phone = a.Phone
-	info.Info = ae.Info
-	info.Avatar = ae.Avatar
-	info.Level = ae.Level
+
+	info := copyInfoFromAAE( a ,ae )
 	return info, e
 }
 

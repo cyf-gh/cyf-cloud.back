@@ -29,6 +29,7 @@ type (
 		Tags[] string
 		Author string
 		Date string
+		MyPost bool
 	}
 )
 
@@ -110,7 +111,9 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 		e error
 		postsB []byte
 		p orm.Post
+		myPost bool
 	)
+	myPost = false
 	strId := r.FormValue("id")
 	id, e = convert.Atoi64( strId ); err.Check( e )
 	// 获取文章
@@ -123,6 +126,10 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 		return
 	}
 
+	if myId == p.OwnerId {
+		myPost = true
+	}
+
 	// 找出作者名字与tag名字
 	a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
 	tags, e := orm.GetTagNames( p.TagIds ); err.Check( e )
@@ -133,6 +140,7 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 		Tags:    tags,
 		Author: a.Name,
 		Date: p.Date,
+		MyPost: myPost,
 	}
 
 	{

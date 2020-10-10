@@ -4,7 +4,6 @@
 package config
 
 import (
-	Err "../v1x1/err"
 	"fmt"
 	"github.com/kpango/glg"
 	"gopkg.in/ini.v1"
@@ -29,8 +28,13 @@ type RedisConfig struct {
 }
 
 func configServerInfo() {
-	cfg, err := ini.Load("./server.cfg")
-	Err.Check(err)
+	var (
+		cfg *ini.File
+		err error
+	)
+	if cfg, err = ini.Load("./server.cfg"); err != nil {
+		panic( err )
+	}
 
 	LogAddr = cfg.Section("server_address").Key("log").String()
 	TcpAddr = cfg.Section("server_address").Key("tcp").String()
