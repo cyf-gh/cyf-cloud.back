@@ -99,8 +99,6 @@ func ModifyPostNoText( w http.ResponseWriter, r *http.Request) {
 	err.HttpReturnOk( &w )
 }
 
-
-
 func GetPost( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r != nil {

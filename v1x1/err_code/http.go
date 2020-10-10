@@ -1,5 +1,9 @@
 package err_code
 
+import (
+	cfg "../../config"
+)
+
 // errcode一览
 const (
 	ERR_SECURITY = "-2" // 安全问题
@@ -24,6 +28,13 @@ type HttpErrReturn struct {
 // 创建一个错误返回
 func MakeHER( desc, errcode string) *HttpErrReturn {
 	her := new(HttpErrReturn)
+
+	// 如果为部署模式，则隐藏错误信息
+	if cfg.RunMode == "dep" && errcode == ERR_SYS {
+		her.Desc = "server internal error"
+		her.ErrCod = errcode
+		return her
+	}
 
 	her.Desc = desc
 	her.ErrCod = errcode

@@ -21,6 +21,7 @@ var (
  	FreshUdpInterval int64
  	SqlitePath string
  	RedisCfg RedisConfig
+	RunMode string	// dev or dep
 )
 type RedisConfig struct {
 	Addr string
@@ -41,6 +42,9 @@ func configServerInfo() {
 	RedisCfg.Addr = cfg.Section("redis").Key("address").String()
 	RedisCfg.MaxIdle, _ = cfg.Section("redis").Key("max_idle").Int()
 	RedisCfg.MaxActive, _ = cfg.Section("redis").Key("max_active").Int()
+
+	RunMode = cfg.Section("common").Key("mode").String()
+	println("server start with mode:\"" + RunMode + "\"")
 
 	SqlitePath =  cfg.Section("sqlite3").Key("path").String()
 

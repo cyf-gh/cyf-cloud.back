@@ -27,10 +27,10 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 	her, statusCode := MakeHERxxx( desc, errCode )
 	her.Data = data
 	(*w).WriteHeader( statusCode )
-	bs, err := json.Marshal(her) // 将her结构体转化为json
-	Check(err)
-	_, err = (*w).Write(bs)
-	Check(err)
+
+	// 将her结构体转化为json
+	bs, err := json.Marshal(her); Check(err)
+	_, err = (*w).Write(bs); Check(err)
 
 	glg.Log( fmt.Sprintf( "[HttpReturn] - StatusCode:(%d) - HER (%s)", statusCode, her ))
 }
