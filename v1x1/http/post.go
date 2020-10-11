@@ -30,6 +30,7 @@ type (
 		Author string
 		Date string
 		MyPost bool
+		IsPrivate bool
 	}
 )
 
@@ -40,14 +41,17 @@ func NewPost( w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	var post PostModel
+	var (
+		post PostModel
+		id int64
+	)
 
 	b, e := ioutil.ReadAll(r.Body); err.Check( e )
 	e = json.Unmarshal( b, &post ); err.Check( e )
 
 	account, e := GetAccountByAtk( r ); err.Check( e ); glg.Log( account ); glg.Log( post )
-	e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Check( e )
-	err.HttpReturnOk( &w )
+	id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Check( e )
+	err.HttpReturnOkWithData( &w, convert.I64toa(id) )
 }
 
 // 修改文章
@@ -56,6 +60,7 @@ type ModifiedPostModel struct {
 	Title string
 	Text string
 	TagIds[] string
+	IsPrivate bool
 }
 
 func ModifyPost( w http.ResponseWriter, r *http.Request) {
@@ -71,7 +76,7 @@ func ModifyPost( w http.ResponseWriter, r *http.Request) {
 	e = json.Unmarshal( b, &post ); err.Check( e )
 
 	account, e := GetAccountByAtk( r ); err.Check( e ); glg.Log( account ); glg.Log( post )
-	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.TagIds ); err.Check( e )
+	e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds ); err.Check( e )
 	err.HttpReturnOk( &w )
 }
 
@@ -141,6 +146,7 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 		Author: a.Name,
 		Date: p.Date,
 		MyPost: myPost,
+		IsPrivate: p.IsPrivate,
 	}
 
 	{

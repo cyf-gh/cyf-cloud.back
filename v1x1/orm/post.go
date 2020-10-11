@@ -62,31 +62,34 @@ func GetPostById( id int64) ( Post, error ) {
 }
 
 // 向数据库添加一笔新文章
-func NewPost( title, text string, owner int64, tags []string, private bool) error {
+func NewPost( title, text string, owner int64, tags []string, private bool) (int64, error) {
 	tagIds, e  := GetTagIds( tags )
-
-	_, e = engine_post.Table("Post").Insert( &Post{
+	newPost := &Post{
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
 		OwnerId: owner,
 		IsPrivate: private,
 		Date: time.Now().Format("2006-01-02 15:04:05"),
-	})
+	}
+
+	_, e = engine_post.Table("Post").Insert( newPost )
 	// err.Check( e )
-	return e
+	return newPost.Id, e
 }
 
 // 修改文章
-func ModifyPost( id int64, title, text string, owner int64, tags []string) error {
+func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags []string) error {
 	tagIds, e := GetTagIds( tags )
-
-	_, e = engine_post.Table("Post").ID(id).Update(&Post{
+	mp := &Post{
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
 		OwnerId:   owner,
-	})
+		IsPrivate: isPrivate,
+		Date: time.Now().Format("2006-01-02 15:04:05"),
+	}
+	_, e = engine_post.Table("Post").AllCols().ID(id).Update(mp)
 	return e
 }
 
