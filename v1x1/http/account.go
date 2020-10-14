@@ -28,6 +28,7 @@ type (
 		LoginType  string  `json:"loginType"`
 		// LoginType 应在前端进行完解析为
 		// email name phone 三种之一
+		KeepLogin bool `json:"keepLogin"`
 	}
 	InfoModel struct {
 		Name string
@@ -83,19 +84,26 @@ func Login( w http.ResponseWriter, r *http.Request) {
 			err.HttpRecoverBasic( &w, r )
 		}
 	}()
-	var loginModel LoginModel
-
+	var (
+		loginModel LoginModel
+		maxAge int
+		tokenCl http.Cookie
+	)
 	b, e := ioutil.ReadAll(r.Body); 		err.Check(e)
 	e = json.Unmarshal( b, &loginModel ); 	err.Check(e)
 
 	account, e := orm.GetAccountByLoginType( loginModel.Login,sec.CryptoPasswd( loginModel.Pswd ), loginModel.LoginType )
 	err.Check( e )
 
-	token, e := CreateAtk( account.Id ); 	err.Check( e )
+	if loginModel.KeepLogin {
+		maxAge = orm.TIME_EXPIRE_ONE_MONTH
+	} else {
+		maxAge = orm.TIME_EXPIRE_ONE_DAY
+}
+	token, e := CreateAtk( account.Id, maxAge ); err.Check( e )
+	tokenCl = http.Cookie{ Name:"atk", Value:token, Path:"/", MaxAge: maxAge }
 
-	tokenCl := http.Cookie{Name:"atk", Value:token, Path:"/", MaxAge:2626560 }
 	http.SetCookie(w, &tokenCl)
-
 	err.HttpReturnOk( &w )
 }
 
@@ -163,6 +171,9 @@ func Logout( w http.ResponseWriter, r *http.Request ) {
 	}()
 
 	atk, e := GetAtk( r ); err.Check( e )
+
+	tokenCl := http.Cookie{Name:"atk", Path:"/", MaxAge: -1 }
+	http.SetCookie( w, &tokenCl )
 	e = cache.Del( atk ); err.Check( e )
 	err.HttpReturnOk( &w )
 }

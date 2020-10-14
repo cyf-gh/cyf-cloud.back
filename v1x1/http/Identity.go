@@ -9,6 +9,8 @@ import (
 	"strconv"
 )
 
+
+
 func GetCid( r *http.Request ) ( string, error ) {
 	cl, e  := r.Cookie("cid")
 	if e != nil {
@@ -59,9 +61,15 @@ func GetAccountExByAtk( r *http.Request ) ( *orm.AccountEx, error ) {
 	return orm.GetAccountEx( id )
 }
 
-func CreateAtk( id int64 ) (string, error) {
-	token := sec.GenerateAtk()
+func CreateAtk( id int64, exp int ) (string, error) {
+	var token string
+
+	if exp == orm.TIME_EXPIRE_ONE_DAY {
+		token = sec.GenerateAtkSession()
+	} else {
+		token = sec.GenerateAtk()
+	}
 	// 添加token到token列表中
-	_, e := cache.SetExp(token, id, 2626560 ) // 1个月
+	_, e := cache.SetExp(token, id, exp )
 	return token, e
 }

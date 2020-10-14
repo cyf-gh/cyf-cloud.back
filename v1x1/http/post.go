@@ -155,7 +155,7 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 	err.HttpReturnOkWithData( &w, string(postsB) )
 }
 
-func GetPosts( w http.ResponseWriter, r *http.Request) {
+func GetPostInfos( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r != nil {
 			err.HttpRecoverBasic( &w, r )
@@ -166,7 +166,7 @@ func GetPosts( w http.ResponseWriter, r *http.Request) {
 	var (
 
 		e error
-		posts []orm.Post
+		posts []orm.PostInfo
 		postsB []byte
 		a * orm.Account
 	)
@@ -174,14 +174,15 @@ func GetPosts( w http.ResponseWriter, r *http.Request) {
 	// 如果user参数为空，则获取所有人的文章
 	if user != "" {
 		a, e = orm.GetAccountByName( user )			; err.Check( e )
-		posts, e = orm.GetPostsByOwnerPublic( a.Id ); err.Check( e )
+		posts, e = orm.GetPostInfosByOwnerPublic( a.Id ); err.Check( e )
 	} else {
-		posts, e = orm.GetPostsAll(); err.Check( e )
-	}
-
-	if rg != "" {
-		head, end, e := getRange( rg ); err.Check( e )
-		posts = posts[head:end]
+		// 如果设定了范围，则取范围
+		if rg != "" {
+			start, count, e := getRange( rg ); err.Check( e )
+			posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
+		} else {
+			posts, e = orm.GetPostInfosAll(); err.Check( e )
+		}
 	}
 
 	{
@@ -190,25 +191,26 @@ func GetPosts( w http.ResponseWriter, r *http.Request) {
 	err.HttpReturnOkWithData( &w, string(postsB) )
 }
 
-func GetMyPosts( w http.ResponseWriter, r *http.Request) {
+func GetMyPostInfos( w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if r := recover(); r != nil {
 			err.HttpRecoverBasic( &w, r )
 		}
 	}()
 	var (
-		posts []orm.Post
+		posts []orm.PostInfo
 		postsB []byte
 		e error
 	)
 	rg := r.FormValue("range")
 
 	a, e := GetAccountByAtk( r );	err.Check( e )
-	posts, e = orm.GetPostsByOwnerAll( a.Id ); err.Check( e )
 
 	if rg != "" {
-		head, end, e := getRange( rg ); err.Check( e )
-		posts = posts[head:end]
+		start, count, e := getRange( rg ); err.Check( e )
+		posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
+	} else {
+		posts, e = orm.GetPostInfosByOwnerAll( a.Id ); err.Check( e )
 	}
 
 	{
@@ -237,3 +239,35 @@ func getRange( rg string ) ( int, int, error ){
 	return head, end, nil
 }
 
+func GetAllTags( w http.ResponseWriter, r *http.Request ) {
+	var (
+		e error
+	)
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	tags, e := orm.GetAllTags(); err.Check( e )
+	tb, e := json.Marshal( tags ); 	err.Check( e )
+
+	err.HttpReturnOkWithData( &w, string(tb) )
+}
+
+func GetPostInfosByTags( w http.ResponseWriter, r *http.Request ) {
+	var (
+		e error
+	)
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	tags := r.FormValue("tags")
+	tgs := strings.Split( tags, ",")
+	pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
+
+	pb, e := json.Marshal(pis); err.Check( e )
+
+    err.HttpReturnOkWithData( &w, string( pb ) )
+}

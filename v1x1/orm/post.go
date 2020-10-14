@@ -4,28 +4,40 @@ package orm
 
 import (
 	err "../err"
+	"fmt"
+	"stgogo/comn/convert"
 	"time"
 )
 
 // 上传的文章
-type Post struct {
-	Id int64
-	Title string
-	Text string
-	TagIds[] int64
-	OwnerId int64
-	IsPrivate bool
-	Date string
-}
-
+type (
+	Post struct {
+		Id int64
+		Title string
+		Text string
+		TagIds[] int64
+		OwnerId int64
+		IsPrivate bool
+		Date string
+	}
+	PostInfo struct {
+		Id int64
+		Title string
+		Date string
+		IsPrivate bool
+	}
+)
 // 上传的tag标签结构
 // tag同时将作为分区的主要依据
 // TODO:tag达到一定数量则升级为分区
-type Tag struct {
-	Id int64
-	Text string
-	IsCatalog bool
-}
+type (
+	Tag struct {
+		Id int64
+		Text string
+		IsCatalog bool
+		Percentage float32
+	}
+)
 
 func Sync2Post() {
 	e := engine_post.Sync2(new(Post))
@@ -36,21 +48,27 @@ func Sync2Post() {
 
 // 通过某一个人获取所有他的文章
 // 仅通过atk
-func GetPostsByOwnerAll( OwnerId int64 ) ( []Post, error ) {
-	var posts []Post
+func GetPostInfosByOwnerAll( OwnerId int64 ) ( []PostInfo, error ) {
+	var posts []PostInfo
 	e := engine_post.Table("Post").Where( "owner_id = ?", OwnerId).Find(&posts)
 	return posts, e
 }
 
+func GetAllPublicPostInfosLimited( start, count int ) ( []PostInfo, error ) {
+	var posts []PostInfo
+	e := engine_post.Table("Post").Where( "is_private = 1" ).Limit( count, start ).Find(&posts)
+	return posts, e
+}
+
 // 通过某一个人获取所有公开文章
-func GetPostsByOwnerPublic( OwnerId int64 ) ( []Post, error ) {
-	var posts []Post
+func GetPostInfosByOwnerPublic( OwnerId int64 ) ( []PostInfo, error ) {
+	var posts []PostInfo
 	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 1", OwnerId).Find(&posts)
 	return posts, e
 }
 
-func GetPostsAll() ( []Post, error ) {
-	var posts []Post
+func GetPostInfosAll() ( []PostInfo, error ) {
+	var posts []PostInfo
 	e := engine_post.Table("Post").Where( "is_private = 1" ).Find(&posts)
 	return posts, e
 }
@@ -147,4 +165,34 @@ func GetTagNames( tagIds []int64 ) ( []string, error ) {
 		}
 	}
 	return tags, nil
+}
+
+func GetPostInfosByTags( tags []string ) ( []PostInfo, error ) {
+	var (
+		pis []PostInfo
+		findEx string
+	)
+	tagIds, e := GetTagIds( tags )
+	findEx = ""
+	for i, id := range tagIds {
+		sid := convert.I64toa(id)
+		// tag交集
+		// id = 1
+		// tags_ids like '[1,%' or like '%,1,%' or like '%,1]'
+		findEx += fmt.Sprintf( "(tags_ids like '[%s,%%' or tags_ids like '%%,%s,%%' or tags_ids like '%%,%s]')", sid, sid, sid )
+		if i != len(tagIds) - 1 {
+			findEx += "and"
+		}
+	}
+	e = engine_post.Table("Post").Where( findEx ).Find(&pis)
+	return pis, e
+}
+
+func GetAllTags() ( []Tag, error ) {
+	var (
+		tags []Tag
+		e error
+	)
+	e = engine_post.Table("Tag").Find(&tags)
+	return tags, e
 }

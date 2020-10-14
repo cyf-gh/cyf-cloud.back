@@ -36,6 +36,10 @@ const (
 	ACCOUNT_LEVEL_UNREGISTERED = "unrgstr" // 还未验证账户
 
 	ACCOUNT_LEVEL_TEST = "t" 		// 测试账户，鸟用没有
+
+	TIME_EXPIRE_ONE_MONTH = 2626560
+	TIME_EXPIRE_ONE_DAY = 87552
+
 )
 
 func Sync2Account() {

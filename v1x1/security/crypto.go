@@ -23,6 +23,10 @@ func GenerateAtk() string {
 	return "$atk$"+uuid.New().String()
 }
 
+func GenerateAtkSession() string {
+	return "$atk$"+uuid.New().String() + "$session$"
+}
+
 func GetRandom() string {
 	result, _ := rand.Int(rand.Reader, big.NewInt(9223372036854775807))
 	return ToSHA512(result.String())
