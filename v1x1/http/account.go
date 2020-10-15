@@ -38,6 +38,7 @@ type (
 		Info string
 		Level string
 		BgUrl string
+		FavPost []orm.PostInfo
 	}
 )
 // 注册
@@ -99,7 +100,7 @@ func Login( w http.ResponseWriter, r *http.Request) {
 		maxAge = orm.TIME_EXPIRE_ONE_MONTH
 	} else {
 		maxAge = orm.TIME_EXPIRE_ONE_DAY
-}
+	}
 	token, e := CreateAtk( account.Id, maxAge ); err.Check( e )
 	tokenCl = http.Cookie{ Name:"atk", Value:token, Path:"/", MaxAge: maxAge }
 
@@ -191,7 +192,8 @@ func UploadInfo( w http.ResponseWriter, r *http.Request ) {
 	err.HttpReturnOk( &w )
 }
 
-func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) *InfoModel {
+func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) (*InfoModel, error) {
+	ps, e := orm.GetPostInfosByIds( ae.FavPosts )
 	return &InfoModel{
 		Name:   a.Name,
 		Email:  a.Email,
@@ -200,7 +202,8 @@ func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) *InfoModel {
 		Info:   ae.Info,
 		Level:  ae.Level,
 		BgUrl:  ae.BgUrl,
-	}
+		FavPost: ps,
+	}, e
 }
 
 func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, error) {
@@ -213,7 +216,7 @@ func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, e
 		return nil, "", e
 	}
 
-	info := copyInfoFromAAE( a ,ae )
+	info, e := copyInfoFromAAE( a ,ae ); err.Check( e )
 	return info, ae.PrivateInfoMask, e
 }
 
@@ -228,7 +231,7 @@ func getRawInfoByAtk( r *http.Request ) (*InfoModel, error) {
 		return nil, e
 	}
 
-	info := copyInfoFromAAE( a ,ae )
+	info, e := copyInfoFromAAE( a ,ae ); err.Check( e )
 	return info, e
 }
 
@@ -251,3 +254,4 @@ func createInfoMask( b []byte, mask string ) ( string, error ) {
 	}
 	return string( bi ), e
 }
+

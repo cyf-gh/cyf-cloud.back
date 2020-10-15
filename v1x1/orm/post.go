@@ -73,10 +73,28 @@ func GetPostInfosAll() ( []PostInfo, error ) {
 	return posts, e
 }
 
-func GetPostById( id int64) ( Post, error ) {
+func GetPostInfoById( id int64 ) ( PostInfo, error ) {
+	post := new(PostInfo)
+	_, e := engine_post.Table("Post").ID( id ).Get(post)
+	return *post, e
+}
+
+func GetPostById( id int64 ) ( Post, error ) {
 	post := new(Post)
 	_, e := engine_post.Table("Post").ID( id ).Get(post)
 	return *post, e
+}
+
+func GetPostInfosByIds( ids []int64 ) ( []PostInfo, error ) {
+	var ps []PostInfo
+	for _, id := range ids {
+		if p, e := GetPostInfoById(id); e != nil {
+			return nil, e
+		} else {
+			ps = append( ps, p )
+		}
+	}
+	return ps, nil
 }
 
 // 向数据库添加一笔新文章

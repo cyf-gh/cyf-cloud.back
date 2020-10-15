@@ -56,7 +56,7 @@ func SetExp( key string, value interface{}, expSec int ) (interface{}, error) {
 	return i, e
 }
 
-func Get( key string ) ( string, error) {
+func Get( key string ) ( string, error ) {
 	return redis.String( RedisPool.Get().Do("GET", key ) )
 }
 

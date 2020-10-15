@@ -26,6 +26,8 @@ type (
 
 		Exp int64 // 等级？
 		PrivateInfoMask string // 用于遮罩哪些信息不可被外部访问
+
+		FavPosts []int64 // 收藏文章
 	}
 )
 

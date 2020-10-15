@@ -69,5 +69,16 @@ v1x1 将采用全新的返回方法，需要前端配合获取数据。
 
 - [ ] 统计调用次数（redis）
 
+### 高频率访问API
 
+见 http/post_freq.go
 
+#### View
+为文章阅读次数
+
+其cache设计为：
+```golang
+$post_view${{post_id}} : {{int64}}
+```
+
+表示Key为某个文章的id，而值为观看过文章的用户id列表

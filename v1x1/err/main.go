@@ -53,6 +53,10 @@ func HttpRecoverBasic( w *http.ResponseWriter, re interface{} ) {
 	HttpReturn( w, fmt.Sprint( re ), errCode.ERR_SYS, "", errCode.MakeHER200 )
 }
 
+func HttpReturnArgInvalid( w *http.ResponseWriter, argName string ) {
+	HttpReturn( w, "invalid argument: \""+argName +"\"", errCode.ERR_INVALID_ARGUMENT, "", errCode.MakeHER200 )
+}
+
 func HttpReturnOk( w *http.ResponseWriter ) {
 	HttpReturn(w, "ok", errCode.ERR_OK, "", errCode.MakeHER200 )
 }
