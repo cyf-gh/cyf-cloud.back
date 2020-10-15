@@ -19,6 +19,7 @@ type (
 		OwnerId int64
 		IsPrivate bool
 		Date string
+		CreateDate string
 	}
 	PostInfo struct {
 		Id int64
@@ -107,6 +108,7 @@ func NewPost( title, text string, owner int64, tags []string, private bool) (int
 		OwnerId: owner,
 		IsPrivate: private,
 		Date: time.Now().Format("2006-01-02 15:04:05"),
+		CreateDate: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	_, e = engine_post.Table("Post").Insert( newPost )

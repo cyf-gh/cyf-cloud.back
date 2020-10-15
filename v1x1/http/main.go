@@ -29,11 +29,12 @@ func Init() {
 	http.HandleFunc( "/v1x1/tags", mwh.WrapGet( GetAllTags) )
 	http.HandleFunc( "/v1x1/posts/by/tag", mwh.WrapGet( GetPostInfosByTags ) )
 
-	http.HandleFunc( "/v1x1/post/viewed", mwh.WrapGet( ViewedPost ) )
+	http.HandleFunc( "/v1x1/post/view", mwh.WrapGet( ViewedPost ) )
 	http.HandleFunc( "/v1x1/post/view/count", mwh.WrapGet( GetViewCount ) )
 	http.HandleFunc( "/v1x1/post/fav/add", mwh.WrapGet( AddFav ) )
-	http.HandleFunc( "/v1x1/post/fav/update", mwh.WrapPost( AddFav ) )
-	http.HandleFunc( "/v1x1/post/like_it", mwh.WrapGet() )
+	http.HandleFunc( "/v1x1/post/fav/update", mwh.WrapPost( UpdateFav ) )
+	http.HandleFunc( "/v1x1/post/like", mwh.WrapGet( LikeIt ) )
+	http.HandleFunc( "/v1x1/post/like/count", mwh.WrapGet( LikeCount ) )
 
 	http.HandleFunc( "/v1x1/clipboard/push", mwh.WrapPost( ClipboardPush ) )
 	http.HandleFunc( "/v1x1/clipboard/fetch", mwh.WrapGet( ClipboardFetch ) )

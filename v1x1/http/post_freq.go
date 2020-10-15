@@ -10,7 +10,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"stgogo/comn/convert"
+	"strconv"
 	"strings"
+)
+
+type (
+	LikeInfoModel struct {
+		Count int
+		Liked bool
+	}
 )
 
 const (
@@ -30,10 +38,11 @@ func getPostView( pid string ) int64 {
 	}
 }
 
-func doPostView( pid string ) {
+func doPostView( pid string ) error {
 	k :=  _postViewPrefix + pid
 
-	_, _ =cache.Set( k, convert.I64toa( getPostView( pid ) + 1) ) // no error
+	_, e := cache.Set( k, convert.I64toa( getPostView( pid ) + 1) ) // no error
+	return e
 }
 
 func getPostLikeIt( pid string ) []string {
@@ -47,7 +56,7 @@ func getPostLikeIt( pid string ) []string {
 	}
 }
 
-func clickPostLikeIt( pid string , uid string ) {
+func clickPostLikeIt( pid string , uid string ) error {
 	k :=  _postLikeItPrefix + pid
 	removeLike := false
 
@@ -64,11 +73,12 @@ func clickPostLikeIt( pid string , uid string ) {
 	if !removeLike {
 		ps = append( ps, uid )
 	}
-	_, _ = cache.Set( k, ps )
+	_, e := cache.Set( k, ps )
+	return e
 }
 
 // Actions
-
+//
 func GetViewCount( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r  != nil {
@@ -98,7 +108,7 @@ func ViewedPost( w http.ResponseWriter, r *http.Request ) {
 	if pid = r.FormValue("id"); pid == "" {
 		err.HttpReturnArgInvalid( &w, "id"); return
 	}
-	doPostView( pid )
+	e := doPostView( pid ); err.Check( e )
     err.HttpReturnOk( &w )
 }
 
@@ -116,7 +126,80 @@ func AddFav( w http.ResponseWriter, r *http.Request ) {
 	e = json.Unmarshal( b, &favList ); err.Check( e )
 
 	id, e := GetIdByAtk( r ); err.Check( e )
-	_, e = orm.UpdateFav( id, favList )
+	_, e = orm.UpdateFav( id, favList ); err.Check( e )
 
     err.HttpReturnOk( &w )
+}
+
+func UpdateFav( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		e error
+		pid string
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid( &w, "id"); return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+	npid, e := convert.Atoi64( pid ); err.Check( e )
+	_, e = orm.AddFav( id, npid ); err.Check( e )
+
+	err.HttpReturnOk( &w )
+}
+
+func LikeIt( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		e error
+		pid string
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid( &w, "id"); return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+
+	e = clickPostLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
+    err.HttpReturnOk( &w )
+}
+
+func LikeCount( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r != nil {
+			err.HttpRecoverBasic(&w, r)
+		}
+	}()
+	var (
+		e   error
+		pid string
+
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid(&w, "id");
+		return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+	likes := getPostLikeIt( pid )
+	nid := convert.I64toa( id )
+
+	li := LikeInfoModel{
+		Count: len( likes ),
+		Liked: false,
+	}
+	for _, nnid := range likes {
+		if nid == nnid {
+			li.Liked = true
+		}
+	}
+
+	bli, e := json.Marshal( pid ); err.Check( e )
+
+	err.HttpReturnOkWithData( &w, string(bli) )
 }
