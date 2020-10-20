@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"stgogo/comn/convert"
+	"stgogo/comn/refactor"
 	"strconv"
 	"strings"
 )
@@ -31,6 +32,12 @@ type (
 		Date string
 		MyPost bool
 		IsPrivate bool
+	}
+	PostInfoModel struct {
+		orm.Post
+		Author string
+		ViewedCount int64
+		Tags []string
 	}
 )
 
@@ -164,7 +171,6 @@ func GetPostInfos( w http.ResponseWriter, r *http.Request) {
 	user := r.FormValue("user")
 	rg := r.FormValue("range")
 	var (
-
 		e error
 		posts []orm.PostInfo
 		postsB []byte
@@ -185,10 +191,51 @@ func GetPostInfos( w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	epi, e := extendPostInfo(posts); err.Check( e )
+
 	{
-		postsB, e = json.Marshal( posts ); 	err.Check( e )
+		postsB, e = json.Marshal( epi ); 	err.Check( e )
 	}
 	err.HttpReturnOkWithData( &w, string(postsB) )
+}
+
+func extendPostInfo( posts []orm.PostInfo ) ([]PostInfoModel, error) {
+	var (
+		pims []PostInfoModel
+		a * orm.Account
+		e error
+	)
+	aMap := make(map[int64]*orm.Account)
+
+	for _, p := range posts {
+		pim := PostInfoModel{}
+		if e = refactor.CopyFields( &pim, p ); e != nil {
+			return nil, e
+		}
+		// 获取阅读量
+		pim.ViewedCount = getPostView( convert.I64toa( p.Id ) )
+		pims = append(pims, pim)
+	}
+
+	// 获取笔者名字
+	for i, p := range pims {
+		if a = aMap[p.OwnerId]; a == nil {
+			if a, e = orm.GetAccount( p.OwnerId ); e != nil {
+				return nil, e
+			}
+			aMap[a.Id] = a
+		}
+		pims[i].Author = a.Name
+
+		var tgs []string
+		if tgs, e = orm.GetTagNames( pims[i].TagIds); e != nil {
+			return nil, e
+		}
+		pims[i].Tags = tgs
+	}
+
+
+	return pims, nil
 }
 
 func GetMyPostInfos( w http.ResponseWriter, r *http.Request) {
@@ -213,8 +260,10 @@ func GetMyPostInfos( w http.ResponseWriter, r *http.Request) {
 		posts, e = orm.GetPostInfosByOwnerAll( a.Id ); err.Check( e )
 	}
 
+	epi, e := extendPostInfo(posts); err.Check( e )
+
 	{
-		postsB, e = json.Marshal( posts ); 	err.Check( e )
+		postsB, e = json.Marshal( epi ); 	err.Check( e )
 	}
 	err.HttpReturnOkWithData( &w, string(postsB) )
 }
@@ -267,7 +316,9 @@ func GetPostInfosByTags( w http.ResponseWriter, r *http.Request ) {
 	tgs := strings.Split( tags, ",")
 	pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
 
-	pb, e := json.Marshal(pis); err.Check( e )
+	ps, e := extendPostInfo( pis )
+
+	pb, e := json.Marshal(ps); err.Check( e )
 
     err.HttpReturnOkWithData( &w, string( pb ) )
 }

@@ -24,8 +24,10 @@ type (
 	PostInfo struct {
 		Id int64
 		Title string
-		Date string
+		CreateDate string
 		IsPrivate bool
+		OwnerId int64
+		TagIds[] int64
 	}
 )
 // 上传的tag标签结构
@@ -57,20 +59,20 @@ func GetPostInfosByOwnerAll( OwnerId int64 ) ( []PostInfo, error ) {
 
 func GetAllPublicPostInfosLimited( start, count int ) ( []PostInfo, error ) {
 	var posts []PostInfo
-	e := engine_post.Table("Post").Where( "is_private = 1" ).Limit( count, start ).Find(&posts)
+	e := engine_post.Table("Post").Where( "is_private = 0" ).Limit( count, start ).Find(&posts)
 	return posts, e
 }
 
 // 通过某一个人获取所有公开文章
 func GetPostInfosByOwnerPublic( OwnerId int64 ) ( []PostInfo, error ) {
 	var posts []PostInfo
-	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 1", OwnerId).Find(&posts)
+	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 0", OwnerId).Find(&posts)
 	return posts, e
 }
 
 func GetPostInfosAll() ( []PostInfo, error ) {
 	var posts []PostInfo
-	e := engine_post.Table("Post").Where( "is_private = 1" ).Find(&posts)
+	e := engine_post.Table("Post").Where( "is_private = 0" ).Find(&posts)
 	return posts, e
 }
 
@@ -198,12 +200,13 @@ func GetPostInfosByTags( tags []string ) ( []PostInfo, error ) {
 		sid := convert.I64toa(id)
 		// tag交集
 		// id = 1
-		// tags_ids like '[1,%' or like '%,1,%' or like '%,1]'
-		findEx += fmt.Sprintf( "(tags_ids like '[%s,%%' or tags_ids like '%%,%s,%%' or tags_ids like '%%,%s]')", sid, sid, sid )
+		// tag_ids like '[1,%' or like '%,1,%' or like '%,1]'
+		findEx += fmt.Sprintf( "(tag_ids like '[%s,%%' or tag_ids like '%%,%s,%%' or tag_ids like '%%,%s]')", sid, sid, sid )
 		if i != len(tagIds) - 1 {
 			findEx += "and"
 		}
 	}
+	findEx += " and is_private = 0"
 	e = engine_post.Table("Post").Where( findEx ).Find(&pis)
 	return pis, e
 }
