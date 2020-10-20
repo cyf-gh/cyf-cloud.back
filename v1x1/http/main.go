@@ -26,8 +26,8 @@ func Init() {
 	http.HandleFunc("/v1x1/posts/info", mwh.WrapGet( GetPostInfos ) )
 	http.HandleFunc("/v1x1/posts/info/self", mwh.WrapGet( GetMyPostInfos ) )
 	http.HandleFunc("/v1x1/post", mwh.WrapGet(  GetPost ) )
-	http.HandleFunc( "/v1x1/tags", mwh.WrapGet( GetAllTags) )
 	http.HandleFunc( "/v1x1/posts/by/tag", mwh.WrapGet( GetPostInfosByTags ) )
+	http.HandleFunc( "/v1x1/tags", mwh.WrapGet( GetAllTags) )
 
 	http.HandleFunc( "/v1x1/post/view", mwh.WrapGet( ViewedPost ) )
 	http.HandleFunc( "/v1x1/post/view/count", mwh.WrapGet( GetViewCount ) )

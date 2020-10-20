@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"stgogo/comn/convert"
-	"strconv"
 	"strings"
 )
 
@@ -112,7 +111,7 @@ func ViewedPost( w http.ResponseWriter, r *http.Request ) {
     err.HttpReturnOk( &w )
 }
 
-func AddFav( w http.ResponseWriter, r *http.Request ) {
+func UpdateFav( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r  != nil {
 			err.HttpRecoverBasic( &w, r )
@@ -131,7 +130,7 @@ func AddFav( w http.ResponseWriter, r *http.Request ) {
     err.HttpReturnOk( &w )
 }
 
-func UpdateFav( w http.ResponseWriter, r *http.Request ) {
+func AddFav( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r  != nil {
 			err.HttpRecoverBasic( &w, r )

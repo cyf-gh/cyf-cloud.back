@@ -144,7 +144,7 @@ func GetPost( w http.ResponseWriter, r *http.Request ) {
 		Text:   p.Text,
 		Tags:    tags,
 		Author: a.Name,
-		Date: p.Date,
+		Date: p.CreateDate,
 		MyPost: myPost,
 		IsPrivate: p.IsPrivate,
 	}
