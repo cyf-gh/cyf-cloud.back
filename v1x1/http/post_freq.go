@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"stgogo/comn/convert"
-	"strings"
 )
 
 type (
@@ -44,14 +43,16 @@ func doPostView( pid string ) error {
 	return e
 }
 
-func getPostLikeIt( pid string ) []string {
+func getPostLikeIt( pid string ) ( postLikes []string, e error ) {
 	k :=  _postLikeItPrefix + pid
 	if ps, e := cache.Get( k ); e != nil {
+		empty, _ := json.Marshal([]string{})
 		// 还没有键，创建键
-		cache.Set( k, "")
-		return nil
+		cache.Set( k, empty)
+		return nil, nil
 	} else {
-		return strings.Split( ps, "," )
+		e = json.Unmarshal( []byte(ps),&postLikes )
+		return postLikes, e
 	}
 }
 
@@ -59,21 +60,39 @@ func clickPostLikeIt( pid string , uid string ) error {
 	k :=  _postLikeItPrefix + pid
 	removeLike := false
 
-	ps := getPostLikeIt( pid )
-
-	// 如果存在了喜欢，则取消喜欢
-	for i, uidLiked := range ps {
-		if uidLiked == uid {
-			ps = append( ps[:i], ps[i+1:]... )
-			removeLike = true; break
+	if ps, e := getPostLikeIt( pid ); e != nil {
+		return e
+	} else {
+		// 如果存在了喜欢，则取消喜欢
+		for i, uidLiked := range ps {
+			if uidLiked == uid {
+				ps = append( ps[:i], ps[i+1:]... )
+				removeLike = true; break
+			}
 		}
+		// 如果没有进行取消喜欢操作，则添加喜欢
+		if !removeLike {
+			ps = append( ps, uid )
+		}
+		strPs, _  := json.Marshal( ps )
+		_, e := cache.Set( k, strPs )
+		return e
 	}
-	// 如果没有进行取消喜欢操作，则添加喜欢
-	if !removeLike {
-		ps = append( ps, uid )
+}
+
+func isLikeIt( pid, uid string ) (bool, error) {
+	if ps, e := getPostLikeIt( pid ); e != nil {
+		return false, e
+	} else {
+		// 如果存在了喜欢，则取消喜欢
+		for _, uidLiked := range ps {
+			if uidLiked == uid {
+				return true, nil
+			}
+		}
+		return false, nil
 	}
-	_, e := cache.Set( k, ps )
-	return e
+
 }
 
 // Actions
@@ -150,6 +169,51 @@ func AddFav( w http.ResponseWriter, r *http.Request ) {
 	err.HttpReturnOk( &w )
 }
 
+func RemoveFav( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		e error
+		pid string
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid( &w, "id"); return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+	npid, e := convert.Atoi64( pid ); err.Check( e )
+
+	_, e = orm.RemoveFav( id, npid ); err.Check( e )
+
+    err.HttpReturnOk( &w )
+}
+
+func IsPostFav( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		e error
+		pid string
+		isFav bool
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid( &w, "id"); return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+	npid, e := convert.Atoi64( pid ); err.Check( e )
+
+	isFav, e = orm.IsPostFav( id, npid ); err.Check( e )
+
+
+    err.HttpReturnOkWithData( &w, convert.Bool2a( isFav ) )
+}
+
+
 func LikeIt( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r  != nil {
@@ -169,6 +233,26 @@ func LikeIt( w http.ResponseWriter, r *http.Request ) {
     err.HttpReturnOk( &w )
 }
 
+func IsLikeIt( w http.ResponseWriter, r *http.Request ) {
+	defer func() {
+		if r := recover(); r  != nil {
+			err.HttpRecoverBasic( &w, r )
+		}
+	}()
+	var (
+		e error
+		pid string
+	)
+	if pid = r.FormValue("id"); pid == "" {
+		err.HttpReturnArgInvalid( &w, "id"); return
+	}
+	id, e := GetIdByAtk( r ); err.Check( e )
+
+	isLike, e := isLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
+
+	err.HttpReturnOkWithData( &w, convert.Bool2a( isLike ) )
+}
+
 func LikeCount( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -185,7 +269,7 @@ func LikeCount( w http.ResponseWriter, r *http.Request ) {
 		return
 	}
 	id, e := GetIdByAtk( r ); err.Check( e )
-	likes := getPostLikeIt( pid )
+	likes, e := getPostLikeIt( pid ); err.Check( e )
 	nid := convert.I64toa( id )
 
 	li := LikeInfoModel{
@@ -198,7 +282,7 @@ func LikeCount( w http.ResponseWriter, r *http.Request ) {
 		}
 	}
 
-	bli, e := json.Marshal( pid ); err.Check( e )
+	bli, e := json.Marshal( li ); err.Check( e )
 
 	err.HttpReturnOkWithData( &w, string(bli) )
 }

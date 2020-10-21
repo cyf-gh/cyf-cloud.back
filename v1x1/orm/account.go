@@ -67,6 +67,8 @@ func NewAccount( name, email, phone, passwd string ) error {
 		Level:     ACCOUNT_LEVEL_NORMAL,
 		Exp:       0,
 		PrivateInfoMask: "Phone",
+		BgUrl: "",
+		FavPosts: []int64{},
 	})
 	return e
 }

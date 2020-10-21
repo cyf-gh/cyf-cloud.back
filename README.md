@@ -4,7 +4,7 @@ cyf-cloud的服务器端，使用Golang编写。
 
 ## 基本
 
-[编码规范](https://github.com/cyf-gh/api.cyf-cloud/blob/master/CODE_STD.md)
+[编码规范](https://github.com/cyf-gh/api.cyf-cloud/blob/master/CodeStandard.md)
 
 ### API 版本
 * [v1](https://github.com/cyf-gh/api.cyf-cloud/blob/master/v1/README.md)（停止维护）

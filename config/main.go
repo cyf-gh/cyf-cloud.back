@@ -20,11 +20,19 @@ var (
  	FreshUdpInterval int64
  	SqlitePath string
  	RedisCfg RedisConfig
-	RunMode string	// dev or dep
+	RunMode string	// run_mode or dep
 )
 type RedisConfig struct {
 	Addr string
 	MaxIdle, MaxActive int
+}
+
+func IsRunModeDev() bool {
+	return RunMode == "dev"
+}
+
+func IsRunModeDep() bool {
+	return RunMode == "dep"
 }
 
 func configServerInfo() {

@@ -7,7 +7,7 @@ import (
 // errcode一览
 const (
 	ERR_SECURITY = "-2" // 安全问题
-	ERR_SYS = "-1"		// 系统错误
+	ERR_SYS = "-1"		// 系统错误；同时为服务器内部错误的标识
 	ERR_INCORRECT = "-3"// 输入错误
 	ERR_OK = "0"		// ok
 	ERR_INVALID_ARGUMENT = "-4" // 参数错误
@@ -30,7 +30,7 @@ func MakeHER( desc, errcode string) *HttpErrReturn {
 	her := new(HttpErrReturn)
 
 	// 如果为部署模式，则隐藏错误信息
-	if cfg.RunMode == "dep" && errcode == ERR_SYS {
+	if cfg.IsRunModeDep() && errcode == ERR_SYS {
 		her.Desc = "server internal error"
 		her.ErrCod = errcode
 		return her

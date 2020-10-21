@@ -2,6 +2,7 @@
   <dictionary name="cyf-m">
     <words>
       <w>pims</w>
+      <w>sqlite</w>
     </words>
   </dictionary>
 </component>
