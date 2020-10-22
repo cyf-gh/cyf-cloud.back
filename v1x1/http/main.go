@@ -19,6 +19,8 @@ func Init() {
 	http.HandleFunc( "/v1x1/account/update/phone", mwh.WrapGet( UploadPhone ) )
 	http.HandleFunc( "/v1x1/account/update/description", mwh.WrapGet( UploadInfo ) )
 
+	http.HandleFunc( "/v1x1/account/fav/post/info", mwh.WrapGet( GetAccountFav ) )
+
 	http.HandleFunc("/v1x1/post/create", mwh.WrapPost( NewPost ) )
 	http.HandleFunc("/v1x1/post/modify", mwh.WrapPost( ModifyPost ) )
 	http.HandleFunc("/v1x1/post/modifyNT", mwh.WrapPost( ModifyPostNoText ) )

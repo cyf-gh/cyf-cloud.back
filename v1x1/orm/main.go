@@ -10,7 +10,7 @@ import (
 	"xorm.io/xorm"
 )
 
-var engine *xorm.Engine
+var engine_account *xorm.Engine
 var engine_post *xorm.Engine
 var engine_chat *xorm.Engine
 
@@ -31,7 +31,7 @@ func InitEngine( dbPath string ) {
 			err.Exit( err_code.ERR_INIT_ORM )
 		}
 	}()
-	connectDb( &engine, "account.db", dbPath )
+	connectDb( &engine_account, "account.db", dbPath )
 	Sync2Account()
 
 	connectDb( &engine_post, "post.db", dbPath )

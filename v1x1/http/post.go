@@ -194,7 +194,7 @@ func GetPostInfos( w http.ResponseWriter, r *http.Request) {
 	epi, e := extendPostInfo(posts); err.Check( e )
 
 	{
-		postsB, e = json.Marshal( epi ); 	err.Check( e )
+		postsB, e = json.Marshal( epi ); err.Check( e )
 	}
 	err.HttpReturnOkWithData( &w, string(postsB) )
 }

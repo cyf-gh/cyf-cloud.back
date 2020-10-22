@@ -45,14 +45,14 @@ const (
 )
 
 func Sync2Account() {
-	e := engine.Sync2(new(Account))
+	e := engine_account.Sync2(new(Account))
 	err.Check( e )
-	e = engine.Sync2(new(AccountEx))
+	e = engine_account.Sync2(new(AccountEx))
 	err.Check( e )
 }
 
 func NewAccount( name, email, phone, passwd string ) error {
-	id, e := engine.Table("Account").Insert( &Account{
+	id, e := engine_account.Table("Account").Insert( &Account{
 		Name:   name,
 		Email:  email,
 		Phone:  phone,
@@ -60,7 +60,7 @@ func NewAccount( name, email, phone, passwd string ) error {
 	})
 	if e != nil { return e }
 
-	_, e = engine.Table("account_ex").Insert( &AccountEx{
+	_, e = engine_account.Table("account_ex").Insert( &AccountEx{
 		AccountId: id,
 		Avatar:    "",
 		Info:      "",
@@ -76,27 +76,27 @@ func NewAccount( name, email, phone, passwd string ) error {
 func SetAccountPhone( phone string, id int64 ) error {
 	a := &Account{}
 	a.Phone = phone
-	_, e := engine.Table("account").ID( id ).Update( a )
+	_, e := engine_account.Table("account").ID( id ).Update( a )
 	return e
 }
 
 func SetAccountExInfo( info string, id int64 ) error {
 	ae := &AccountEx{}
 	ae.Info = info
-	_, e := engine.Table("account_ex").Where("account_id = ?", id ).Update( ae )
+	_, e := engine_account.Table("account_ex").Where("account_id = ?", id ).Update( ae )
 	return e
 }
 
 func SetAccountExAvatar( avatar string, id int64 ) error {
 	ae := &AccountEx{}
 	ae.Avatar = avatar
-	_, e := engine.Table("account_ex").Where("account_id = ?", id ).Update( ae )
+	_, e := engine_account.Table("account_ex").Where("account_id = ?", id ).Update( ae )
 	return e
 }
 
 func GetAccountEx( id int64 ) ( *AccountEx, error ) {
 	ae := &AccountEx{}
-	has, e := engine.Table("account_ex").Where("account_id = ?", id ).Get(ae)
+	has, e := engine_account.Table("account_ex").Where("account_id = ?", id ).Get(ae)
 	if e != nil {
 		return nil, e
 	} else if !has {
@@ -107,7 +107,7 @@ func GetAccountEx( id int64 ) ( *AccountEx, error ) {
 
 func GetAccount( id int64 ) (*Account, error) {
 	a := &Account{}
-	has, e := engine.Table("Account").ID(id).Get(a)
+	has, e := engine_account.Table("Account").ID(id).Get(a)
 	if e != nil {
 		return nil, e
 	} else if !has {
@@ -118,7 +118,7 @@ func GetAccount( id int64 ) (*Account, error) {
 
 func GetAccountByName( name string )  (*Account, error) {
 	a := new(Account)
-	exists, _ := engine.Table("Account").Where(  "name = ?", name).Get(a)
+	exists, _ := engine_account.Table("Account").Where(  "name = ?", name).Get(a)
 	if !exists {
 		return nil, errors.New("no such account")
 	}
@@ -127,7 +127,7 @@ func GetAccountByName( name string )  (*Account, error) {
 
 func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) {
 	a := new(Account)
-	exists, _ := engine.Table("Account").Where( loginType + " = ?", login).Get(a)
+	exists, _ := engine_account.Table("Account").Where( loginType + " = ?", login).Get(a)
 
 	if !exists {
 		return nil, errors.New("no such account")
