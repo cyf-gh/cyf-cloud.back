@@ -6,6 +6,7 @@ import (
 	"../cache"
 	"../err"
 	"../orm"
+	"../../cc"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -95,24 +96,26 @@ func isLikeIt( pid, uid string ) (bool, error) {
 
 }
 
-// Actions
-//
-func GetViewCount( w http.ResponseWriter, r *http.Request ) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
+func CCPostFreq() {
+
+	cc.GET( "/v1x1/post/view/count", func( w http.ResponseWriter, r *http.Request ) {
+		defer func() {
+			if r := recover(); r  != nil {
+				err.HttpRecoverBasic( &w, r )
+			}
+		}()
+		var (
+			pid string
+		)
+
+		if pid = r.FormValue("id"); pid == "" {
+			err.HttpReturnArgInvalid( &w, "id"); return
 		}
-	}()
-    var (
-		pid string
-	)
 
-	if pid = r.FormValue("id"); pid == "" {
-		err.HttpReturnArgInvalid( &w, "id"); return
-	}
-
-    err.HttpReturnOkWithData( &w, convert.I64toa( getPostView( pid ) ) )
+		err.HttpReturnOkWithData( &w, convert.I64toa( getPostView( pid ) ) )
+	} )
 }
+
 
 func ViewedPost( w http.ResponseWriter, r *http.Request ) {
 	defer func() {
