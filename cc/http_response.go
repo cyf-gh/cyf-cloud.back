@@ -20,6 +20,7 @@ type (
 		Data   string // 携带数据
 	}
 	MakeHERxxx func( desc, errcode string ) ( *HttpErrReturn, int )
+	StatusCode int
 )
 
 // 创建一个错误返回
@@ -38,7 +39,7 @@ func MakeHER( desc, errcode string) *HttpErrReturn {
 	return her
 }
 
-func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode int ) {
+func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode StatusCode ) {
 	defer func() {
 		if e := recover(); e != nil {
 			glg.Error( e )
@@ -47,7 +48,7 @@ func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode int )
 		}
 	}()
 
-	(*w).WriteHeader( statusCode )
+	(*w).WriteHeader( int(statusCode) )
 
 	// 将her结构体转化为json
 	bs, e := json.Marshal(*her); err.Check(e)

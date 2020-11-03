@@ -8,7 +8,7 @@ import (
 )
 
 // data将会自动转化为json
-func HerOkWithData( data interface{} ) ( HttpErrReturn, int ) {
+func HerOkWithData( data interface{} ) ( HttpErrReturn, StatusCode ) {
 	jn, e := json.Marshal( data ); err.Check( e )
 	return HttpErrReturn{
 		ErrCod: err_code.ERR_OK,

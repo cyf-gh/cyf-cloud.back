@@ -35,7 +35,7 @@ type (
 		R *http.Request
 	}
 	ActionGroupFunc func( ActionGroup ) error
-	ActionFunc func( ActionPackage ) ( HttpErrReturn, int )
+	ActionFunc func( ActionPackage ) ( HttpErrReturn, StatusCode )
 )
 
 var (
@@ -56,7 +56,7 @@ func init() {
 // 所有的 action 将在 RegisterActions() 被调用时启用
 func AddActionGroup( groupPath string, actionFunc ActionGroupFunc) {
 	if _, ok := actionGroupHandlers[groupPath]; ok {
-		glg.Warn("action:", groupPath, "already exists, recovered.")
+		glg.Warn("action group:", groupPath, "already exists, recovered.")
 	}
 	actionGroupHandlers[groupPath] = actionFunc
 }
@@ -65,7 +65,7 @@ func AddActionGroup( groupPath string, actionFunc ActionGroupFunc) {
 func RegisterActions() error {
 	for k, a := range actionGroupHandlers {
 		if e := a( ActionGroup{Path: k} ); e != nil {
-			glg.Error("in action:", k)
+			glg.Error("in action group:", k)
 			return e
 		}
 	}
@@ -74,7 +74,7 @@ func RegisterActions() error {
 
 // 添加一个Post请求
 func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
-	glg.Log( "[cc] POST: ", path )
+	glg.Log( "[action] POST: ", path )
 	http.HandleFunc( a.Path+ path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r } )
@@ -85,7 +85,7 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 
 // 添加一个Get请求
 func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
-	glg.Log( "[cc] GET: ", path )
+	glg.Log( "[action] GET: ", path )
 	http.HandleFunc( a.Path+path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r } )
