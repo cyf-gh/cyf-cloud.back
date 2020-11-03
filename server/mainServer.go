@@ -1,9 +1,7 @@
 package server
 
 import (
-	"github.com/kpango/glg"
-	"net/http"
-
+	"../cc"
 	"../config"
 	mw "../middleware"
 	mwu "../middleware/util"
@@ -13,6 +11,8 @@ import (
 	v1x1http "../v1x1/http"
 	orm "../v1x1/orm"
 	security "../v1x1/security"
+	"github.com/kpango/glg"
+	"net/http"
 )
 
 // 路由应在Init函数中完成
@@ -36,6 +36,7 @@ func makeHttpRouter() {
 func InitMiddlewares() {
 	glg.Log( "middleware loading..." )
 	mw.Register( mwu.LogUsedTime() )
+	mw.Register( mwu.ErrorFetcher() )
 	// mw.Register( mwu.EnableCookie() )
 	// mw.Register( mwu.EnableAllowOrigin() )
 	glg.Log( "middleware finished loading" )
@@ -54,6 +55,9 @@ func RunHttpServer( httpAddr string, rc config.RedisConfig, sqlitePath string ) 
 	InitMiddlewares()
 	// 部署所有路由
 	makeHttpRouter()
-
+	// 部署所有路由
+	if e := cc.RegisterActions(); e != nil {
+		panic( e )
+	}
 	http.ListenAndServe(httpAddr, nil)
 }

@@ -3,8 +3,8 @@
 package orm
 
 import (
-	err "../err"
-	err_code "../err_code"
+	err "../../cc/err"
+	err_code "../../cc/err_code"
 	"github.com/kpango/glg"
 	_ "github.com/mattn/go-sqlite3"
 	"xorm.io/xorm"

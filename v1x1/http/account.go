@@ -3,8 +3,8 @@ package http
 
 import (
 	"../cache"
-	err "../err"
-	err_code "../err_code"
+	err "../../cc/err"
+	err_code "../../cc/err_code"
 	orm "../orm"
 	sec "../security"
 	"encoding/json"
@@ -80,11 +80,6 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 // 登录
 func Login( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
 	var (
 		loginModel LoginModel
 		maxAge int
@@ -110,12 +105,6 @@ func Login( w http.ResponseWriter, r *http.Request) {
 
 // 直接返回所有的信息
 func PrivateUserInfo( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-
 	info, e := getRawInfoByAtk( r ); err.Check( e )
 
 	b, e := json.Marshal( info ); err.Check( e )
@@ -124,11 +113,6 @@ func PrivateUserInfo( w http.ResponseWriter, r *http.Request) {
 
 // 返回公开的信息
 func PublicUserInfo( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
 	user := r.FormValue("user")
 	info, mask, e := getRawInfoByName( r, user ); err.Check( e )
 

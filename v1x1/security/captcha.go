@@ -1,8 +1,8 @@
 package security
 
 import (
-	err "../err"
-	err_code "../err_code"
+	err "../../cc/err"
+	err_code "../../cc/err_code"
 	captcha "github.com/base64Captcha"
 	"github.com/kpango/glg"
 	"net/http"

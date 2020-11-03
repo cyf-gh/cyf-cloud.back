@@ -19,8 +19,6 @@ func Init() {
 	http.HandleFunc( "/v1x1/account/update/phone", mwh.WrapGet( UploadPhone ) )
 	http.HandleFunc( "/v1x1/account/update/description", mwh.WrapGet( UploadInfo ) )
 
-	CCAccountFav()
-
 	http.HandleFunc("/v1x1/post/create", mwh.WrapPost( NewPost ) )
 	http.HandleFunc("/v1x1/post/modify", mwh.WrapPost( ModifyPost ) )
 	http.HandleFunc("/v1x1/post/modifyNT", mwh.WrapPost( ModifyPostNoText ) )
@@ -31,7 +29,7 @@ func Init() {
 	http.HandleFunc( "/v1x1/tags", mwh.WrapGet( GetAllTags) )
 
 	http.HandleFunc( "/v1x1/post/view", mwh.WrapGet( ViewedPost ) )
-	http.HandleFunc( "/v1x1/post/view/count", mwh.WrapGet( GetViewCount ) )
+	// http.HandleFunc( "/v1x1/post/view/count", mwh.WrapGet( GetViewCount ) )
 
 	http.HandleFunc( "/v1x1/post/fav/add", mwh.WrapGet( AddFav ) )
 	http.HandleFunc( "/v1x1/post/fav/update", mwh.WrapPost( UpdateFav ) )
