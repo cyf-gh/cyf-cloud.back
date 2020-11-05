@@ -18,10 +18,27 @@ func HerOkWithData( data interface{} ) ( HttpErrReturn, StatusCode ) {
 }
 
 // data将会自动转化为json
-func HerOk() ( HttpErrReturn, int ) {
+func HerOkWithString( str string ) ( HttpErrReturn, StatusCode ) {
 	return HttpErrReturn{
 		ErrCod: err_code.ERR_OK,
 		Desc:   "ok",
+		Data:   str,
+	}, http.StatusOK
+}
+
+// data将会自动转化为json
+func HerOk() ( HttpErrReturn, StatusCode ) {
+	return HttpErrReturn{
+		ErrCod: err_code.ERR_OK,
+		Desc:   "ok",
+		Data:   "",
+	}, http.StatusOK
+}
+
+func HerArgInvalid( argName string ) ( HttpErrReturn, StatusCode ) {
+	return HttpErrReturn{
+		ErrCod: err_code.ERR_INVALID_ARGUMENT,
+		Desc:   "invalid argument: \""+argName +"\"",
 		Data:   "",
 	}, http.StatusOK
 }

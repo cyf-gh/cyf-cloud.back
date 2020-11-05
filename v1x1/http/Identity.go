@@ -25,7 +25,7 @@ func GetCid( r *http.Request ) ( string, error ) {
 func GetAtk( r *http.Request ) ( string, error ) {
 	cl, e  := r.Cookie("atk")
 	if e != nil {
-		glg.Error("cid not found. it may be a post proxy problem")
+		glg.Error("atk not found. it may be a post proxy problem")
 		return "", e
 	}
 	atk := cl.Value

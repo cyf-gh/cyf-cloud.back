@@ -33,6 +33,7 @@ type (
 	}
 	ActionPackage struct {
 		R *http.Request
+		W *http.ResponseWriter
 	}
 	ActionGroupFunc func( ActionGroup ) error
 	ActionFunc func( ActionPackage ) ( HttpErrReturn, StatusCode )
@@ -77,7 +78,7 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 	glg.Log( "[action] POST: ", path )
 	http.HandleFunc( a.Path+ path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
-			her, status := handler( ActionPackage{ R: r } )
+			her, status := handler( ActionPackage{ R: r, W: &w } )
 			HttpReturnHER( &w, &her, status)
 		} ) )
 	postHandlers[path] = &handler
@@ -88,12 +89,26 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	glg.Log( "[action] GET: ", path )
 	http.HandleFunc( a.Path+path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
-			her, status := handler( ActionPackage{ R: r } )
+			her, status := handler( ActionPackage{ R: r, W: &w } )
 			HttpReturnHER( &w, &her, status)
 		} ) )
 	getHandlers[path] = &handler
 }
 
+func ( pap *ActionPackage )SetCookie( cookie *http.Cookie ) {
+	http.SetCookie( *pap.W, cookie )
+}
+
+func ( pap *ActionPackage ) GetCookie( key string ) ( string, error ) {
+	cl, e  := pap.R.Cookie("atk")
+	if e != nil {
+		glg.Error("atk not found. it may be a post proxy problem")
+		return "", e
+	}
+	atk := cl.Value
+	glg.Success("atk is (" + atk + ")")
+	return atk, e
+}
 
 
 
