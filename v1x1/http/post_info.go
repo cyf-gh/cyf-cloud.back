@@ -182,3 +182,4 @@ func GetPostInfosByTags( w http.ResponseWriter, r *http.Request ) {
 
 	err.HttpReturnOkWithData( &w, string( pb ) )
 }
+}

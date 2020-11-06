@@ -3,7 +3,7 @@
 package orm
 
 import (
-	err "../err"
+	err "../../cc/err"
 	"fmt"
 	"stgogo/comn/convert"
 	"time"

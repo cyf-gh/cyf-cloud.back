@@ -1,8 +1,8 @@
 package file
 
 import (
-	err "../err"
-	err_code "../err_code"
+	err "../../cc/err"
+	err_code "../../cc/err_code"
 	"fmt"
 	"io/ioutil"
 	"net/http"

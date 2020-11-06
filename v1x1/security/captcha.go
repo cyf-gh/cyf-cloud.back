@@ -1,8 +1,8 @@
 package security
 
 import (
-	err "../err"
-	err_code "../err_code"
+	err "../../cc/err"
+	err_code "../../cc/err_code"
 	captcha "github.com/base64Captcha"
 	"github.com/kpango/glg"
 	"net/http"
@@ -50,11 +50,6 @@ func GenerateCaptcha(w http.ResponseWriter, r *http.Request) {
 	item.WriteTo(w)
 }
 
-func CaptchaVerify(w *http.ResponseWriter, code, cid string) bool {
-	if store.Verify(cid, code, true) {
-		return true
-	} else {
-		err.HttpReturn( w, "wrong captcha", err_code.ERR_INCORRECT, "", err_code.MakeHER200 )
-		return false
-	}
+func CaptchaVerify(code, cid string) bool {
+	return store.Verify(cid, code, true)
 }

@@ -1,35 +1,31 @@
 package http
 
 import (
-	"net/http"
-	err "../err"
+	"../../cc"
+	err "../../cc/err"
 	cache "../cache"
+	"net/http"
 )
 
 func MakeClipboardKey( r *http.Request ) (string, error) {
 	a, e := GetAccountByAtk( r )
 	return "$clipboard$" + a.Name, e
 }
+func init() {
+	cc.AddActionGroup( "/v1x1/clipboard", func( a cc.ActionGroup ) error {
+	    a.POST( "/push", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			key, e := MakeClipboardKey( ap.R ); err.Check( e )
+			bs, e := Body2String( ap.R ); err.Check( e )
+			_, e = cache.Set( key, bs ); err.Check( e )
+			return cc.HerOk()
+	    } )
 
-func ClipboardPush(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	key, e := MakeClipboardKey( r ); err.Check( e )
-	bs, e := Body2String( r ); err.Check( e )
-	_, e = cache.Set( key, bs ); err.Check( e )
-	err.HttpReturnOk( &w )
-}
+	    a.GET( "/fetch", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			key, e := MakeClipboardKey( ap.R ); err.Check( e )
+			v, e := cache.Get( key ); err.Check( e )
+			return cc.HerOkWithString( v )
+	    } )
 
-func ClipboardFetch(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	key, e := MakeClipboardKey( r ); err.Check( e )
-	v, e := cache.Get( key ); err.Check( e )
-	err.HttpReturnOkWithData( &w, v )
+	    return nil
+	} )
 }

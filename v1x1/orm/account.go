@@ -1,7 +1,7 @@
 package orm
 
 import (
-	err "../err"
+	err "../../cc/err"
 	"errors"
 )
 

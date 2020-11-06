@@ -2,9 +2,10 @@
 package http
 
 import (
+	"../../cc"
+	err "../../cc/err"
+	"../../cc/err_code"
 	"../cache"
-	err "../err"
-	err_code "../err_code"
 	orm "../orm"
 	sec "../security"
 	"encoding/json"
@@ -41,155 +42,116 @@ type (
 		FavPost []orm.PostInfo
 	}
 )
-// 注册
-func Register(w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	var e error
-	cid, e := GetCid( r )
-	var registerModel RegisterModel
 
-	b, e := ioutil.ReadAll(r.Body)
-	err.Check(e)
-	e = json.Unmarshal( b, &registerModel )
-	glg.Log( registerModel )
-	err.Check(e)
+func init() {
+	cc.AddActionGroup("/v1x1/account", func(a cc.ActionGroup) error {
+		a.POST("/register", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+			var e error
+			cid, e := GetCid(ap.R)
+			var registerModel RegisterModel
 
-	if len( registerModel.Cap ) != 4 {
-		err.HttpReturn(&w, "wrong captcha", err_code.ERR_INCORRECT, "", err_code.MakeHER200 )
-		return
-	}
+			b, e := ioutil.ReadAll(ap.R.Body)
+			err.Check(e)
+			e = json.Unmarshal(b, &registerModel)
+			glg.Log(registerModel)
+			err.Check(e)
 
-	if false == sec.CaptchaVerify( &w, registerModel.Cap, cid ) {
-		return
-	}
+			if len(registerModel.Cap) != 4 {
+				return cc.HttpErrReturn{
+					ErrCod: err_code.ERR_INCORRECT,
+					Desc:   "wrong captcha",
+					Data:   "",
+				}, http.StatusOK
+			}
 
-	cryPswd := sec.CryptoPasswd( registerModel.Pswd )
+			if false == sec.CaptchaVerify(registerModel.Cap, cid) {
+				return cc.HttpErrReturn{
+					ErrCod: err_code.ERR_INCORRECT,
+					Desc:   "wrong captcha",
+					Data:   "",
+				}, http.StatusOK
+			}
 
-	if registerModel.Phone == "" {
-		registerModel.Phone = sec.GetRandom();
-	}
-	e = orm.NewAccount( registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd )
-	err.Check(e)
-	err.HttpReturnOk( &w )
-}
+			cryPswd := sec.CryptoPasswd(registerModel.Pswd)
 
+			if registerModel.Phone == "" {
+				registerModel.Phone = sec.GetRandom();
+			}
+			e = orm.NewAccount(registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd); err.Check(e)
+			return cc.HerOk()
+		})
 
-// 登录
-func Login( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	var (
-		loginModel LoginModel
-		maxAge int
-		tokenCl http.Cookie
-	)
-	b, e := ioutil.ReadAll(r.Body); 		err.Check(e)
-	e = json.Unmarshal( b, &loginModel ); 	err.Check(e)
+		a.POST("/login", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+			var (
+				loginModel LoginModel
+				maxAge     int
+				tokenCl    http.Cookie
+			)
+			b, e := ioutil.ReadAll(ap.R.Body); err.Check(e)
+			e = json.Unmarshal(b, &loginModel); err.Check(e)
 
-	account, e := orm.GetAccountByLoginType( loginModel.Login,sec.CryptoPasswd( loginModel.Pswd ), loginModel.LoginType )
-	err.Check( e )
+			account, e := orm.GetAccountByLoginType(loginModel.Login, sec.CryptoPasswd(loginModel.Pswd), loginModel.LoginType);err.Check(e)
 
-	if loginModel.KeepLogin {
-		maxAge = orm.TIME_EXPIRE_ONE_MONTH
-	} else {
-		maxAge = orm.TIME_EXPIRE_ONE_DAY
-	}
-	token, e := CreateAtk( account.Id, maxAge ); err.Check( e )
-	tokenCl = http.Cookie{ Name:"atk", Value:token, Path:"/", MaxAge: maxAge }
+			if loginModel.KeepLogin {
+				maxAge = orm.TIME_EXPIRE_ONE_MONTH
+			} else {
+				maxAge = orm.TIME_EXPIRE_ONE_DAY
+			}
+			token, e := CreateAtk(account.Id, maxAge); err.Check(e)
+			tokenCl = http.Cookie{Name: "atk", Value: token, Path: "/", MaxAge: maxAge}
 
-	http.SetCookie(w, &tokenCl)
-	err.HttpReturnOk( &w )
-}
+			ap.SetCookie( &tokenCl )
+			return cc.HerOk()
+		})
 
-// 直接返回所有的信息
-func PrivateUserInfo( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
+		a.POST( "/logout", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			atk, e := ap.GetCookie( "atk" ); err.Check( e )
 
-	info, e := getRawInfoByAtk( r ); err.Check( e )
+			tokenCl := http.Cookie{ Name:"atk", Path:"/", MaxAge: -1 }
+			ap.SetCookie( &tokenCl )
+			e = cache.Del( atk ); err.Check( e )
+			return cc.HerOk()
+		} )
 
-	b, e := json.Marshal( info ); err.Check( e )
-	err.HttpReturnOkWithData( &w, string( b ) )
-}
+		a.GET("/private/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+			info, e := getRawInfoByAtk(ap.R); err.Check(e)
 
-// 返回公开的信息
-func PublicUserInfo( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	user := r.FormValue("user")
-	info, mask, e := getRawInfoByName( r, user ); err.Check( e )
+			b, e := json.Marshal(info); err.Check(e)
+			return cc.HerOkWithData(b)
+		})
 
-	b, e := json.Marshal( info ); err.Check( e )
-	pinfo, e := createInfoMask( b, mask ); err.Check( e )
-	err.HttpReturnOkWithData( &w, pinfo )
-}
+		a.GET("/public/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+			user := ap.R.FormValue("user")
+			info, mask, e := getRawInfoByName(ap.R, user); err.Check(e)
 
-func UploadAvatar( w http.ResponseWriter, r *http.Request ) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
+			b, e := json.Marshal(info); err.Check(e)
+			pInfo, e := createInfoMask(b, mask); err.Check(e)
+			return cc.HerOkWithString(pInfo)
+		})
 
-	b, e := ioutil.ReadAll(r.Body); err.Check( e )
-	id, e := GetIdByAtk( r )
-	e = orm.SetAccountExAvatar( string( b ), id ); err.Check( e )
-	err.HttpReturnOk( &w )
-}
+		a.POST("/upload/avatar", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+			b, e := ioutil.ReadAll( ap.R.Body ); err.Check(e)
+			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			e = orm.SetAccountExAvatar( string( b ), id ); err.Check( e )
+			return cc.HerOk()
+		})
 
-func UploadPhone( w http.ResponseWriter, r *http.Request ) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
+		a.POST( "/update/phone", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			phone := ap.R.FormValue("phone")
+			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			e = orm.SetAccountPhone( phone, id ); err.Check( e )
+			return cc.HerOk()
+		} )
 
-	phone := r.FormValue("phone")
-	id, e := GetIdByAtk( r )
-	e = orm.SetAccountPhone( phone, id ); err.Check( e )
-	err.HttpReturnOk( &w )
-}
-
-// 移除cookie操作由前端完成，后端仅消除atk
-func Logout( w http.ResponseWriter, r *http.Request ) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-
-	atk, e := GetAtk( r ); err.Check( e )
-
-	tokenCl := http.Cookie{Name:"atk", Path:"/", MaxAge: -1 }
-	http.SetCookie( w, &tokenCl )
-	e = cache.Del( atk ); err.Check( e )
-	err.HttpReturnOk( &w )
-}
-
-func UploadInfo( w http.ResponseWriter, r *http.Request ) {
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-
-	info := r.FormValue("info")
-	atk, e := GetIdByAtk( r )
-	e = orm.SetAccountExInfo( info, atk ); err.Check( e )
-	err.HttpReturnOk( &w )
+		a.GET( "/update/description", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			info := ap.R.FormValue("info")
+			atk, e := GetIdByAtk( ap.R )
+			e = orm.SetAccountExInfo( info, atk ); err.Check( e )
+			return cc.HerOk()
+		} )
+		
+		return nil
+	})
 }
 
 func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) (*InfoModel, error) {

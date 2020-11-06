@@ -2,8 +2,8 @@
 package http
 
 import (
-	err "../err"
-	"../err_code"
+	err "../../cc/err"
+	"../../cc/err_code"
 	orm "../orm"
 	"encoding/json"
 	"github.com/kpango/glg"
