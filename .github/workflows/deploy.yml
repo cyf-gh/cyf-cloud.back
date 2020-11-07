@@ -26,9 +26,11 @@ jobs:
 
             # 重新启动服务器
             if ! screen -list | grep -q "go"; then
+              echo "create new screen"
               screen -dmS go bash -c "cd ~/.web/cyf-cloud.back/; go run ./main.go; bash"
             else
-              screen -S go -p 0 -X stuff "^C"
+              echo "screen already exists"
+              screen -S go -p 0 -X stuff "^C^M"
               screen -S go -p 0 -X stuff "cd ~/.web/cyf-cloud.back/^M"
               screen -S go -p 0 -X stuff "go run ./main.go^M"
             fi
