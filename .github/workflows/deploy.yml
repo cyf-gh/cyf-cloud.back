@@ -18,11 +18,11 @@ jobs:
           command: |
             whoami
             cd ~/.web/cyf-cloud.back/
+            git pull
 
             # 修改配置文件为部署配置文件
             mv ./server.cfg ./server_dev.cfg
             mv ./server_dep.cfg ./server.cfg
-            git pull
 
             # 重新启动服务器
             if ! screen -list | grep -q "go"; then
