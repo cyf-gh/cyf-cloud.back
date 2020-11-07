@@ -1,8 +1,9 @@
 package security
 
 import (
-	err "../../cc/err"
-	err_code "../../cc/err_code"
+	"../../cc"
+	"../../cc/err"
+	"../../cc/err_code"
 	captcha "github.com/base64Captcha"
 	"github.com/kpango/glg"
 	"net/http"
@@ -35,7 +36,7 @@ func GenerateCaptcha(w http.ResponseWriter, r *http.Request) {
 	err.Check( e )
 
 	if t >= 7 {
-		err.HttpReturn( &w, "too much times", err_code.ERR_SECURITY, "", err_code.MakeHER200 )
+		cc.HttpReturn( &w, "too much times", err_code.ERR_SECURITY, "", cc.MakeHER200 )
 		return
 	}
 

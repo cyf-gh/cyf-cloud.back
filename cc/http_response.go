@@ -2,6 +2,7 @@ package cc
 
 import (
 	cfg "../config"
+	"../middleware"
 	"./err"
 	"./err_code"
 	"encoding/json"
@@ -10,7 +11,6 @@ import (
 	"net/http"
 	"runtime/debug"
 )
-
 
 // 用于返回http状态信息，格式为json
 type (
@@ -120,4 +120,20 @@ func HttpReturnOk( w *http.ResponseWriter ) {
 
 func HttpReturnOkWithData( w *http.ResponseWriter, data string ) {
 	HttpReturn( w, "ok", err_code.ERR_OK, data, MakeHER200 )
+}
+
+
+// 异常捕捉
+func ErrorFetcher() middleware.MiddewareFunc {
+	return func(f http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				glg.Warn("ErrorFetcher")
+				if r := recover(); r  != nil {
+					HttpRecoverBasic( &w, r )
+				}
+			}()
+			f(w, r)
+		}
+	}
 }

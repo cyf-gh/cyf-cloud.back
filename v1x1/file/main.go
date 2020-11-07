@@ -1,8 +1,9 @@
 package file
 
 import (
+	"../../cc"
 	err "../../cc/err"
-	err_code "../../cc/err_code"
+	"../../cc/err_code"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -14,14 +15,14 @@ func GetFileRaw( w http.ResponseWriter, r *http.Request ) {
 	var e error
 	defer func() {
 		if r := recover(); r != nil {
-			err.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", err_code.MakeHER404 )
+			cc.HttpReturn(&w, fmt.Sprint( r ), err_code.ERR_SYS, "", cc.MakeHER404 )
 		}
 	}()
 
 	dir := r.URL.Query()["d"][0]
 
 	if strings.Contains( dir, "..") {
-		err.HttpReturn( &w, "upper directory is not allowed", err_code.ERR_SECURITY, "", err_code.MakeHER200 )
+		cc.HttpReturn( &w, "upper directory is not allowed", err_code.ERR_SECURITY, "", cc.MakeHER200 )
 		return
 	}
 
@@ -31,5 +32,5 @@ func GetFileRaw( w http.ResponseWriter, r *http.Request ) {
 	text, e := ioutil.ReadFile( current.HomeDir + "/.raw/" + dir)
 	err.Check( e )
 
-	err.HttpReturn( &w, "ok", err_code.ERR_OK, string(text), err_code.MakeHER200 )
+	cc.HttpReturn( &w, "ok", err_code.ERR_OK, string(text), cc.MakeHER200 )
 }

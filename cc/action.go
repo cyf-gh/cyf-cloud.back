@@ -75,8 +75,8 @@ func RegisterActions() error {
 
 // 添加一个Post请求
 func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
-	glg.Log( "[action] POST: ", path )
-	http.HandleFunc( a.Path+ path, mwh.WrapPost(
+	glg.Log( "[action] POST: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r, W: &w } )
 			HttpReturnHER( &w, &her, status)
@@ -86,8 +86,8 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 
 // 添加一个Get请求
 func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
-	glg.Log( "[action] GET: ", path )
-	http.HandleFunc( a.Path+path, mwh.WrapGet(
+	glg.Log( "[action] GET: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r, W: &w } )
 			HttpReturnHER( &w, &her, status)

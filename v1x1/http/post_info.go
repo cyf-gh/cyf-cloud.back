@@ -2,11 +2,10 @@
 package http
 
 import (
-	err "../err"
+	"../../cc"
+	"../../cc/err"
 	orm "../orm"
-	"encoding/json"
 	"errors"
-	"net/http"
 	"stgogo/comn/convert"
 	"stgogo/comn/refactor"
 	"strconv"
@@ -22,42 +21,74 @@ type (
 	}
 )
 
-func GetPostInfos( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	user := r.FormValue("user")
-	rg := r.FormValue("range")
-	var (
-		e error
-		posts []orm.PostInfo
-		postsB []byte
-		a * orm.Account
-	)
+func init() {
+	cc.AddActionGroup( "/v1x1/posts/info", func( a cc.ActionGroup ) error {
+		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			r := ap.R
+			user := r.FormValue("user")
+			rg := r.FormValue("range")
+			var (
+				e error
+				posts []orm.PostInfo
+				a * orm.Account
+			)
 
-	// 如果user参数为空，则获取所有人的文章
-	if user != "" {
-		a, e = orm.GetAccountByName( user )			; err.Check( e )
-		posts, e = orm.GetPostInfosByOwnerPublic( a.Id ); err.Check( e )
-	} else {
-		// 如果设定了范围，则取范围
-		if rg != "" {
-			start, count, e := getRange( rg ); err.Check( e )
-			posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
-		} else {
-			posts, e = orm.GetPostInfosAll(); err.Check( e )
-		}
-	}
+			// 如果user参数为空，则获取所有人的文章
+			if user != "" {
+				a, e = orm.GetAccountByName( user )			; err.Check( e )
+				posts, e = orm.GetPostInfosByOwnerPublic( a.Id ); err.Check( e )
+			} else {
+				// 如果设定了范围，则取范围
+				if rg != "" {
+					start, count, e := getRange( rg ); err.Check( e )
+					posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
+				} else {
+					posts, e = orm.GetPostInfosAll(); err.Check( e )
+				}
+			}
 
-	epi, e := extendPostInfo(posts); err.Check( e )
+			epi, e := extendPostInfo(posts); err.Check( e )
 
-	{
-		postsB, e = json.Marshal( epi ); err.Check( e )
-	}
-	err.HttpReturnOkWithData( &w, string(postsB) )
+			return cc.HerOkWithData( epi )
+		} )
+
+		a.GET( "/by/tag", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			var (
+				e error
+			)
+			r := ap.R
+			tags := r.FormValue("tags")
+			tgs := strings.Split( tags, ",")
+			pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
+
+			ps, e := extendPostInfo( pis )
+			return cc.HerOkWithData( ps )
+		} )
+
+		a.GET( "/self", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			var (
+				posts  []orm.PostInfo
+				e      error
+			)
+			r := ap.R
+			rg := r.FormValue("range")
+
+			a, e := GetAccountByAtk(r); err.Check(e)
+
+			if rg != "" {
+				start, count, e := getRange(rg); err.Check(e)
+				posts, e = orm.GetAllPublicPostInfosLimited(start, count); err.Check(e)
+			} else {
+				posts, e = orm.GetPostInfosByOwnerAll(a.Id); err.Check(e)
+			}
+
+			epi, e := extendPostInfo(posts); err.Check(e)
+			return cc.HerOkWithData( epi )
+		} )
+		return nil
+	} )
 }
+
 
 func extendPostInfo( posts []orm.PostInfo ) ([]PostInfoModel, error) {
 	var (
@@ -93,39 +124,7 @@ func extendPostInfo( posts []orm.PostInfo ) ([]PostInfoModel, error) {
 		}
 		pims[i].Tags = tgs
 	}
-
-
 	return pims, nil
-}
-
-func GetMyPostInfos( w http.ResponseWriter, r *http.Request) {
-	defer func() {
-		if r := recover(); r != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	var (
-		posts []orm.PostInfo
-		postsB []byte
-		e error
-	)
-	rg := r.FormValue("range")
-
-	a, e := GetAccountByAtk( r );	err.Check( e )
-
-	if rg != "" {
-		start, count, e := getRange( rg ); err.Check( e )
-		posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
-	} else {
-		posts, e = orm.GetPostInfosByOwnerAll( a.Id ); err.Check( e )
-	}
-
-	epi, e := extendPostInfo(posts); err.Check( e )
-
-	{
-		postsB, e = json.Marshal( epi ); 	err.Check( e )
-	}
-	err.HttpReturnOkWithData( &w, string(postsB) )
 }
 
 func getRange( rg string ) ( int, int, error ){
@@ -148,38 +147,4 @@ func getRange( rg string ) ( int, int, error ){
 	return head, end, nil
 }
 
-func GetAllTags( w http.ResponseWriter, r *http.Request ) {
-	var (
-		e error
-	)
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	tags, e := orm.GetAllTags(); err.Check( e )
-	tb, e := json.Marshal( tags ); 	err.Check( e )
 
-	err.HttpReturnOkWithData( &w, string(tb) )
-}
-
-func GetPostInfosByTags( w http.ResponseWriter, r *http.Request ) {
-	var (
-		e error
-	)
-	defer func() {
-		if r := recover(); r  != nil {
-			err.HttpRecoverBasic( &w, r )
-		}
-	}()
-	tags := r.FormValue("tags")
-	tgs := strings.Split( tags, ",")
-	pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
-
-	ps, e := extendPostInfo( pis )
-
-	pb, e := json.Marshal(ps); err.Check( e )
-
-	err.HttpReturnOkWithData( &w, string( pb ) )
-}
-}

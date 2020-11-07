@@ -2,7 +2,6 @@
 package middlewareUtil
 
 import (
-	"../../cc/err"
 	"../../middleware"
 	"github.com/kpango/glg"
 	"net/http"
@@ -58,20 +57,6 @@ func Method( m string ) middleware.MiddewareFunc {
 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 				return
 			}
-			f(w, r)
-		}
-	}
-}
-
-func ErrorFetcher() middleware.MiddewareFunc {
-	return func(f http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			defer func() {
-				glg.Warn("ErrorFetcher")
-				if r := recover(); r  != nil {
-					err.HttpRecoverBasic( &w, r )
-				}
-			}()
 			f(w, r)
 		}
 	}
