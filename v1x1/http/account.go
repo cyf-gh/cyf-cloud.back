@@ -115,9 +115,7 @@ func init() {
 
 		a.GET("/private/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
 			info, e := getRawInfoByAtk(ap.R); err.Check(e)
-
-			b, e := json.Marshal(info); err.Check(e)
-			return cc.HerOkWithData(b)
+			return cc.HerOkWithData(info)
 		})
 
 		a.GET("/public/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
