@@ -96,8 +96,15 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 	(*w).WriteHeader( statusCode )
 
 	// 将her结构体转化为json
+
 	bs, e := json.Marshal(her); err.Check(e)
 	_, e = (*w).Write(bs); err.Check(e)
+
+	// 保证her长度不会爆日志
+	// TODO: 将1024放入server.cfg中
+	if len(her.Data) > 1024 {
+		her.Data = her.Data[1 : 1024]
+	}
 
 	glg.Log( fmt.Sprintf( "[HttpReturn] - StatusCode:(%d) - HER (%s)", statusCode, her ))
 }
@@ -128,9 +135,11 @@ func ErrorFetcher() middleware.MiddewareFunc {
 	return func(f http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
-				glg.Warn("ErrorFetcher")
-				if r := recover(); r  != nil {
+				if r := recover(); r != nil {
+					glg.Warn("ErrorFetcher occurred")
 					HttpRecoverBasic( &w, r )
+				} else {
+					glg.Success("ErrorFetcher")
 				}
 			}()
 			f(w, r)

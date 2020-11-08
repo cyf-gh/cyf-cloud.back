@@ -122,7 +122,7 @@ func init() {
 				Text:   p.Text,
 				Tags:    tags,
 				Author: a.Name,
-				Date: p.CreateDate,
+				Date: p.Date,
 				MyPost: myPost,
 				IsPrivate: p.IsPrivate,
 				ViewedCount: getPostView( convert.I64toa( p.Id ) ),

@@ -129,7 +129,7 @@ func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags
 		IsPrivate: isPrivate,
 		Date: time.Now().Format("2006-01-02 15:04:05"),
 	}
-	_, e = engine_post.Table("Post").AllCols().ID(id).Update(mp)
+	_, e = engine_post.Table("Post").Cols().ID(id).Update(mp)
 	return e
 }
 
