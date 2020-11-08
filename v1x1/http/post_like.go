@@ -27,22 +27,8 @@ func init() {
 
 	    a.GET( "/count", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
-				e error
-				pid string
-			)
-			if pid = ap.R.FormValue("id"); pid == "" {
-				return cc.HerArgInvalid( "id" )
-			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			isLike, e := isLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
-			return cc.HerOkWithString( convert.Bool2a( isLike ) )
-	    } )
-
-	    a.GET( "/check", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			var (
 				e   error
 				pid string
-
 			)
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
@@ -60,8 +46,20 @@ func init() {
 					li.Liked = true
 				}
 			}
-			bli, e := json.Marshal( li ); err.Check( e )
-			return cc.HerOkWithData( bli )
+			return cc.HerOkWithData( li )
+	    } )
+
+	    a.GET( "/check", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			var (
+				e error
+				pid string
+			)
+			if pid = ap.R.FormValue("id"); pid == "" {
+				return cc.HerArgInvalid( "id" )
+			}
+			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			isLike, e := isLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
+			return cc.HerOkWithString( convert.Bool2a( isLike ) )
 	    } )
 
 	    return nil
