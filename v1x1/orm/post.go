@@ -219,3 +219,75 @@ func GetAllTags() ( []Tag, error ) {
 	e = engine_post.Table("Tag").Find(&tags)
 	return tags, e
 }
+
+// 获取某个人的文章日期列表，按月来算。
+// 返回的列表应该形如:
+// key: 2000-1 value: 2
+// 表示在2000的1月有两篇文章
+//
+// 于2020/12/2通过测试
+func GetOnesAllPostInfoDate( id int64 ) ( cd map[string]int, e error) {
+	var (
+		ps []PostInfo
+	)
+	cd = make( map[string]int )
+
+	if ps, e = GetPostInfosByOwnerAll( id ); e != nil {return}
+
+	for _, p := range ps  {
+		// p.CreateDate[0:6] == 2006-01
+		monDate := p.CreateDate[0:6]
+		if _, ok := cd[monDate]; !ok {
+			cd[monDate] = 1
+		} else {
+			cd[monDate]++
+		}
+	}
+	return
+}
+
+// 返回某人拥有的所有tag
+func GetOnesAllPostInfoTags( id int64 ) ( tags map[string]int, e error ) {
+	var (
+		ps []PostInfo
+	)
+	if ps, e = GetPostInfosByOwnerAll(id); e != nil {
+		return
+	}
+	tagIds := make( map[int64]int )
+	tags = make(map[string]int)
+	// 获取所有的tag id，并且不重复
+	for _, p := range ps {
+		for _, tag := range p.TagIds {
+			if _, ok := tagIds[tag]; !ok {
+				tagIds[tag] = 1
+			} else {
+				tagIds[tag]++
+			}
+		}
+	}
+
+	for tagId, postCount := range tagIds {
+		tagName := new(Tag)
+		if exists, e := engine_post.Table("Tag").ID(tagId).Get(tagName); exists && e == nil {
+			tags[tagName.Text] = postCount
+		}
+	}
+	return
+}
+
+// 最新文章
+// 获取最近的8篇文章标题
+func GetOnesRecentPostTitle( id int64 ) ( titles map[string]int64, e error ) {
+	var ps []PostInfo
+	if e = engine_post.Table("Post").Where("id > (SELECT MAX(id) FROM Post) - 10 and owner_id = ?", id ).Find(&ps)
+	e != nil {
+		return
+	}
+	titles = make(map[string]int64)
+
+	for _, p := range ps {
+		titles[p.Title] = p.Id
+	}
+	return
+}
