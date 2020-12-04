@@ -11,7 +11,7 @@ func init() {
 
 		a.GET( "/date", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			cd, e := orm.GetOnesAllPostInfoDate( id )
+			cd, e := orm.GetOnesAllPostInfoDate( id ); err.Check( e )
 			return cc.HerOkWithData( cd )
 		} )
 
@@ -23,7 +23,7 @@ func init() {
 
 		a.GET( "/recent", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			titles, e := orm.GetOnesRecentPostTitle( id )
+			titles, e := orm.GetOnesRecentPostTitle( id ); err.Check( e )
 			return cc.HerOkWithData( titles )
 		} )
 

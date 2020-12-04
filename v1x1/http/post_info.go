@@ -65,6 +65,19 @@ func init() {
 			return cc.HerOkWithData( ps )
 		} )
 
+		a.GET( "/by/date", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			var (
+				e error
+			)
+			r := ap.R
+			date := r.FormValue("date")
+			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			ps, e := orm.GetPostInfosByCateDate( id, date ); err.Check( e )
+
+			eps, e := extendPostInfo( ps ); err.Check( e )
+			return cc.HerOkWithData( eps )
+		} )
+
 		a.GET( "/self", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				posts  []orm.PostInfo
@@ -89,7 +102,7 @@ func init() {
 	} )
 }
 
-
+// 将后台的PostInfo模型转化为前台的PostInfo模型
 func extendPostInfo( posts []orm.PostInfo ) ([]PostInfoModel, error) {
 	var (
 		pims []PostInfoModel
