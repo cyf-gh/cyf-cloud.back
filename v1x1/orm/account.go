@@ -3,6 +3,7 @@ package orm
 import (
 	err "../../cc/err"
 	"errors"
+	"fmt"
 )
 
 // 账户的基本信息
@@ -52,7 +53,7 @@ func Sync2Account() {
 }
 
 func NewAccount( name, email, phone, passwd string ) error {
-	id, e := engine_account.Table("Account").Insert( &Account{
+	_, e := engine_account.Table("Account").Insert( &Account{
 		Name:   name,
 		Email:  email,
 		Phone:  phone,
@@ -60,8 +61,10 @@ func NewAccount( name, email, phone, passwd string ) error {
 	})
 	if e != nil { return e }
 
+	a, e := GetAccountByName( name ); if e != nil { return e }
+
 	_, e = engine_account.Table("account_ex").Insert( &AccountEx{
-		AccountId: id,
+		AccountId: a.Id,
 		Avatar:    "",
 		Info:      "",
 		Level:     ACCOUNT_LEVEL_NORMAL,
@@ -100,7 +103,7 @@ func GetAccountEx( id int64 ) ( *AccountEx, error ) {
 	if e != nil {
 		return nil, e
 	} else if !has {
-		return nil, errors.New("account not found")
+		return nil, errors.New("account ex not found")
 	}
 	return ae, nil
 }
@@ -137,5 +140,36 @@ func GetAccountByLoginType( login ,cryPswd, loginType string) (*Account, error) 
 		return nil, errors.New("wrong password")
 	}
 	return a, nil
+}
+
+// --------- 搜索模块 ---------
+
+type (
+	UserSearchResult struct {
+		Id int64
+		Avatar string // base64 数据
+		Name string
+	}
+)
+
+func VagueSearchAccountName( text string ) ( usrs []UserSearchResult, e error ) {
+	var (
+		as []Account
+		ex *AccountEx
+	)
+	where := fmt.Sprintf("name like '%%%s%%'", text )
+	if e = engine_account.Table("Account").Where(where).Find(&as); e != nil {return}
+
+	for _, a := range as {
+		if ex, e = GetAccountEx( a.Id ); e != nil {
+			return
+		}
+		usrs = append(usrs, UserSearchResult{
+			Id:     a.Id,
+			Avatar: ex.Avatar,
+			Name:   a.Name,
+		})
+	}
+	return
 }
 

@@ -29,7 +29,25 @@ type (
 		OwnerId int64
 		TagIds[] int64
 	}
+	CountOf struct {
+		Text string
+		Count int
+	}
+	PostInfoMono struct {
+		Id int64
+		Title string
+	}
 )
+
+func Map2CountOf( m map[string]int ) ( c []CountOf ){
+	c = []CountOf{}
+
+	for text, count := range m {
+		c = append(c, CountOf{Text: text, Count: count})
+	}
+	return
+}
+
 // 上传的tag标签结构
 // tag同时将作为分区的主要依据
 // TODO:tag达到一定数量则升级为分区
@@ -226,11 +244,12 @@ func GetAllTags() ( []Tag, error ) {
 // 表示在2000的1月有两篇文章
 //
 // 于2020/12/2通过测试
-func GetOnesAllPostInfoDate( id int64 ) ( cd map[string]int, e error) {
+func GetOnesAllPostInfoDate( id int64 ) ( c []CountOf, e error) {
 	var (
 		ps []PostInfo
 	)
-	cd = make( map[string]int )
+	cd := make( map[string]int )
+	c = []CountOf{}
 
 	if ps, e = GetPostInfosByOwnerAll( id ); e != nil {return}
 
@@ -243,11 +262,12 @@ func GetOnesAllPostInfoDate( id int64 ) ( cd map[string]int, e error) {
 			cd[monDate]++
 		}
 	}
+	c = Map2CountOf( cd )
 	return
 }
 
 // 返回某人拥有的所有tag
-func GetOnesAllPostInfoTags( id int64 ) ( tags map[string]int, e error ) {
+func GetOnesAllPostInfoTags( id int64 ) ( t []CountOf, e error ) {
 	var (
 		ps []PostInfo
 	)
@@ -255,7 +275,8 @@ func GetOnesAllPostInfoTags( id int64 ) ( tags map[string]int, e error ) {
 		return
 	}
 	tagIds := make( map[int64]int )
-	tags = make(map[string]int)
+	tags := make(map[string]int)
+	t = []CountOf{}
 	// 获取所有的tag id，并且不重复
 	for _, p := range ps {
 		for _, tag := range p.TagIds {
@@ -273,21 +294,44 @@ func GetOnesAllPostInfoTags( id int64 ) ( tags map[string]int, e error ) {
 			tags[tagName.Text] = postCount
 		}
 	}
+	t = Map2CountOf(tags)
 	return
 }
 
 // 最新文章
 // 获取最近的8篇文章标题
-func GetOnesRecentPostTitle( id int64 ) ( titles map[string]int64, e error ) {
+func GetOnesRecentPostTitle( id int64 ) ( titles []PostInfoMono, e error ) {
 	var ps []PostInfo
 	if e = engine_post.Table("Post").Where("id > (SELECT MAX(id) FROM Post) - 10 and owner_id = ?", id ).Find(&ps)
 	e != nil {
 		return
 	}
-	titles = make(map[string]int64)
+	titles = []PostInfoMono{}
 
 	for _, p := range ps {
-		titles[p.Title] = p.Id
+		titles = append(titles, PostInfoMono{
+			Id:    p.Id,
+			Title: p.Title,
+		})
 	}
+	return
+}
+
+func GetPostInfosByCateDate( id int64, date string ) ( ps []PostInfo, e error ) {
+	query := fmt.Sprintf( "create_date like '%s%%' and owner_id = %d", date, id )
+	e = engine_post.Table("Post").Where(query).Find( &ps )
+	return
+}
+
+
+// --------- 搜索模块 ---------
+
+func VagueSearchPostAndTagName( text string ) ( ps []PostInfo, tags []Tag, e error ) {
+	where := fmt.Sprintf("title like '%%%s%%'", text )
+	e = engine_post.Table("Post").Where(where).Find(&ps)
+
+	where = fmt.Sprintf("text like '%%%s%%'", text )
+	e = engine_post.Table("Tag").Where(where).Find(&tags)
+
 	return
 }
