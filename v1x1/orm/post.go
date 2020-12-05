@@ -255,7 +255,7 @@ func GetOnesAllPostInfoDate( id int64 ) ( c []CountOf, e error) {
 
 	for _, p := range ps  {
 		// p.CreateDate[0:6] == 2006-01
-		monDate := p.CreateDate[0:6]
+		monDate := p.CreateDate[0:7]
 		if _, ok := cd[monDate]; !ok {
 			cd[monDate] = 1
 		} else {
