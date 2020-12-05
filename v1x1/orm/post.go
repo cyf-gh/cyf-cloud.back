@@ -323,6 +323,10 @@ func GetPostInfosByCateDate( id int64, date string ) ( ps []PostInfo, e error ) 
 	return
 }
 
+func GetInfoComponentPost( id int64, name string ) ( p []Post, e error) {
+	e = engine_post.Table("Post").Where("owner_id = ? and title = ?", id, name ).Find( &p )
+	return
+}
 
 // --------- 搜索模块 ---------
 

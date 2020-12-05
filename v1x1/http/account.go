@@ -32,6 +32,7 @@ type (
 		KeepLogin bool `json:"keepLogin"`
 	}
 	InfoModel struct {
+		Id int64
 		Name string
 		Email string
 		Phone string
@@ -155,6 +156,7 @@ func init() {
 func copyInfoFromAAE( a *orm.Account, ae *orm.AccountEx) (*InfoModel, error) {
 	ps, e := orm.GetPostInfosByIds( ae.FavPosts )
 	return &InfoModel{
+		Id: a.Id,
 		Name:   a.Name,
 		Email:  a.Email,
 		Phone:  a.Phone,
