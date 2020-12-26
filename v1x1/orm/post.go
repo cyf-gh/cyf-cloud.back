@@ -25,6 +25,7 @@ type (
 		Id int64
 		Title string
 		CreateDate string
+		Date string
 		IsPrivate bool
 		OwnerId int64
 		TagIds[] int64
@@ -85,6 +86,18 @@ func GetAllPublicPostInfosLimited( start, count int ) ( []PostInfo, error ) {
 func GetPostInfosByOwnerPublic( OwnerId int64 ) ( []PostInfo, error ) {
 	var posts []PostInfo
 	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 0", OwnerId).Find(&posts)
+	return posts, e
+}
+
+func GetPostsByOwnerPublic( OwnerId int64 ) ( []Post, error ) {
+	var posts []Post
+	e := engine_post.Table("Post").Where( "owner_id = ? and is_private = 0", OwnerId).Find(&posts)
+	return posts, e
+}
+
+func GetPostsPublicAll() ( []Post, error ) {
+	var posts []Post
+	e := engine_post.Table("Post").Where( "is_private = 0").Find(&posts)
 	return posts, e
 }
 

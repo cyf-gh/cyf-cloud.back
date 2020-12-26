@@ -95,6 +95,21 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+func resp(w* http.ResponseWriter, msg string) {
+	(*w).Write([]byte(msg))
+}
+
+// 只返回data，不返回其他的任何信息
+func ( a ActionGroup ) GET_DO( path string, handler ActionFunc ) {
+	glg.Log( "[action] GET_DO: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapGet(
+		func( w http.ResponseWriter, r *http.Request ) {
+			her, _ := handler( ActionPackage{ R: r, W: &w } )
+			resp( &w, her.Data )
+		} ) )
+	getHandlers[path] = &handler
+}
+
 func ( pap *ActionPackage )SetCookie( cookie *http.Cookie ) {
 	http.SetCookie( *pap.W, cookie )
 }

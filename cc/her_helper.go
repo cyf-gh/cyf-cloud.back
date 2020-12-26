@@ -26,6 +26,15 @@ func HerOkWithString( str string ) ( HttpErrReturn, StatusCode ) {
 	}, http.StatusOK
 }
 
+// http仅返回data，兼容resp
+func HerData( str string ) ( HttpErrReturn, StatusCode ) {
+	return HttpErrReturn{
+		ErrCod: err_code.ERR_OK,
+		Desc:   "nil",
+		Data:   str,
+	}, http.StatusOK
+}
+
 // data将会自动转化为json
 func HerOk() ( HttpErrReturn, StatusCode ) {
 	return HttpErrReturn{
@@ -41,4 +50,8 @@ func HerArgInvalid( argName string ) ( HttpErrReturn, StatusCode ) {
 		Desc:   "invalid argument: \""+argName +"\"",
 		Data:   "",
 	}, http.StatusOK
+}
+
+func HerRaw () {
+
 }
