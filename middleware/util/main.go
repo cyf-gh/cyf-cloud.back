@@ -61,3 +61,13 @@ func Method( m string ) middleware.MiddewareFunc {
 		}
 	}
 }
+
+// 访问记录
+func AccessRecord() middleware.MiddewareFunc {
+	return func(f http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			go CheckIPInfo( r )
+			f( w, r )
+		}
+	}
+}
