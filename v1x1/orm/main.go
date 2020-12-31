@@ -10,9 +10,12 @@ import (
 	"xorm.io/xorm"
 )
 
-var engine_account *xorm.Engine
-var engine_post *xorm.Engine
-var engine_chat *xorm.Engine
+var (
+	engine_account *xorm.Engine
+	engine_post *xorm.Engine
+	engine_chat *xorm.Engine
+	engine_dm *xorm.Engine
+)
 
 // 初始化sqlite数据库orm
 // 有可能panic创建数据库引擎的错误
@@ -39,6 +42,9 @@ func InitEngine( dbPath string ) {
 
 	connectDb( &engine_chat, "chat.db", dbPath )
 	Sync2Chat()
+
+	connectDb( &engine_dm, "dm_1.db", dbPath )
+	Sync2DM1()
 
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
 	// err.Check( e )
