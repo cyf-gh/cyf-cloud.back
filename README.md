@@ -9,6 +9,7 @@ cyf-cloud的服务器端，使用Golang编写。
 ### API 版本
 * [v1](https://github.com/cyf-gh/api.cyf-cloud/blob/master/v1/README.md)（停止维护）
 * [v1x1](https://github.com/cyf-gh/api.cyf-cloud/blob/master/v1x1/README.md)
+* [v1x1_dm](https://github.com/cyf-gh/api.cyf-cloud/blob/master/v1x1_dm/README.md) ： dm文件系统管理扩展版本
 
 ### cc
 如何使用cc构建一个restful API
