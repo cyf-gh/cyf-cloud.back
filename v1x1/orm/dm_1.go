@@ -2,6 +2,8 @@ package orm
 
 import (
 	err "../../cc/err"
+	cfg "../../config"
+	"../../dm_1"
 )
 
 func Sync2DM1() {
@@ -35,6 +37,11 @@ func DMGetWhiteList( level int ) ( wl DMWhiteList, er error ){
 func DMCheckPermission( accountId int64 ) ( hasPermission bool, er error ) {
 	hasPermission = false
 
+	// 上帝id，拥有dm访问的所有权限
+	if accountId == cfg.DMGodId {
+		return true, nil
+	}
+
 	if wl, e := DMGetWhiteList( DM_PERMISSION_ALL ); e != nil {
 		er = e
 		return
@@ -56,4 +63,24 @@ func DMGetParentResource( parentId int64 ) (tr *DMTargetResource, er error) {
 		return
 	}
 	return
+}
+
+func DMAddResource( rs []dm_1.DMResource ) ( e error ) {
+	var md5 string
+	for _, r := range rs {
+		md5, e = r.GetMD5()
+		if e != nil {
+			return
+		}
+	// "d_m_" + r.GetGenre() + "_resource"
+		_, e = engine_dm.Table("d_m_target_resource" ).Insert( &DMTargetResource {
+			Description:  "",
+			MD5:          md5,
+			Path:         r.Path,
+			TagIdList:    nil,
+			BackupIdList: nil,
+			ChildId:      0,
+			ChildGenre:   r.GetGenre(),
+		} )
+	}
 }

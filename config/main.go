@@ -21,6 +21,8 @@ var (
  	SqlitePath string
  	RedisCfg RedisConfig
 	RunMode string	// run_mode or dep
+	DMGodId int64
+	DMRootPath string
 )
 type RedisConfig struct {
 	Addr string
@@ -59,6 +61,13 @@ func configServerInfo() {
 	println("server start with mode:\"" + RunMode + "\"")
 
 	SqlitePath =  cfg.Section("sqlite3").Key("path").String()
+
+	DMGodId, _ = cfg.Section("dm_whitelist").Key("god_id").Int64()
+	DMRootPath = cfg.Section("dm_whitelist").Key("root_path").String()
+	println( " *************** DM configuration loaded... ***************" )
+	println( "\tgod ID:\t", DMGodId )
+	println( "\troot path:\t" + DMRootPath )
+	println( " **********************************************************" )
 
 	defer func() {
 		if err := recover(); err != nil {

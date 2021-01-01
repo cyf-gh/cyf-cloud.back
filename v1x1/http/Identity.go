@@ -33,7 +33,7 @@ func GetAtk( r *http.Request ) ( string, error ) {
 	return atk, e
 }
 
-func 	GetIdByAtk( r *http.Request ) ( int64, error ) {
+func GetIdByAtk( r *http.Request ) ( int64, error ) {
 	atk, e :=  GetAtk(r)
 	if e != nil {
 		return -1, e

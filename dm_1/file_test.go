@@ -22,7 +22,7 @@ func TestDMResource_Ls(t *testing.T) {
 
 func TestDMResource_IsDir(t *testing.T) {
 	dm := DMResource{Path:"C:/.repos"}
-	if dm.IsDir() {
+	if dm.IsDire() {
 		t.Log("is dir")
 	} else {
 		t.FailNow()

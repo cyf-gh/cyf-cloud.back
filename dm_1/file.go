@@ -15,6 +15,7 @@ import (
 
 type (
 	DMResource struct {
+		DMFileInfo
 		// 一个资源的绝对路径
 		Path string
 	}
@@ -25,15 +26,15 @@ type (
 		Size int64        // length in bytes for regular files; system-dependent for others
 		Mode os.FileMode     // file mode bits
 		ModTime time.Time // modification time
-		IsDir bool        // abbreviation for Mode().IsDir()
+		IsDir bool        // abbreviation for Mode().IsDire()
 		Sys interface{}   // underlying data source (can return nil)
 	}
 )
 
 // 获取文件的基本信息
-func ( R DMResource ) GetBasicFileInfo() ( dfi *DMFileInfo, e error ) {
+func ( pR *DMResource ) GetBasicFileInfo() ( dfi *DMFileInfo, e error ) {
 	var fi os.FileInfo
-	if fi, e = os.Stat(R.Path); e != nil {
+	if fi, e = os.Stat( pR.Path); e != nil {
 		return
 	} else {
 		dfi = &DMFileInfo{
@@ -44,11 +45,30 @@ func ( R DMResource ) GetBasicFileInfo() ( dfi *DMFileInfo, e error ) {
 			IsDir:   fi.IsDir(),
 			Sys:     fi.Sys(),
 		}
+		pR.Name = dfi.Name
+		pR.Size = dfi.Size
+		pR.Mode = dfi.Mode
+		pR.ModTime = dfi.ModTime
+		pR.IsDir = dfi.IsDir
+		pR.Sys = dfi.Sys
 		return
 	}
 }
 
-func ( R DMResource ) IsDir() bool {
+func ( R DMResource ) Exists() bool {
+	_, err := os.Stat( R.Path )
+	if err != nil {
+		if os.IsExist( err ) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
+
+// 与IsDir区分
+func ( R DMResource ) IsDire() bool {
 	s, err := os.Stat( R.Path )
 	if err != nil {
 		return false
@@ -57,7 +77,7 @@ func ( R DMResource ) IsDir() bool {
 }
 
 func ( R DMResource ) IsFile() bool {
-	return !R.IsDir()
+	return !R.IsDire()
 }
 
 // 获取某个文件的md5
@@ -65,7 +85,7 @@ func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 	e = nil
 	tMd5 := md5.New()
 
-	if R.IsDir() {
+	if R.IsDire() {
 		e = errors.New("cannot get md5 from a directory")
 		return
 	} else {
@@ -81,6 +101,7 @@ func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 }
 
 // 枚举所有的子文件夹
+// ls会自动调用所有子资源的GetBasicFileInfo进行填充
 func ( R DMResource ) Ls() ( rs []DMResource, e error ) {
 	rs = []DMResource{}
 	var fs []os.FileInfo
@@ -93,10 +114,11 @@ func ( R DMResource ) Ls() ( rs []DMResource, e error ) {
 	if fs, e = ioutil.ReadDir( R.Path ); e != nil {
 		return
 	} else {
-		for _, f := range fs {
-			rs = append(rs, DMResource{
+		for i, f := range fs {
+			rs = append( rs, DMResource{
 				Path: R.Path +"/"+ f.Name(),
-			})
+			} )
+			_, e = rs[i].GetBasicFileInfo()
 		}
 		return
 	}
@@ -104,6 +126,7 @@ func ( R DMResource ) Ls() ( rs []DMResource, e error ) {
 
 // 获取文件扩展名
 // 返回形如 ".ext"
+// e != nil 时表明路径非法或为一个目录
 func ( R DMResource ) GetExt() ( ext string, e error ) {
 	if R.IsFile() {
 		ext = path.Ext( R.Path )
@@ -112,4 +135,19 @@ func ( R DMResource ) GetExt() ( ext string, e error ) {
 		e = errors.New("cannot get ext from a directory")
 		return
 	}
+}
+
+func ( R DMResource ) GetGenre() string {
+	ext, e := R.GetExt()
+	if e != nil {
+		return "directory"
+	}
+	for k, v := range DMExts {
+		for _, e := range v {
+			if ext == e {
+				return k
+			}
+		}
+	}
+	return "binary"
 }

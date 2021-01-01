@@ -53,6 +53,10 @@ func init() {
 	actionGroupHandlers = make(map[string]ActionGroupFunc)
 }
 
+func ( R ActionPackage ) GetFormValue( key string ) string {
+	return R.R.FormValue(key)
+}
+
 // 添加一个业务逻辑组
 // 所有的 action 将在 RegisterActions() 被调用时启用
 func AddActionGroup( groupPath string, actionFunc ActionGroupFunc) {
