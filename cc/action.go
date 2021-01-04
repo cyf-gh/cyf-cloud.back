@@ -23,7 +23,9 @@ Example:
 
 import (
 	mwh "../middleware/helper"
+	"encoding/json"
 	"github.com/kpango/glg"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -55,6 +57,12 @@ func init() {
 
 func ( R ActionPackage ) GetFormValue( key string ) string {
 	return R.R.FormValue(key)
+}
+
+func ( R ActionPackage ) GetBodyUnmarshal( v interface{} ) error {
+	b, e := ioutil.ReadAll( R.R.Body ); if e != nil { return e }
+	e = json.Unmarshal( b, v ); if e != nil { return e }
+	return nil
 }
 
 // 添加一个业务逻辑组

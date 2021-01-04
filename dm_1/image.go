@@ -26,7 +26,7 @@ func ( R DMImage ) IsValid() bool {
 	}
 	ext, _ := R.GetExt()
 	if ext != "" {
-		for _, ie := range DMImageExts {
+		for _, ie := range DMExts["image"] {
 			if ie == ext {
 				return true
 			}

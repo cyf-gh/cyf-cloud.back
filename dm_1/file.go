@@ -76,6 +76,25 @@ func ( R DMResource ) IsDire() bool {
 	return s.IsDir()
 }
 
+// 如果目录下有exe文件，说明这个目录为二进制软件的目录
+func ( R DMResource ) IsBinaryDirectory1() bool {
+	if !R.IsDire() {
+		return false
+	}
+	if rs, e := R.Ls(); e != nil {
+		return false
+	} else {
+		for _, r := range rs {
+			if r.IsFile() {
+				if ext, _ := r.GetExt(); ext == ".exe" {
+					return true
+				}
+			}
+		}
+		return false
+	}
+}
+
 func ( R DMResource ) IsFile() bool {
 	return !R.IsDire()
 }
@@ -86,8 +105,8 @@ func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 	tMd5 := md5.New()
 
 	if R.IsDire() {
-		e = errors.New("cannot get md5 from a directory")
-		return
+		// e = errors.New("cannot get md5 from a directory")
+		return "", nil
 	} else {
 		var f *os.File
 		if f, e = os.Open( R.Path ); e != nil {
@@ -137,17 +156,28 @@ func ( R DMResource ) GetExt() ( ext string, e error ) {
 	}
 }
 
+// dm_1.DMExts
 func ( R DMResource ) GetGenre() string {
-	ext, e := R.GetExt()
-	if e != nil {
+	if R.IsDire() {
+		if R.IsBinaryDirectory1() {
+			return "binary"
+		}
 		return "directory"
-	}
-	for k, v := range DMExts {
-		for _, e := range v {
-			if ext == e {
-				return k
+	} else {
+		ext, _ := R.GetExt()
+
+		for k, v := range DMExts {
+			for _, e := range v {
+				if ext == e {
+					return k
+				}
 			}
 		}
+		return "binary"
 	}
-	return "binary"
+}
+
+// 包含 R 自身
+func ( R DMResource ) LsRecruit() []DMResource {
+	return append( DMRecruitLs( R ), R )
 }

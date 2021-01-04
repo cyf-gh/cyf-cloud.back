@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func DM1CheckPermission( r *http.Request ) ( error ) {
+func DM1CheckPermission( r *http.Request ) error {
 	id, e := GetIdByAtk( r )
 	has, e := orm.DMCheckPermission( id ); err.Check( e )
 	if !has {
