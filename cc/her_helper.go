@@ -5,6 +5,7 @@ import (
 	"./err_code"
 	"encoding/json"
 	"net/http"
+	"time"
 )
 
 // data将会自动转化为json
@@ -17,7 +18,22 @@ func HerOkWithData( data interface{} ) ( HttpErrReturn, StatusCode ) {
 	}, http.StatusOK
 }
 
-// data将会自动转化为json
+// 携带花费时间
+// Data块会分为 raw 与 usedTime 标记；raw 装载原始数据，usedTime 装载运行所用时间，单位为秒
+func HerOkWithDataAndUsedTime( data interface{}, time time.Duration ) ( HttpErrReturn, StatusCode ) {
+	d := H {
+		"raw": data,
+		"usedTime" : time.Seconds(),
+	}
+	jn, e := json.Marshal( d ); err.Check( e )
+	return HttpErrReturn{
+		ErrCod: err_code.ERR_OK,
+		Desc:   "ok",
+		Data:   string(jn),
+	}, http.StatusOK
+}
+
+// string
 func HerOkWithString( str string ) ( HttpErrReturn, StatusCode ) {
 	return HttpErrReturn{
 		ErrCod: err_code.ERR_OK,

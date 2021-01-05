@@ -6,52 +6,42 @@ import (
 	"../../cc/err"
 	"../../dm_1"
 	"../orm"
-	"errors"
-	"strings"
+	"time"
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/ls", func( a cc.ActionGroup ) error {
-		// \brief 返回dm目录的资源，用于索引数据库
-		// \arg[d] 路径，附加于root_path之后的路径
-		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
-			dir := ap.GetFormValue( "d" )
-			if dir == "" {
-				panic( errors.New("do nothing with empty dir") )
-			}
-			if strings.Contains( dir, "..") {
-				panic( errors.New(".. is not allowed in param d ") )
-			}
-			dmDir := &dm_1.DMResource{ Path: dm_1.DMRootPath() + dir }
-			if !dmDir.Exists() {
-				panic( errors.New("specific path is invalid") )
-			}
-			if !dmDir.IsDire() {
-				panic( errors.New("specific path is a file") )
-			}
-			lsRes, e := dmDir.Ls(); err.Check( e )
-			e = orm.DMAddResource( lsRes ); err.Check( e )
-			return cc.HerOkWithData( lsRes )
-		} )
-		// \brief 返回dm根目录的资源，用于索引数据库
-		a.GET( "/root", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
-			dmRootDir := &dm_1.DMResource{
-				Path: dm_1.DMRootPath(),
-			}
-			lsRootRes, e := dmRootDir.Ls(); err.Check( e )
-			e = orm.DMAddResource( lsRootRes ); err.Check( e )
-			return cc.HerOkWithData( lsRootRes )
-		} )
+	cc.AddActionGroup( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
+		// \brief 开始递归所有目录进行资源索引
+		// \return 递归所用的时间
 		a.GET( "/recruit", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			dmRootDir := &dm_1.DMResource{
 				Path: dm_1.DMRootPath(),
 			}
-			lsRootRes, e := dmRootDir.Ls(); err.Check( e )
+			start := time.Now()
+			lsRootRes := dmRootDir.LsRecruit()
+			usedTime := time.Since( start )
 			e = orm.DMAddResource( lsRootRes ); err.Check( e )
-			return cc.HerOkWithData( lsRootRes )
+			return cc.HerOkWithData( usedTime )
+		} )
+		// \brief 添加某个目录下的所有资源
+		// \return ok
+		a.GET( "/ls", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			e := DM1CheckPermission( ap.R ); err.Check( e )
+			dir := ap.GetFormValue( "d" )
+			dmDir, e := checkDir( dir ); err.Check( e )
+			lsRes, e := dmDir.Ls(); err.Check( e )
+			e = orm.DMAddResource( lsRes ); err.Check( e )
+			return cc.HerOk()
+		} )
+		// \brief 添加一个或多个资源
+		// \return ok
+		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			e := DM1CheckPermission( ap.R ); err.Check( e )
+			var dmRes []dm_1.DMResource
+			e = ap.GetBodyUnmarshal( &dmRes ); err.Check( e )
+			e = orm.DMAddResource( dmRes ); err.Check( e )
+			return cc.HerOk()
 		} )
 		return nil
 	} )

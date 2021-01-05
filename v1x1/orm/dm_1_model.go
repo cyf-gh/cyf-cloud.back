@@ -1,7 +1,8 @@
 package orm
 
-import "errors"
-
+import (
+	"errors"
+)
 type (
 	// target
 	DMTargetResource struct {
@@ -56,6 +57,11 @@ func ( PR *DMTargetResource ) GetChildResourceEx() ( ex *DMTargetResourceEx, e e
 	}
 }
 
+// 返回与 R md5相同的资源
+func ( R DMTargetResource ) GetClones() ( rs []DMTargetResource, e error ) {
+	e = engine_dm.Table("d_m_target_resource").Where("m_d5 = ?", R.MD5 ).Find( &rs )
+	return
+}
 
 func ( R DMBackupResource ) Update() ( e error ) {
 	_, e = engine_dm.Table("d_m_backup_resource").Cols().ID(R.Id).Update(R)
