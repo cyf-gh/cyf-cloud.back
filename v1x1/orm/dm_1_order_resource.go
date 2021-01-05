@@ -7,40 +7,40 @@ import (
 )
 
 // 当添加一笔数据时，系统将会根据dm1.DMExts自动匹配文件的种类
+// 只要有一笔数据为重复添加的，就会立刻返回错误
 func DMAddResource( rs []dm_1.DMResource ) ( e error ) {
 	var md5 string
 	exist := false
 	for _, r := range rs {
 		md5, e = r.GetMD5() ; if e != nil { return }
-		if exist, e = DMIsTargetResourceExist( r.Path ); !exist {
+		if exist, e = DMIsTargetResourceExist( r.Path ); exist {
 			continue
 		} else if e != nil {
 			return e
 		}
-		_, e = engine_dm.Table("d_m_target_resource" ).Insert( &DMTargetResource {
+		_, e = engine_dm.Table("d_m_target_resource" ).Insert( DMTargetResource {
 			Description:  "",
 			MD5:          md5,
 			Path:         r.Path,
 			TagIds:    	  nil,
 			BackupIdList: nil,
-			ChildId:      0,
 			ChildGenre:   r.GetGenre(),
-		} )
+		} ); if e != nil { return e }
 		var rr *DMTargetResource
 		rr, e = DMGetTargetResourceByPath( r.Path ); if e != nil {
 			return e
 		}
 		if r.GetGenre() != "backup" {
-			_, e = engine_dm.Table("d_m_target_resource_ex" ).Insert( &DMTargetResourceEx{
+			_, e = engine_dm.Table("d_m_target_resource_ex" ).Insert( DMTargetResourceEx{
 				ParentId:                 rr.Id,
 				CompatibilityDescription: "",
 				Commentary:               "",
-			} )
+			} ); if e != nil { return e }
 		} else {
-			_, e = engine_dm.Table("d_m_backup_resource" ).Insert( &DMBackupResource{
+			_, e = engine_dm.Table("d_m_backup_resource" ).Insert( DMBackupResource{
 				ParentId:        rr.Id,
 				BackupTargetIds: nil,
-			})
+			});  if e != nil { return e }
 		}
 	}
 	return

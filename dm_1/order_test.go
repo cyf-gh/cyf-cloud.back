@@ -3,7 +3,7 @@ package dm_1
 import "testing"
 
 func TestDMRecruitLs(t *testing.T) {
-	r := DMResource{
+	r := DMResource {
 		Path:       "L:/mount",
 	}
 	res := DMRecruitLs( r )

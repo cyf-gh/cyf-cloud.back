@@ -5,6 +5,7 @@ package dm_1
 
 import (
 	"crypto/md5"
+	"encoding/hex"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -103,6 +104,7 @@ func ( R DMResource ) IsFile() bool {
 func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 	e = nil
 	tMd5 := md5.New()
+	md5str = ""
 
 	if R.IsDire() {
 		// e = errors.New("cannot get md5 from a directory")
@@ -113,7 +115,7 @@ func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 			return
 		} else {
 			io.Copy( tMd5, f )
-			md5str = string( tMd5.Sum([]byte("")) )
+			md5str = hex.EncodeToString(tMd5.Sum(nil) )
 			return
 		}
 	}

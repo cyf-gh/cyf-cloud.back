@@ -12,12 +12,11 @@ type (
 		Path string `xorm:"unique"`
 		TagIds []int64
 		BackupIdList []int64
-		ChildId int64
 		ChildGenre string
 	}
 	DMTargetResourceEx struct {
 		Id int64
-		ParentId int64
+		ParentId int64 `xorm:"unique"`
 		CompatibilityDescription string
 		Commentary string
 	}
@@ -43,7 +42,12 @@ type (
 
 func ( PR *DMTargetResource ) GetChildResourceBackup() ( *DMBackupResource, error )  {
 	if PR.ChildGenre == "backup" {
-		return DMGetBackupResourceById( PR.ChildId )
+		b := &DMBackupResource{}
+		_, e := engine_dm.Table("d_m_backup_resource").Where("parent_id = ?", PR.Id).Get( b ); if e != nil {
+			return b, e
+		} else {
+			return b, nil
+		}
 	} else {
 		return nil, errors.New("resource is not a backup resource, but try to get a backup description")
 	}
@@ -51,13 +55,19 @@ func ( PR *DMTargetResource ) GetChildResourceBackup() ( *DMBackupResource, erro
 
 func ( PR *DMTargetResource ) GetChildResourceEx() ( ex *DMTargetResourceEx, e error ) {
 	if PR.ChildGenre != "backup" {
-		return DMGetTargetResourceExById( PR.ChildId )
+		b := &DMTargetResourceEx{}
+		_, e := engine_dm.Table("d_m_target_resource_ex").Where("parent_id = ?", PR.Id).Get( b ); if e != nil {
+			return b, e
+		} else {
+			return b, nil
+		}
 	} else {
 		return nil, errors.New("resource is a backup resource, but try to get a ex description")
 	}
 }
 
 // 返回与 R md5相同的资源
+// 包含自身
 func ( R DMTargetResource ) GetClones() ( rs []DMTargetResource, e error ) {
 	e = engine_dm.Table("d_m_target_resource").Where("m_d5 = ?", R.MD5 ).Find( &rs )
 	return

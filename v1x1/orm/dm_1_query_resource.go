@@ -20,15 +20,11 @@ func DMGetParentResource( parentId int64 ) (tr *DMTargetResource, er error) {
 	return
 }
 
-func DMGetTargetResourceByPath( path string ) ( tr *DMTargetResource, er error ) {
+func DMGetTargetResourceByPath( path string ) ( tr *DMTargetResource, e error ) {
 	tr = &DMTargetResource{}
-	if has, e := engine_dm.Table("d_m_target_resource").Where("path = ?", path).Get(tr); !has || e != nil {
-		er = e
-		return
-	}
+	_, e = engine_dm.Table("d_m_target_resource").Where("path = ?", path).Get(tr)
 	return
 }
-
 
 func DMGetTargetResourcesByTags( tags []string ) ( []DMTargetResource, error ) {
 	var (
