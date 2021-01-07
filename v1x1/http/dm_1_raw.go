@@ -17,7 +17,7 @@ func checkDir( dir string ) ( dmDir *dm_1.DMResource, e error ) {
 	if strings.Contains( dir, "..") {
 		return nil, errors.New(".. is not allowed in param d")
 	}
-	dmDir = &dm_1.DMResource{ Path: dm_1.DMRootPath() + dir }
+	dmDir = &dm_1.DMResource{ Path: dir }
 	if !dmDir.Exists() {
 		return nil, errors.New("specific path is invalid")
 	}
@@ -29,6 +29,11 @@ func checkDir( dir string ) ( dmDir *dm_1.DMResource, e error ) {
 
 func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/raw", func( a cc.ActionGroup ) error {
+		// \brief 返回dm根目录
+		a.GET( "/root", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			e := DM1CheckPermission( ap.R ); err.Check( e )
+			return cc.HerOkWithData( dm_1.DMRootPath() )
+		} )
 		// \brief 返回dm目录的资源，用于索引数据库
 		// \arg[d] 路径，附加于root_path之后的路径
 		a.GET( "/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
@@ -55,6 +60,15 @@ func init() {
 			dmDir, e := checkDir( dir ); err.Check( e )
 			lsRes := dmDir.LsRecruit(); err.Check( e )
 			return cc.HerOkWithData( lsRes )
+		} )
+		// \brief 返回该目录的大小
+		// \arg[d] 路径，附加于root_path之后的路径
+		a.GET( "/recruit/dir/size", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			e := DM1CheckPermission( ap.R ); err.Check( e )
+			dir := ap.GetFormValue( "d" )
+			dmDir, e := checkDir( dir ); err.Check( e )
+			size, e := dmDir.GetSize(); err.Check( e )
+			return cc.HerOkWithData( size )
 		} )
 		return nil
 	} )

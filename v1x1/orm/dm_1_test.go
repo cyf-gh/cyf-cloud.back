@@ -49,6 +49,11 @@ func TestDMIsTagExist(t *testing.T) {
 	t.Log( DMIsTagExist( "aaa" ) )
 }
 
+func TestDMGetTargetResourcesByTags(t *testing.T) {
+	dmRes, e := DMGetTargetResourcesByTags( []int64{1} ); if e != nil { t.Log( e ); t.FailNow() }
+	t.Log( dmRes )
+}
+
 func TestDMTag_Insert(t *testing.T) {
 	tag := DMTag{
 		Name: "aaa",

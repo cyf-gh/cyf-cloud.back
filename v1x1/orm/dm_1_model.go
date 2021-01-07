@@ -107,6 +107,12 @@ func DMIsTagExist( name string ) bool {
 	return exist
 }
 
+func DMGetTagIdByName( name string ) int64 {
+	t := &DMTag{}
+	engine_dm.Table("d_m_tag").Where("name = ?", name).Get( t )
+	return t.Id
+}
+
 func ( R DMTag ) Insert() ( e error ) {
 	return DMInsertTag( R )
 }

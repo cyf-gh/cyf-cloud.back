@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -182,4 +183,28 @@ func ( R DMResource ) GetGenre() string {
 // 包含 R 自身
 func ( R DMResource ) LsRecruit() []DMResource {
 	return append( DMRecruitLs( R ), R )
+}
+
+func dirSize(path string) (int64, error) {
+	var size int64
+	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			size += info.Size()
+		}
+		return err
+	})
+	return size, err
+}
+
+// 获取文件或文件夹的大小
+// 与属性Size不同，当接收者为路径时GetSize可以返回文件夹的递归大小
+func ( R DMResource ) GetSize() ( int64, error ) {
+	if R.IsDire() {
+		return dirSize( R.Path )
+	} else {
+		return R.Size, nil
+	}
 }

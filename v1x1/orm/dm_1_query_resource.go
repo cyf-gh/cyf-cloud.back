@@ -26,24 +26,27 @@ func DMGetTargetResourceByPath( path string ) ( tr *DMTargetResource, e error ) 
 	return
 }
 
-func DMGetTargetResourcesByTags( tags []string ) ( []DMTargetResource, error ) {
+func DMGetTargetResourcesByTags( tagIds []int64 ) ( []DMTargetResource, error ) {
 	var (
 		pis []DMTargetResource
 		findEx string
+		e error
 	)
-	tagIds, e := GetTagIds( tags )
 	findEx = ""
+
 	for i, id := range tagIds {
 		sid := convert.I64toa(id)
 		// tag交集
 		// id = 1
 		// tag_ids like '[1,%' or like '%,1,%' or like '%,1]'
 		findEx += fmt.Sprintf( "(tag_ids like '[%s,%%' or tag_ids like '%%,%s,%%' or tag_ids like '%%,%s]')", sid, sid, sid )
+		if len(tagIds) == 1 {
+			findEx += fmt.Sprintf( " or (tag_ids like '[%s]')", sid )
+		}
 		if i != len(tagIds) - 1 {
 			findEx += "and"
 		}
 	}
-	findEx += " and is_private = 0"
 	e = engine_dm.Table("d_m_target_resource").Where( findEx ).Find(&pis)
 	return pis, e
 }

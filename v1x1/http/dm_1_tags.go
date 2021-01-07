@@ -19,8 +19,31 @@ func init() {
 		// \brief 添加一个tag
 		// \note 与post的tag行为不同，post中的tag通过发送文章时自动添加，dm_1的tag需要手动添加后才可使用
 		// \arg[a] tag的名字
-		// \return ok
-		a.GET( "/add", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+		// \return 新添加的tag的id
+		a.POST( "/add", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			e := DM1CheckPermission( ap.R ); err.Check( e )
+			var (
+				tagNames []string
+				tagIds []int64
+			)
+			e = ap.GetBodyUnmarshal(&tagNames); err.Check( e ); if len(tagNames) == 0 { panic(errors.New("empty param: a"))}
+			for _, tagName := range tagNames {
+				if !orm.DMIsTagExist( tagName ) {
+					t := orm.DMTag{
+						Name: tagName,
+					}
+					t.Insert()
+					tagIds = append(tagIds, orm.DMGetTagIdByName(tagName))
+				}
+			}
+			return cc.HerOkWithData( tagIds )
+		} )
+		return nil
+		// \brief 添加一个tag
+		// \note 与post的tag行为不同，post中的tag通过发送文章时自动添加，dm_1的tag需要手动添加后才可使用
+		// \arg[a] tag的名字
+		// \return tag id
+		a.GET( "/adds", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			tagName := ap.GetFormValue("a"); if tagName == "" { panic(errors.New("empty param: a"))}
 			if !orm.DMIsTagExist( tagName ) {
@@ -28,7 +51,7 @@ func init() {
 					Name: tagName,
 				}
 				t.Insert()
-				return cc.HerOk()
+				return cc.HerOkWithData( orm.DMGetTagIdByName(t.Name) )
 			} else {
 				panic( errors.New("tag: " + tagName + " already exists") )
 			}
