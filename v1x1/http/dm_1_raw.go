@@ -41,7 +41,11 @@ func init() {
 			dir := ap.GetFormValue( "d" )
 			dmDir, e := checkDir( dir ); err.Check( e )
 			lsRes, e := dmDir.Ls(); err.Check( e )
-			return cc.HerOkWithData( lsRes )
+			fivm := []dm_1.DMFileInfoViewModel{}
+			for _, res := range lsRes {
+				fivm = append(fivm, *res.ToReadable())
+			}
+			return cc.HerOkWithData( fivm )
 		} )
 		// \brief 返回dm根目录的资源，用于索引数据库
 		a.GET( "/dir/root", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
@@ -50,7 +54,11 @@ func init() {
 				Path: dm_1.DMRootPath(),
 			}
 			lsRootRes, e := dmRootDir.Ls(); err.Check( e )
-			return cc.HerOkWithData( lsRootRes )
+			fivm := []dm_1.DMFileInfoViewModel{}
+			for _, res := range lsRootRes {
+				fivm = append(fivm, *res.ToReadable())
+			}
+			return cc.HerOkWithData( fivm )
 		} )
 		// \brief 返回dm目录的递归资源，用于索引数据库
 		// \arg[d] 路径，附加于root_path之后的路径

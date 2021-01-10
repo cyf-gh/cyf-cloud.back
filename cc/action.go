@@ -91,7 +91,7 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 	http.HandleFunc( a.Path + path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r, W: &w } )
-			HttpReturnHER( &w, &her, status)
+			HttpReturnHER( &w, &her, status, r.URL.Path )
 		} ) )
 	postHandlers[path] = &handler
 }
@@ -102,7 +102,7 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
 			her, status := handler( ActionPackage{ R: r, W: &w } )
-			HttpReturnHER( &w, &her, status)
+			HttpReturnHER( &w, &her, status, r.URL.Path	)
 		} ) )
 	getHandlers[path] = &handler
 }

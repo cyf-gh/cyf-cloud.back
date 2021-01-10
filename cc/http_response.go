@@ -39,7 +39,7 @@ func MakeHER( desc, errcode string) *HttpErrReturn {
 	return her
 }
 
-func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode StatusCode ) {
+func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode StatusCode, url string ) {
 	defer func() {
 		if e := recover(); e != nil {
 			glg.Error( e )
@@ -54,7 +54,7 @@ func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode Statu
 	bs, e := json.Marshal(*her); err.Check(e)
 	_, e = (*w).Write(bs); err.Check(e)
 
-	glg.Log( fmt.Sprintf( "[HttpReturn] - StatusCode:(%d) - HER (%s)", statusCode, her ))
+	glg.Log( fmt.Sprintf( "[HttpReturn] {%s} - StatusCode:(%d) - HER (%s)", url, statusCode, her ))
 }
 
 // server Ok 请求返回成功
@@ -139,7 +139,7 @@ func ErrorFetcher() middleware.MiddewareFunc {
 					glg.Warn("ErrorFetcher occurred")
 					HttpRecoverBasic( &w, r )
 				} else {
-					glg.Success("ErrorFetcher")
+					glg.Success("ErrorFetcher pass")
 				}
 			}()
 			f(w, r)

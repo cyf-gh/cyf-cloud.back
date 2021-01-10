@@ -31,7 +31,29 @@ type (
 		IsDir bool        // abbreviation for Mode().IsDire()
 		Sys interface{}   // underlying data source (can return nil)
 	}
+	// 详见os包中的 types.go
+	// 用于方便转化为json对象
+	DMFileInfoViewModel struct {
+		Name, Path string
+		Size int64
+		Mode string
+		ModTime string
+		IsDir bool
+		Sys interface{}
+	}
 )
+
+func ( R DMResource ) ToReadable() *DMFileInfoViewModel {
+	return &DMFileInfoViewModel{
+		Path: 	 R.Path,
+		Name:    R.Name,
+		Size:    R.Size,
+		Mode:    R.Mode.String(),
+		ModTime: R.ModTime.Format("2006-01-02 15:04:05"),
+		IsDir:   R.IsDir,
+		Sys:     R.Sys,
+	}
+}
 
 // 获取文件的基本信息
 func ( pR *DMResource ) GetBasicFileInfo() ( dfi *DMFileInfo, e error ) {
