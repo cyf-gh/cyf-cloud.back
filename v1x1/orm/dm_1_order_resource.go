@@ -25,6 +25,7 @@ func DMAddResource( rs []dm_1.DMResource ) ( e error ) {
 			TagIds:    	  nil,
 			BackupIdList: nil,
 			ChildGenre:   r.GetGenre(),
+			Rating: 0,
 		} ); if e != nil { return e }
 		var rr *DMTargetResource
 		rr, e = DMGetTargetResourceByPath( r.Path ); if e != nil {

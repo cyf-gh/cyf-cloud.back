@@ -13,6 +13,7 @@ type (
 		TagIds []int64
 		BackupIdList []int64
 		ChildGenre string
+		Rating int
 	}
 	DMTargetResourceEx struct {
 		Id int64
@@ -24,7 +25,10 @@ type (
 	DMBackupResource struct {
 		Id int64
 		ParentId int64
-		// 例如一个备份一个文件夹，则其中的所有文件都会被该备份资源所备份
+		Description string
+		MD5 string
+		Path string `xorm:"unique"`
+		// 例如：备份一个文件夹，则其中的所有文件都会被该备份资源所备份
 		BackupTargetIds[] int64
 	}
 	// tag

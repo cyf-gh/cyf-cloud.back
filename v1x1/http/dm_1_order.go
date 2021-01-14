@@ -36,7 +36,7 @@ func init() {
 		} )
 		// \brief 添加一个或多个资源
 		// \return ok
-		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+		a.POST( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			var dmRes []dm_1.DMResource
 			e = ap.GetBodyUnmarshal( &dmRes ); err.Check( e )
