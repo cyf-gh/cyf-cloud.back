@@ -11,6 +11,7 @@ import (
 const (
 	POST="POST"
 	GET="GET"
+	WS="WS"
 )
 
 // 输出请求所用时间
@@ -53,9 +54,14 @@ func EnableAllowOrigin() middleware.MiddewareFunc {
 func Method( m string ) middleware.MiddewareFunc {
 	return func(f http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
-			if r.Method != m {
-				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-				return
+			if m != WS {
+				if r.Method != m {
+					glg.Error("Target Method: ", r.Method, "| Register Method:", m )
+					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+					return
+				}
+			} else {
+				glg.Log("Method WS")
 			}
 			f(w, r)
 		}

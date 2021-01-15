@@ -24,6 +24,7 @@ Example:
 import (
 	mwh "../middleware/helper"
 	"encoding/json"
+	"github.com/gorilla/websocket"
 	"github.com/kpango/glg"
 	"io/ioutil"
 	"net/http"
@@ -39,11 +40,13 @@ type (
 	}
 	ActionGroupFunc func( ActionGroup ) error
 	ActionFunc func( ActionPackage ) ( HttpErrReturn, StatusCode )
+	ActionFuncWS func( ActionPackage, *websocket.Conn ) error
 )
 
 var (
 	postHandlers map[string] *ActionFunc
 	getHandlers map[string] *ActionFunc
+	wsHandlers map[string] *ActionFuncWS
 
 	actionGroupHandlers map[string] ActionGroupFunc
 )
@@ -51,6 +54,7 @@ var (
 func init() {
 	postHandlers = make( map[string] *ActionFunc )
 	getHandlers = make( map[string] *ActionFunc )
+	wsHandlers = make( map[string] *ActionFuncWS )
 
 	actionGroupHandlers = make(map[string]ActionGroupFunc)
 }
@@ -107,11 +111,35 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+func ( a ActionGroup ) WS( path string, handler ActionFuncWS ) {
+	glg.Log( "[action] WS: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapWS( func( w http.ResponseWriter, r *http.Request ) {
+			glg.Log("["+ a.Path + path  +"] "+ "WS: START UPGRADE")
+
+			ug := websocket.Upgrader{
+				ReadBufferSize:  1024,
+				WriteBufferSize: 1024,
+				// 交给 nginx 处理源问题
+				CheckOrigin: func( r *http.Request ) bool {
+					return true
+				},
+			}
+			c, e := ug.Upgrade( w, r, nil )
+			if e != nil { glg.Error("["+ a.Path + path  +"] " + "WS UPGRADE: ", e); return }
+			defer c.Close()
+
+			if e = handler( ActionPackage{ R: r, W: &w }, c ); e != nil { glg.Error( e ) }
+			glg.Info( "["+ a.Path + path  +"] " + "WS CLOSED" )
+		} ) )
+	wsHandlers[path] = &handler
+}
+
 func resp(w* http.ResponseWriter, msg string) {
 	(*w).Write([]byte(msg))
 }
 
 // 只返回data，不返回其他的任何信息
+// DO: DATA ONLY
 func ( a ActionGroup ) GET_DO( path string, handler ActionFunc ) {
 	glg.Log( "[action] GET_DO: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapGet(

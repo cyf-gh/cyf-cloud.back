@@ -2,7 +2,9 @@ package vtMain
 
 import (
 	"encoding/json"
+	"github.com/gorilla/websocket"
 	"github.com/kpango/glg"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,6 +30,34 @@ func Init() {
 	http.HandleFunc( "/v1/vt/sync/guest", SendSyncGuestGet )
 	http.HandleFunc( "/v1/vt/lobby/users/status", GetUserStatus )
 	http.HandleFunc( "/v1/vt/lobby/videodesc", GetCurrentVideoDesc )
+	http.HandleFunc("/ws/echo", echo)
+}
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func( r *http.Request ) bool {
+		return true
+	},
+}
+
+func echo(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
+	}
+	defer c.Close()
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("read:", err)
+			break
+		}
+		log.Printf("recv: %s", message)
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
+	}
 }
 
 func resp(w* http.ResponseWriter, msg string) {
