@@ -4,8 +4,10 @@ package dm_1
 // 递归某个目录的所有文件
 // 结果不包含 r 自身
 // 不会递归二进制文件夹，见 IsBinaryDirectory1()
-func DMRecruitLs( r DMResource ) ( rs []DMResource ) {
+func DMRecruitLs( r DMResource, taskStatus *DMTaskStatus ) ( rs []DMResource ) {
 	rs = []DMResource{}
+
+	if taskStatus != nil { taskStatus.CurrentMsg = r.Path; taskStatus.Progress++ }
 
 	if r.IsDire() {
 		if r.IsBinaryDirectory1() {
@@ -14,7 +16,7 @@ func DMRecruitLs( r DMResource ) ( rs []DMResource ) {
 		rrs, _ := r.Ls()
 		for _, rr := range rrs {
 			rs = append(rs, rr)
-			if rsr := DMRecruitLs( rr ); len(rsr) != 0 {
+			if rsr := DMRecruitLs( rr, taskStatus ); len(rsr) != 0 {
 				rs = append(rs, rsr...)
 			}
 		}

@@ -6,23 +6,30 @@ import (
 	"../../cc/err"
 	"../../dm_1"
 	"../orm"
-	"time"
 )
 
 func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
 		// \brief 开始递归所有目录进行资源索引
-		// \return 递归所用的时间
+		// \note 会导致并发
+		// \return ok
 		a.GET( "/recruit", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			dmRootDir := &dm_1.DMResource{
 				Path: dm_1.DMRootPath(),
 			}
-			start := time.Now()
-			lsRootRes := dmRootDir.LsRecruit()
-			usedTime := time.Since( start )
-			e = orm.DMAddResource( lsRootRes ); err.Check( e )
-			return cc.HerOkWithData( usedTime )
+			go func() {
+				if e := dm_1.TaskSharedList.AddTask( "order_recruit", true, 600, dmRootDir.LsRecruitCount() ); e != nil {
+					return
+				}
+				orTask := &dm_1.TaskSharedList.Lists["order_recruit"][0]
+
+				lsRootRes := dmRootDir.LsRecruit( orTask )
+				e = orm.DMAddResource( lsRootRes, orTask ); orTask.Error( e )
+
+				orTask.Finished()
+			} ()
+			return cc.HerOk()
 		} )
 		// \brief 添加某个目录下的所有资源
 		// \return ok
@@ -31,7 +38,7 @@ func init() {
 			dir := ap.GetFormValue( "d" )
 			dmDir, e := checkDir( dir ); err.Check( e )
 			lsRes, e := dmDir.Ls(); err.Check( e )
-			e = orm.DMAddResource( lsRes ); err.Check( e )
+			e = orm.DMAddResource( lsRes, nil ); err.Check( e )
 			return cc.HerOk()
 		} )
 		// \brief 添加一个或多个资源
@@ -40,7 +47,7 @@ func init() {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			var dmRes []dm_1.DMResource
 			e = ap.GetBodyUnmarshal( &dmRes ); err.Check( e )
-			e = orm.DMAddResource( dmRes ); err.Check( e )
+			e = orm.DMAddResource( dmRes, nil ); err.Check( e )
 			return cc.HerOk()
 		} )
 		return nil

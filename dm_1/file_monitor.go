@@ -6,51 +6,75 @@ import (
 	"path/filepath"
 )
 
-type NotifyFile struct {
-		watch *fsnotify.Watcher
-}
+type (
+	DMNotifyFile struct {
+		Watch *fsnotify.Watcher
+		Create, Write, Remove, Rename, Chmod DMWatchEventFunc
+	}
+	DMWatchEventFunc func( event fsnotify.Event )
+)
+func DMNewNotifyFile() *DMNotifyFile {
+	w := new(DMNotifyFile)
+	w.Watch, _ = fsnotify.NewWatcher()
+	w.Create = func(event fsnotify.Event) {}
+	w.Remove = func(event fsnotify.Event) {}
+	w.Rename = func(event fsnotify.Event) {}
+	w.Write = func(event fsnotify.Event) {}
+	w.Chmod = func(event fsnotify.Event) {}
 
-func NewNotifyFile() *NotifyFile {
-	w := new(NotifyFile)
-	w.watch, _ = fsnotify.NewWatcher()
 	return w
 }
 
-// 将会递归监控目录 dir
-func (pR *NotifyFile) WatchDir( dir string ) ( e error ) {
-	e = filepath.Walk( dir, func(path string, info os.FileInfo, err error) error {
+// 递归监控目录 dir
+func (pR *DMNotifyFile) AddWatchDirRecruit( dir string ) ( e error ) {
+	e = filepath.Walk( dir, func( path string, info os.FileInfo, err error ) error {
 		if info.IsDir() {
-			var path string
-			if path, err = filepath.Abs(path); err != nil { return err }
-			if err = pR.watch.Add(path); err != nil { return err }
-			Info("ADD MONITOR: " + path)
+			if path, err = filepath.Abs( path ); err != nil { return err }
+				if err = pR.Watch.Add( path ); err != nil { return err }
+			Info( "ADD MONITOR: " + path )
 		}
 		return nil
 	})
-	go pR.WatchEvent()
-	return nil
+	return e
 }
 
-func (pR *NotifyFile) WatchEvent() {
+func ( pR *DMNotifyFile ) RemoveWatchDirRecruit( dir string ) ( e error ) {
+	e = filepath.Walk( dir, func( path string, info os.FileInfo, err error ) error {
+		if info.IsDir() {
+			if path, err = filepath.Abs( path ); err != nil { return err }
+			if err = pR.Watch.Remove( path ); err != nil { return err }
+			Info( "REMOVE MONITOR: " + path )
+		}
+		return nil
+	})
+	return e
+}
+
+func (pR *DMNotifyFile) WatchEvent() {
+	defer pR.Watch.Close()
 	for {
 		select {
-		case ev := <-pR.watch.Events: {
+		case ev := <- pR.Watch.Events: {
 				if ev.Op&fsnotify.Create == fsnotify.Create {
 					Info("CREATE: "+ ev.Name)
 					file, err := os.Stat(ev.Name)
-					if err == nil && file.IsDir() { pR.watch.Add(ev.Name) }
+					if err == nil { pR.Create( ev ) }
+					if err == nil && file.IsDir() { pR.AddWatchDirRecruit( ev.Name ) }
 				}
 
 				// TODO: modify md5
 				if ev.Op&fsnotify.Write == fsnotify.Write {
+					Info("WRITE: "+ ev.Name)
+					pR.Write( ev )
 				}
 
 				// TODO:
 				if ev.Op&fsnotify.Remove == fsnotify.Remove {
 					Info("DELETE: ", ev.Name)
 					fi, err := os.Stat(ev.Name)
+					if err == nil { pR.Remove( ev ) }
 					if err == nil && fi.IsDir() {
-						pR.watch.Remove(ev.Name)
+						pR.RemoveWatchDirRecruit( ev.Name )
 						Info("REMOVE MONITOR: ", ev.Name)
 					}
 				}
@@ -58,14 +82,17 @@ func (pR *NotifyFile) WatchEvent() {
 				// TODO: modify name
 				if ev.Op&fsnotify.Rename == fsnotify.Rename {
 					Info("RENAME: ", ev.Name)
-					pR.watch.Remove(ev.Name)
+					pR.Rename( ev )
+					// 名字更换后的文件夹会被认为是CREATE的
+					pR.Watch.Remove(ev.Name)
 				}
 
 				if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+					{ pR.Chmod( ev ) }
 					Info("CHMOD: ", ev.Name)
 				}
 			}
-		case err := <-pR.watch.Errors:
+		case err := <- pR.Watch.Errors:
 			{
 				Fatal("ERROR IN WATCH EVENT: ", err)
 				return

@@ -100,7 +100,13 @@ func ( R DMResource ) IsDire() bool {
 	return s.IsDir()
 }
 
+// 递归全部的子项目个数
+func ( R DMResource ) LsRecruitCount() int {
+	return len( R.LsRecruit( nil ) )
+}
+
 // 如果目录下有exe文件，说明这个目录为二进制软件的目录
+// 判断方式1
 func ( R DMResource ) IsBinaryDirectory1() bool {
 	if !R.IsDire() {
 		return false
@@ -203,8 +209,11 @@ func ( R DMResource ) GetGenre() string {
 }
 
 // 包含 R 自身
-func ( R DMResource ) LsRecruit() []DMResource {
-	return append( DMRecruitLs( R ), R )
+func ( R DMResource ) LsRecruit( status *DMTaskStatus ) []DMResource {
+	if status != nil {
+		status.ProgressStage = "walking directories..."
+	}
+	return append( DMRecruitLs( R, status), R )
 }
 
 func dirSize(path string) (int64, error) {

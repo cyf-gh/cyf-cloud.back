@@ -24,6 +24,7 @@ Example:
 import (
 	mwh "../middleware/helper"
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/websocket"
 	"github.com/kpango/glg"
 	"io/ioutil"
@@ -38,9 +39,12 @@ type (
 		R *http.Request
 		W *http.ResponseWriter
 	}
+	ActionPackageWS struct {
+		C *websocket.Conn
+	}
 	ActionGroupFunc func( ActionGroup ) error
 	ActionFunc func( ActionPackage ) ( HttpErrReturn, StatusCode )
-	ActionFuncWS func( ActionPackage, *websocket.Conn ) error
+	ActionFuncWS func( ActionPackage, ActionPackageWS ) error
 )
 
 var (
@@ -72,6 +76,7 @@ func ( R ActionPackage ) GetBodyUnmarshal( v interface{} ) error {
 // 添加一个业务逻辑组
 // 所有的 action 将在 RegisterActions() 被调用时启用
 func AddActionGroup( groupPath string, actionFunc ActionGroupFunc) {
+	checkPathWarning( groupPath )
 	if _, ok := actionGroupHandlers[groupPath]; ok {
 		glg.Warn("action group:", groupPath, "already exists, recovered.")
 	}
@@ -89,8 +94,21 @@ func RegisterActions() error {
 	return nil
 }
 
+// cc标准的路径都均为 开头 /xxx 或 空
+// 路径最后一个字符不得为 /
+// 检查不符合标准仅在输出警告
+func checkPathWarning( path string ) {
+	if path == "" {
+		return
+	}
+	if path[:1] != "/" || path[len(path)-1:] == "/" {
+		glg.Warn( "url: ", path, " may not correct; are you sure it was the expected url path?")
+	}
+}
+
 // 添加一个Post请求
 func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
+	checkPathWarning( path )
 	glg.Log( "[action] POST: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -102,6 +120,7 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 
 // 添加一个Get请求
 func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
+	checkPathWarning( path )
 	glg.Log( "[action] GET: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -112,6 +131,7 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 }
 
 func ( a ActionGroup ) WS( path string, handler ActionFuncWS ) {
+	checkPathWarning( path )
 	glg.Log( "[action] WS: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapWS( func( w http.ResponseWriter, r *http.Request ) {
 			glg.Log("["+ a.Path + path  +"] "+ "WS: START UPGRADE")
@@ -128,7 +148,7 @@ func ( a ActionGroup ) WS( path string, handler ActionFuncWS ) {
 			if e != nil { glg.Error("["+ a.Path + path  +"] " + "WS UPGRADE: ", e); return }
 			defer c.Close()
 
-			if e = handler( ActionPackage{ R: r, W: &w }, c ); e != nil { glg.Error( e ) }
+			if e = handler( ActionPackage{ R: r, W: &w }, ActionPackageWS{C:c} ); e != nil { glg.Error( e ) }
 			glg.Info( "["+ a.Path + path  +"] " + "WS CLOSED" )
 		} ) )
 	wsHandlers[path] = &handler
@@ -165,14 +185,59 @@ func ( pap *ActionPackage ) GetCookie( key string ) ( string, error ) {
 	return atk, e
 }
 
+// 将ws读取数据转化为json
+// error总是断连错误
+func ( pR *ActionPackageWS ) ReadJson( v interface{} ) ( e error ) {
+	mt, b, e := pR.C.ReadMessage(); if e != nil { return e }
+	switch mt {
+	case websocket.BinaryMessage:
+		glg.Warn("WS: reading binary message but try to unmarshal it")
+	case websocket.CloseMessage:
+		glg.Log("WS closed")
+		return errors.New("WS closed")
+	}
+	e = json.Unmarshal( b, v ); if e != nil { return e }
+	return nil
+}
 
+// 将ws的读取数据转化为字符串
+func ( pR *ActionPackageWS ) ReadString() ( string, error ) {
+	mt, b, e := pR.C.ReadMessage(); if e != nil { return "", e }
+	switch mt {
+	case websocket.BinaryMessage:
+		glg.Warn("WS: reading binary message but try to stringify it")
+	case websocket.CloseMessage:
+		glg.Log("WS closed")
+		return "", errors.New("WS closed")
+	}
+	return string( b ), nil
+}
 
+func ( pR *ActionPackageWS ) ReadBinary() ( []byte, error ) {
+	mt, b, e := pR.C.ReadMessage(); if e != nil { return nil, e }
+	switch mt {
+	case websocket.CloseMessage:
+		glg.Log("WS closed")
+		return nil, errors.New("WS closed")
+	}
+	return b, nil
+}
 
+func ( pR *ActionPackageWS ) WriteJson( data interface{} ) ( e error ) {
+	jn, e := json.Marshal( data );  if e != nil { return e }
+	e = pR.C.WriteMessage( websocket.TextMessage, jn ) ;  if e != nil { return e }
+	return nil
+}
 
+func ( pR *ActionPackageWS ) WriteString( str string ) ( e error ) {
+	e = pR.C.WriteMessage( websocket.TextMessage, []byte(str) ) ;  if e != nil { return e }
+	return nil
+}
 
-
-
-
+func ( pR *ActionPackageWS ) WriteBinary( b []byte ) ( e error ) {
+	e = pR.C.WriteMessage( websocket.BinaryMessage, b ) ;  if e != nil { return e }
+	return nil
+}
 
 /*
 func getFunctionName(i interface{}) string {
