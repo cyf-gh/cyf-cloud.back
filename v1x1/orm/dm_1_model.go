@@ -2,6 +2,7 @@ package orm
 
 import (
 	"errors"
+	"../../dm_1"
 )
 type (
 	// target
@@ -14,6 +15,7 @@ type (
 		BackupIdList []int64
 		ChildGenre string
 		Rating int
+		Dead bool
 	}
 	DMTargetResourceEx struct {
 		Id int64
@@ -69,6 +71,17 @@ func ( PR *DMTargetResource ) GetChildResourceEx() ( ex *DMTargetResourceEx, e e
 		return nil, errors.New("resource is a backup resource, but try to get a ex description")
 	}
 }
+
+// 退化为DMResource
+// 带文件信息
+func ( R DMTargetResource ) Decay() ( *dm_1.DMResource, error ) {
+	r := &dm_1.DMResource{
+		Path: R.Path,
+	}
+	_, e := r.GetBasicFileInfo()
+	return r, e
+}
+
 
 // 返回与 R md5相同的资源
 // 包含自身

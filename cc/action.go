@@ -130,6 +130,9 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+// 添加一个websocket请求
+// cc规范：必须在请求路径末端添加ws字段来提示这一请求为websocket请求
+// 例：/imai_mami/no/koto/ga/suki/ws
 func ( a ActionGroup ) WS( path string, handler ActionFuncWS ) {
 	checkPathWarning( path )
 	glg.Log( "[action] WS: ", a.Path + path )

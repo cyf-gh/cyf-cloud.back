@@ -8,7 +8,7 @@ import (
 
 // 当添加一笔数据时，系统将会根据dm1.DMExts自动匹配文件的种类
 // 只要有一笔数据为重复添加的，就会立刻返回错误
-func DMAddResource( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error ) {
+func DMAddResources( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error ) {
 	if status != nil {
 		status.MsgStage( "ordering into database..")
 		status.Progress = 0
@@ -38,6 +38,7 @@ func DMAddResource( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error 
 			BackupIdList: nil,
 			ChildGenre:   r.GetGenre(),
 			Rating: 0,
+			Dead: false,
 		} ); if e != nil { return e }
 		var rr *DMTargetResource
 		rr, e = DMGetTargetResourceByPath( r.Path ); if e != nil {

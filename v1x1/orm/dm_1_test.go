@@ -18,7 +18,7 @@ func TestDMAddResource(t *testing.T) {
 	}
 	recRes := dmRoot.LsRecruit()
 
-	e := DMAddResource( recRes ); if e != nil { t.Log( e ); t.FailNow() }
+	e := DMAddResources( recRes ); if e != nil { t.Log( e ); t.FailNow() }
 }
 
 func TestDMTargetResource_GetClones(t *testing.T) {

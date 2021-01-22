@@ -25,7 +25,7 @@ func init() {
 				orTask := &dm_1.TaskSharedList.Lists["order_recruit"][0]
 
 				lsRootRes := dmRootDir.LsRecruit( orTask )
-				e = orm.DMAddResource( lsRootRes, orTask ); orTask.Error( e )
+				e = orm.DMAddResources( lsRootRes, orTask ); orTask.Error( e )
 
 				orTask.Finished()
 			} ()
@@ -38,7 +38,7 @@ func init() {
 			dir := ap.GetFormValue( "d" )
 			dmDir, e := checkDir( dir ); err.Check( e )
 			lsRes, e := dmDir.Ls(); err.Check( e )
-			e = orm.DMAddResource( lsRes, nil ); err.Check( e )
+			e = orm.DMAddResources( lsRes, nil ); err.Check( e )
 			return cc.HerOk()
 		} )
 		// \brief 添加一个或多个资源
@@ -47,7 +47,7 @@ func init() {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			var dmRes []dm_1.DMResource
 			e = ap.GetBodyUnmarshal( &dmRes ); err.Check( e )
-			e = orm.DMAddResource( dmRes, nil ); err.Check( e )
+			e = orm.DMAddResources( dmRes, nil ); err.Check( e )
 			return cc.HerOk()
 		} )
 		return nil

@@ -3,8 +3,8 @@ package main
 import (
 	"./cli"
 	Config "./config"
-	"./dm_1"
 	ccHttp "./server"
+	"./v1x1/orm"
 	"github.com/kpango/glg"
 	"runtime"
 	"stgogo/comn/config"
@@ -19,8 +19,8 @@ func main() {
 	// 进行配置
 	Config.All()
 
-	// run dm file monitor
-	dnf := dm_1.DMNewNotifyFile()
+	// 运行数据库协同watcher
+	dnf := orm.DMNewNotifyFileDb()
 	dnf.AddWatchDirRecruit( "L:/mount/" )
 	go dnf.WatchEvent()
 

@@ -13,7 +13,7 @@ type (
 	}
 	DMWatchEventFunc func( event fsnotify.Event )
 )
-func DMNewNotifyFile() *DMNotifyFile {
+func DMNewNotifyFileEmpty() *DMNotifyFile {
 	w := new(DMNotifyFile)
 	w.Watch, _ = fsnotify.NewWatcher()
 	w.Create = func(event fsnotify.Event) {}
@@ -62,13 +62,11 @@ func (pR *DMNotifyFile) WatchEvent() {
 					if err == nil && file.IsDir() { pR.AddWatchDirRecruit( ev.Name ) }
 				}
 
-				// TODO: modify md5
 				if ev.Op&fsnotify.Write == fsnotify.Write {
 					Info("WRITE: "+ ev.Name)
 					pR.Write( ev )
 				}
 
-				// TODO:
 				if ev.Op&fsnotify.Remove == fsnotify.Remove {
 					Info("DELETE: ", ev.Name)
 					fi, err := os.Stat(ev.Name)
@@ -79,12 +77,11 @@ func (pR *DMNotifyFile) WatchEvent() {
 					}
 				}
 
-				// TODO: modify name
 				if ev.Op&fsnotify.Rename == fsnotify.Rename {
 					Info("RENAME: ", ev.Name)
 					pR.Rename( ev )
 					// 名字更换后的文件夹会被认为是CREATE的
-					pR.Watch.Remove(ev.Name)
+					pR.Watch.Remove( ev.Name )
 				}
 
 				if ev.Op&fsnotify.Chmod == fsnotify.Chmod {

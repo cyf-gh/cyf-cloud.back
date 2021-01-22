@@ -130,6 +130,7 @@ func ( R DMResource ) IsFile() bool {
 }
 
 // 获取某个文件的md5
+// 路径直接返回空字符串
 func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 	e = nil
 	tMd5 := md5.New()
