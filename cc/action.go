@@ -178,14 +178,14 @@ func ( pap *ActionPackage )SetCookie( cookie *http.Cookie ) {
 }
 
 func ( pap *ActionPackage ) GetCookie( key string ) ( string, error ) {
-	cl, e  := pap.R.Cookie("atk")
+	cl, e  := pap.R.Cookie( key )
 	if e != nil {
-		glg.Error("atk not found. it may be a post proxy problem")
+		glg.Error("key not found. it may be a post proxy problem")
 		return "", e
 	}
-	atk := cl.Value
-	glg.Success("atk is (" + atk + ")")
-	return atk, e
+	res := cl.Value
+	glg.Success("COOKIE ["+key+"] : (" + res + ")")
+	return res, e
 }
 
 // 将ws读取数据转化为json

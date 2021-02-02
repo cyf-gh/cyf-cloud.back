@@ -15,6 +15,7 @@ var (
 	engine_post *xorm.Engine
 	engine_chat *xorm.Engine
 	engine_dm *xorm.Engine
+	engine_vp *xorm.Engine
 )
 
 // 初始化sqlite数据库orm
@@ -46,6 +47,8 @@ func InitEngine( dbPath string ) {
 	connectDb( &engine_dm, "dm_1.db", dbPath )
 	Sync2DM1()
 
+	connectDb( &engine_vp, "vp.db", dbPath )
+	Sync2VP()
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
 	// err.Check( e )
 	glg.Log("orm finished loading...")

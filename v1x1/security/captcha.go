@@ -16,8 +16,8 @@ func newDriver() *captcha.DriverString {
 	driver := new(captcha.DriverString)
 	driver.Height = 44
 	driver.Width = 120
-	driver.NoiseCount = 2
-	driver.ShowLineOptions = captcha.OptionShowSineLine | captcha.OptionShowSlimeLine // | captcha.OptionShowHollowLine
+	driver.NoiseCount = 0
+	driver.ShowLineOptions = captcha.OptionShowSineLine // | captcha.OptionShowSlimeLine // | captcha.OptionShowHollowLine
 	driver.Length = 4
 	driver.Source = "1234567890qwertyuipkjhgfdsazxcvbnm"
 	driver.Fonts = []string{"wqy-microhei.ttc"}

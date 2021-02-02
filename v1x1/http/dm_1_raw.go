@@ -62,11 +62,11 @@ func init() {
 		} )
 		// \brief 返回dm目录的递归资源，用于索引数据库
 		// \arg[d] 路径，附加于root_path之后的路径
-		a.GET( "/recruit/dir/", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+		a.GET( "/recruit/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			dir := ap.GetFormValue( "d" )
 			dmDir, e := checkDir( dir ); err.Check( e )
-			lsRes := dmDir.LsRecruit(); err.Check( e )
+			lsRes := dmDir.LsRecruit( nil ); err.Check( e )
 			return cc.HerOkWithData( lsRes )
 		} )
 		// \brief 返回该目录的大小
