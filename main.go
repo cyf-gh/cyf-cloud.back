@@ -21,7 +21,7 @@ func main() {
 
 	// 运行数据库协同watcher
 	dnf := orm.DMNewNotifyFileDb()
-	dnf.AddWatchDirRecruit( "L:/mount/" )
+	e := dnf.AddWatchDirRecruit( "L:/mount/" ); if e != nil { glg.Error( e ); glg.Warn( "watch event may not work properly") }
 	go dnf.WatchEvent()
 
 	// 启动http服务器
