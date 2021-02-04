@@ -8,6 +8,7 @@ import (
 	"github.com/kpango/glg"
 	"gopkg.in/ini.v1"
 	"os"
+	"path/filepath"
 	stConfigLog "stgogo/comn/config"
 	"time"
 )
@@ -23,6 +24,8 @@ var (
 	RunMode string	// run_mode or dep
 	DMGodId int64
 	DMRootPath string
+	VPTemplatePath string
+	VPTmpPath string
 )
 type RedisConfig struct {
 	Addr string
@@ -35,6 +38,18 @@ func IsRunModeDev() bool {
 
 func IsRunModeDep() bool {
 	return RunMode == "dep"
+}
+
+func GetMainDir() ( exPath string, e error ) {
+	ex, e := os.Executable()
+	exPath = filepath.Dir( ex )
+	return
+}
+
+func GetSthInMainDir( path string ) string {
+	dir, _ := GetMainDir()
+	dir += path
+	return dir
 }
 
 func configServerInfo() {
@@ -68,6 +83,12 @@ func configServerInfo() {
 	println( "\tgod ID:\t", DMGodId )
 	println( "\troot path:\t" + DMRootPath )
 	println( " **********************************************************" )
+
+	VPTemplatePath = cfg.Section("vp").Key("template_path").String()
+	VPTmpPath = cfg.Section("vp").Key("tmp_path").String()
+
+	println("VP template path: " + VPTemplatePath )
+	println("VP tmp path: " + VPTmpPath )
 
 	defer func() {
 		if err := recover(); err != nil {

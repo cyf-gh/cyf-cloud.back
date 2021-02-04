@@ -173,6 +173,16 @@ func ( a ActionGroup ) GET_DO( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+// 用于返回content内容
+func ( a ActionGroup ) POST_CONTENT( path string, handler ActionFunc ) {
+	glg.Log( "[action] POST_CONTENT: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapPost(
+		func( w http.ResponseWriter, r *http.Request ) {
+			_, _ = handler(ActionPackage{R: r, W: &w})
+		} ) )
+	getHandlers[path] = &handler
+}
+
 func ( pap *ActionPackage )SetCookie( cookie *http.Cookie ) {
 	http.SetCookie( *pap.W, cookie )
 }
