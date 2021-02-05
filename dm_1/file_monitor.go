@@ -28,11 +28,11 @@ func DMNewNotifyFileEmpty() *DMNotifyFile {
 
 // 递归监控目录 dir
 func (pR *DMNotifyFile) AddWatchDirRecruit( dir string ) ( e error ) {
-	   defer func() {
-	       if err := recover(); err != nil {
-			   glg.Error( e ); glg.Warn( "watch event may not work properly")
-	       }
-	   }()
+   defer func() {
+	   if e := recover(); e != nil {
+		   glg.Error( e ); glg.Warn( "watch event may not work properly")
+	   }
+   }()
 
 	e = filepath.Walk( dir, func( path string, info os.FileInfo, err error ) error {
 		if info.IsDir() {

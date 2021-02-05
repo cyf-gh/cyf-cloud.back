@@ -18,7 +18,8 @@ jobs:
           command: |
             whoami
             cd ~/.web/cyf-cloud.back/
-            git stash
+            git fetch --all
+            git reset --hard origin/master
             git pull
 
             # 修改配置文件为部署配置文件

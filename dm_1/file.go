@@ -4,14 +4,17 @@
 package dm_1
 
 import (
+	cfg "../config"
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"github.com/kpango/glg"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -219,9 +222,16 @@ func ( R DMResource ) LsRecruit( status *DMTaskStatus ) []DMResource {
 
 func dirSize(path string) (int64, error) {
 	var size int64
-	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
+
+	err := filepath.Walk( path, func(_ string, info os.FileInfo, err error) error {
+		defer func() {
+			if e := recover(); e != nil {
+				glg.Error( e ); glg.Warn( "[in dirSize] this maybe not a critical problem")
+			}
+		}()
+		if cfg.IsIgnoreResource( path ) {
+			glg.Log("path["+path+"] ignored")
+			return nil
 		}
 		if !info.IsDir() {
 			size += info.Size()

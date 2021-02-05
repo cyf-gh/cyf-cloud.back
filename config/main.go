@@ -57,6 +57,14 @@ func configServerInfo() {
 		cfg *ini.File
 		err error
 	)
+	defer func() {
+		if err := recover(); err != nil {
+			// 配置文件读取错误，直接退出程序
+			print("Loading server.cfg with err:")
+			print(err)
+			os.Exit(1)
+		}
+	}()
 	if cfg, err = ini.Load("./server.cfg"); err != nil {
 		panic( err )
 	}
@@ -89,15 +97,6 @@ func configServerInfo() {
 
 	println("VP template path: " + VPTemplatePath )
 	println("VP tmp path: " + VPTmpPath )
-
-	defer func() {
-		if err := recover(); err != nil {
-			// 配置文件读取错误，直接退出程序
-			print("Loading server.cfg with err:")
-			print(err)
-			os.Exit(1)
-		}
-	}()
 }
 
 func All() {
