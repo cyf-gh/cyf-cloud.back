@@ -6,7 +6,7 @@ func TestDMRecruitLs(t *testing.T) {
 	r := DMResource {
 		Path:       "L:/mount",
 	}
-	res := DMRecruitLs( r )
+	res := DMRecruitLs( r, nil )
 	for _, r := range res {
 		t.Log( r.Path, "\t"+r.GetGenre() )
 	}

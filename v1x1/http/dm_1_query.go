@@ -32,7 +32,9 @@ func init() {
 			var trs []orm.DMTargetResource
 			for _, r := range lsRes {
 				tr, e := orm.DMGetTargetResourceByPath( r.Path ); err.Check( e )
-				trs = append(trs, *tr)
+				if tr != nil {
+					trs = append(trs, *tr)
+				}
 			}
 			return cc.HerOkWithData( trs )
 		} )
