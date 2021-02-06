@@ -26,6 +26,7 @@ var (
 	DMRootPath string
 	VPTemplatePath string
 	VPTmpPath string
+	V1X1SrcPath string
 )
 type RedisConfig struct {
 	Addr string
@@ -81,6 +82,7 @@ func configServerInfo() {
 	RedisCfg.MaxActive, _ = cfg.Section("redis").Key("max_active").Int()
 
 	RunMode = cfg.Section("common").Key("mode").String()
+	V1X1SrcPath = cfg.Section( "common" ).Key( "v1x1_path" ).String()
 	println("server start with mode:\"" + RunMode + "\"")
 
 	SqlitePath =  cfg.Section("sqlite3").Key("path").String()

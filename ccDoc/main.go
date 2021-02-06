@@ -1,10 +1,9 @@
-package main
+package ccDoc
 
 import (
 	"../cc/err"
 	"bufio"
 	"encoding/json"
-	"github.com/kpango/glg"
 	"io"
 	"io/ioutil"
 	"os"
@@ -13,26 +12,26 @@ import (
 )
 
 type (
-	 CCDocModel struct {
-			File   string `json:"file"`
-			Desc   string `json:"desc"`
-			Path   string `json:"path"`
-			Childs []CCDocChildModel`json:"childs"`
+	 Model struct {
+			File   string       `json:"file"`
+			Desc   string       `json:"desc"`
+			Path   string       `json:"path"`
+			Childs []ChildModel `json:"childs"`
 	}
 	MatchFunc struct {
 		Pattern *regexp.Regexp
 		Proc func( params[]string, i int ) error
 	}
-	CCDocChildModel struct {
-		Path  string `json:"path"`
-		Brief string `json:"brief"`
-		Note  string `json:"note"`
-		Args  []CCArg `json:"args"`
-		Return string `json:"return"`
-		Type string `json:"type"`
+	ChildModel struct {
+		Path  string        `json:"path"`
+		Brief string        `json:"brief"`
+		Note  string        `json:"note"`
+		Args  []Arg         `json:"args"`
+		Return string       `json:"return"`
+		Type string         `json:"type"`
 		NeedValidation bool `json:"needValidation"`
 	}
-	CCArg struct {
+	Arg struct {
 		Name string `json:"name"`
 		Desc string `json:"desc"`
 	}
@@ -49,14 +48,14 @@ func InChildDoc() {
 func FinishChildDoc() {
 	currentDocModel.Childs = append(currentDocModel.Childs, *currentChildModel )
 	prevChildModel = &currentDocModel.Childs[len(currentDocModel.Childs)-1]
-	currentChildModel = &CCDocChildModel{}
+	currentChildModel = &ChildModel{}
 	inChildDoc = false
 }
 
 var (
 	Matchfuncs      []MatchFunc
-	currentDocModel *CCDocModel
-	currentChildModel, prevChildModel *CCDocChildModel
+	currentDocModel *Model
+	currentChildModel, prevChildModel *ChildModel
 	inChildDoc bool
 	currentDesc *string
 	)
@@ -123,7 +122,7 @@ func init() {
 			Pattern: regexp.MustCompile(`^(\s*)// \\arg\[(.+)\](\s*)(.+)$`),
 			Proc:    func( params[]string, i int ) error {
 				InChildDoc()
-				arg := CCArg{
+				arg := Arg{
 					Name: params[2],
 					Desc: params[4],
 				}
@@ -142,7 +141,7 @@ func init() {
 		},
 		// 匹配子路由路由
 		{
-			Pattern: regexp.MustCompile(`^(\s*)a.(GET|POST|WS)(.*)\((\s*)\"(.+)\"(.+)$`),
+			Pattern: regexp.MustCompile(`^(\s*)a.(GET|POST|WS)(.*)\((\s*)\"(.*)\"(.+)$`),
 			Proc:    func( params[]string, i int ) error {
 				currentChildModel.Path = currentDocModel.Path + params[5]
 				currentChildModel.Type = params[2]+params[3]
@@ -159,6 +158,18 @@ func init() {
 				return nil
 			},
 		},
+		// 注释
+		// 所有注释
+		{
+			Pattern: regexp.MustCompile(`(\s*)//(.+)$`),
+			Proc:    func( params[]string, i int ) error {
+				// 如果有注释跟随之前的描述，则添加
+				if currentDesc != nil {
+					*currentDesc += params[2]
+				}
+				return nil
+			},
+		},
 		// 代码
 		{
 			Pattern: regexp.MustCompile(`^(.+)$`),
@@ -171,13 +182,17 @@ func init() {
 			},
 		},
 	}
-	currentDocModel = &CCDocModel{}
-	currentChildModel = &CCDocChildModel{}
-	prevChildModel = &CCDocChildModel{}
+	currentDocModel = &Model{}
+	currentChildModel = &ChildModel{}
+	prevChildModel = &ChildModel{}
 }
 
 func main() {
-	httpGoPath := os.Args[1]
+
+}
+
+func GenerateDocJson( inputDir, outputDir string ) string {
+	httpGoPath := inputDir
 
 	httpDir, e := ioutil.ReadDir( httpGoPath ); err.Check( e )
 
@@ -195,7 +210,7 @@ func main() {
 		}
 	}
 
-	var docModels []CCDocModel
+	var docModels []Model
 
 	for i, f := range GoFiles {
 		fi, e := os.Open( f ); err.Check( e )
@@ -218,13 +233,15 @@ func main() {
 			// 忽略没有路由的文件
 			docModels = append(docModels, *currentDocModel)
 		}
-		currentDocModel = &CCDocModel{}
-		currentChildModel = &CCDocChildModel{}
+		currentDocModel = &Model{}
+		currentChildModel = &ChildModel{}
 		fi.Close()
 	}
 	bss, e := json.Marshal( docModels )
-	ioutil.WriteFile( os.Args[2], bss, 0777 )
-	glg.Log( string(bss) )
+	if outputDir != "" {
+		ioutil.WriteFile( os.Args[2], bss, 0777 )
+	}
+	return string(bss)
 }
 
 func match( pattern *regexp.Regexp, str string, strIndex int, proc func( params[]string, strIndex int ) error ) bool {
