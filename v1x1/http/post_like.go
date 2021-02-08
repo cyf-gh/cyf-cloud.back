@@ -10,6 +10,8 @@ import (
 
 func init() {
 	cc.AddActionGroup( "/v1x1/post/like", func( a cc.ActionGroup ) error {
+		// \brief 点赞
+		// \note 开关型API，如果已经点击了like则会取消like
 	    a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				e error

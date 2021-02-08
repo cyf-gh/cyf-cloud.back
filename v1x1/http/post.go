@@ -50,6 +50,8 @@ type (
 
 func init() {
 	cc.AddActionGroup( "/v1x1/post", func( a cc.ActionGroup ) error {
+		// \brief 创建一篇文章
+		// \return 新建Post的Id
 		a.POST( "/create", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				post PostModel
@@ -75,6 +77,9 @@ func init() {
 			return cc.HerOk()
 		} )
 
+		// \brief 仅修改文章内容之外的数据
+		// \note 仅修改了文章的标题、作者、标签等信息。此请求中不包含文章内容。
+		// （设计用于节省流量）
 		a.POST( "/modifyNT", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var post ModifyPostNoTextModel
 

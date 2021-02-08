@@ -81,7 +81,10 @@ func init() {
 			e = orm.NewAccount(registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd); err.Check(e)
 			return cc.HerOk()
 		})
-
+		// \brief 登陆账户
+		// \arg[loginModel] LoginModel
+		// \note 应在前端进行完解析为
+		// email name phone 三种之一
 		a.POST("/login", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
 			var (
 				loginModel LoginModel

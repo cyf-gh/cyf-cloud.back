@@ -152,7 +152,7 @@ func init() {
 		// 匹配路由是否需要验证
 		// 一定正确
 		{
-			Pattern: regexp.MustCompile(`^(.*)(ByAtk|DM1CheckPermission)(.*)$`),
+			Pattern: regexp.MustCompile(`^(.*)(ByAtk|DM1CheckPermission|MakeClipboardKey)(.*)$`),
 			Proc:    func( params[]string, i int ) error {
 				prevChildModel.NeedValidation = true
 				return nil

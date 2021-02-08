@@ -13,13 +13,14 @@ func MakeClipboardKey( r *http.Request ) (string, error) {
 }
 func init() {
 	cc.AddActionGroup( "/v1x1/clipboard", func( a cc.ActionGroup ) error {
-	    a.POST( "/push", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+	    // \brief 推送剪切板内容
+		a.POST( "/push", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			key, e := MakeClipboardKey( ap.R ); err.Check( e )
 			bs, e := Body2String( ap.R ); err.Check( e )
 			_, e = cache.Set( key, bs ); err.Check( e )
 			return cc.HerOk()
 	    } )
-
+		// \brief 获取剪切板内容
 	    a.GET( "/fetch", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			key, e := MakeClipboardKey( ap.R ); err.Check( e )
 			v, e := cache.Get( key ); err.Check( e )
