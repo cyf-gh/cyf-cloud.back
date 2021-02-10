@@ -27,8 +27,6 @@ func DMAddResources( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error
 		md5, e = r.GetMD5() ; if e != nil { return }
 		if exist, e = DMIsTargetResourceExist( r.Path ); exist {
 			continue
-		} else if e != nil {
-			return e
 		}
 		_, e = engine_dm.Table("d_m_target_resource" ).Insert( DMTargetResource {
 			Description:  "",

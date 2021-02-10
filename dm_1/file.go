@@ -177,6 +177,34 @@ func ( R DMResource ) Ls() ( rs []DMResource, e error ) {
 	}
 }
 
+// 枚举所有的子文件夹
+// ls会自动调用所有子资源的GetBasicFileInfo进行填充
+func ( R DMResource ) LsLimited( head, end int ) ( totalCount int, rs []DMResource, e error ) {
+	rs = []DMResource{}
+	var fs []os.FileInfo
+
+	if R.IsFile() {
+		e = errors.New("cannot ls a file")
+		return
+	}
+
+	if fs, e = ioutil.ReadDir( R.Path ); e != nil {
+		return
+	} else {
+		totalCount = len( fs )
+		if end == -1 {
+			end = len(fs)
+		}
+		for i, f := range fs[head:end] {
+			rs = append( rs, DMResource{
+				Path: R.Path +"/"+ f.Name(),
+			} )
+			_, e = rs[i].GetBasicFileInfo()
+		}
+		return
+	}
+}
+
 // 获取文件扩展名
 // 返回形如 ".ext"
 // e != nil 时表明路径非法或为一个目录

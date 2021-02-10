@@ -32,13 +32,12 @@ func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/raw", func( a cc.ActionGroup ) error {
 		// \brief 返回dm根目录
 		a.GET("/root", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
-			e := DM1CheckPermission(ap.R);
-			err.Check(e)
+			e := DM1CheckPermission(ap.R); err.Check(e)
 			return cc.HerOkWithData(dm_1.DMRootPath())
 		})
 		// \brief 返回dm目录的资源，用于索引数据库
 		// \arg[d] 路径，附加于root_path之后的路径
-		// \arg[start] 开始的位置
+		// \arg[head] 开始的位置
 		// \arg[end] 结束位置，当为-1时为数组长度
 		// \return {
 		// 	"Dirs" 路径数据
@@ -47,27 +46,24 @@ func init() {
 		a.GET( "/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
 			dir := ap.GetFormValue( "d" )
-			strstart := ap.GetFormValue( "start" )
+			strhead := ap.GetFormValue( "head" )
 			strend := ap.GetFormValue( "end" )
-			var start, end int
-			if strstart != "" && strend != "" {
-				start, e = strconv.Atoi( strstart ); err.Check( e )
+			var head, end int
+			if strhead != "" && strend != "" {
+				head, e = strconv.Atoi( strhead ); err.Check( e )
 				end, e = strconv.Atoi( strend ); err.Check( e )
 			}
 
 			dmDir, e := checkDir( dir ); err.Check( e )
-			lsRes, e := dmDir.Ls(); err.Check( e )
-
-			if end == -1 { end = len(lsRes) }
+			ttc, lsRes, e := dmDir.LsLimited( head, end ); err.Check( e )
 
 			var fivm []dm_1.DMFileInfoViewModel
-			for i := start; i < end; i++ {
-				res := lsRes[i]
-				fivm = append(fivm, *res.ToReadable())
+			for _, res := range lsRes  {
+				fivm = append( fivm, *res.ToReadable())
 			}
 			return cc.HerOkWithData( cc.H{
 				"Dirs": fivm,
-				"TotalCount": lsRes,
+				"TotalCount": ttc,
 			}  )
 		} )
 		// \brief 返回dm根目录的资源，用于索引数据库

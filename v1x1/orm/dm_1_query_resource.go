@@ -22,8 +22,8 @@ func DMGetParentResource( parentId int64 ) (tr *DMTargetResource, er error) {
 
 // 如果不存在则返回nil
 func DMGetTargetResourceByPath( path string ) ( tr *DMTargetResource, e error ) {
-	tr = nil
-	_, e = engine_dm.Table("d_m_target_resource").Where("path = ?", path).Get(tr)
+	tr = &DMTargetResource{}
+	_, e = engine_dm.Table("d_m_target_resource").Where("path = \""+path+"\"" ).Get(tr)
 	return
 }
 
@@ -71,6 +71,6 @@ func DMGetTargetResourceExById( id int64 ) ( ex *DMTargetResourceEx, er error ) 
 }
 
 func DMIsTargetResourceExist( path string ) ( exist bool, e error ) {
-	tr := &DMTargetResource{}
-	return engine_dm.Table("d_m_target_resource").Where("path = ?", path).Get(tr)
+	tr, e := DMGetTargetResourceByPath( path )
+	return tr.Id != 0, e
 }
