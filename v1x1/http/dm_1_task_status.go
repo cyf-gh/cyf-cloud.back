@@ -8,8 +8,9 @@ import (
 func init() {
 	// \brief 返回当前任务的情况
 	// \sa dm_1.DMTaskStatus
-	// \arg[ws_1] see TaskInfo 如果TaskInfo.Index为负数，则返回所有任务情况
-	// \return
+	// \arg[TaskInfo] see TaskInfo 如果TaskInfo.Index为-1，则返回所有任务情况
+	// \note 无特殊情况都使用-1的参数
+	// \return []DMForableTaskSharedList
 	cc.AddActionGroup( "/v1x1/dm/1/tasks", func( a cc.ActionGroup ) error {
 		a.WS( "/status/ws", func( ap cc.ActionPackage, aws cc.ActionPackageWS ) ( e error ) {
 			type (
@@ -24,7 +25,7 @@ func init() {
 				if ti.Index != -1 {
 					e = aws.WriteJson( dm_1.TaskSharedList.Lists[ti.Name][ti.Index] ); if e != nil { break }
 				} else {
-					e = aws.WriteJson( dm_1.TaskSharedList.Lists ); if e != nil { break }
+					e = aws.WriteJson( dm_1.TaskSharedList.ToForable() ); if e != nil { break }
 				}
 			}
 			return nil

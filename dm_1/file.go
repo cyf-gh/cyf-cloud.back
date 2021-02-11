@@ -135,22 +135,49 @@ func ( R DMResource ) IsFile() bool {
 // 路径直接返回空字符串
 func ( R DMResource ) GetMD5() ( md5str string, e error ) {
 	e = nil
-	tMd5 := md5.New()
 	md5str = ""
 
 	if R.IsDire() {
 		// e = errors.New("cannot get md5 from a directory")
 		return "", nil
 	} else {
-		var f *os.File
-		if f, e = os.Open( R.Path ); e != nil {
-			return
-		} else {
-			io.Copy( tMd5, f )
-			md5str = hex.EncodeToString(tMd5.Sum(nil) )
-			return
-		}
+		return fileMD5( R.Path )
 	}
+}
+
+// 将MD5运算暂时保存
+func ( R DMResource ) GetMD5Mask() ( md5str string, e error ) {
+	e = nil
+	md5str = ""
+
+	if R.IsDire() {
+		// e = errors.New("cannot get md5 from a directory")
+		return "", nil
+	} else {
+		return "md5notcomputed", nil
+	}
+}
+
+// https://stackoverflow.com/questions/43000621/how-can-go-md5-be-so-fast-crypto-md5
+func fileMD5(path string) (string, error) {
+	var md5str string
+	file, err := os.Open(path)
+
+	if err != nil {
+		return md5str, err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+
+	if _, err := io.Copy(hash, file); err != nil {
+		return md5str, err
+	}
+
+	hashInBytes := hash.Sum(nil)[:16]
+	md5str = hex.EncodeToString(hashInBytes)
+
+	return md5str, nil
 }
 
 // 枚举所有的子文件夹

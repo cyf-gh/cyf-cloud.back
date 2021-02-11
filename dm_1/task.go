@@ -20,11 +20,15 @@ type (
 		StartTime time.Time
 		TimeoutSec float64
 		CurrentMsg string // 当前工作的信息
-		Errors []error
+		Errors []error // bad design
 	}
 	DMTaskStatusList struct {
 		Lists map[string] []DMTaskStatus
 		Errors []error
+	}
+	DMForableTaskSharedList struct {
+		Name string
+		List []DMTaskStatus
 	}
 )
 
@@ -32,7 +36,17 @@ var (
 	// http 请求-读写
 	// websocket 只读
 	TaskSharedList DMTaskStatusList
+	ForableTaskSharedList DMForableTaskSharedList
 )
+func ( R DMTaskStatusList ) ToForable() ( fs []DMForableTaskSharedList ) {
+	for v, k := range R.Lists {
+		fs = append(fs, DMForableTaskSharedList{
+			Name:   v,
+			List:   k,
+		})
+	}
+	return
+}
 
 func init() {
 	TaskSharedList = DMTaskStatusList{ Lists: map[string][]DMTaskStatus{} }

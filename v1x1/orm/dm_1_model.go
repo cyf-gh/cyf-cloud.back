@@ -82,6 +82,13 @@ func ( R DMTargetResource ) Decay() ( *dm_1.DMResource, error ) {
 	return r, e
 }
 
+func ( pR *DMTargetResource ) ComputeMD5() error {
+	r, e := pR.Decay()
+	md5, e := r.GetMD5()
+	pR.MD5 = md5
+	return e
+}
+
 
 // 返回与 R md5相同的资源
 // 包含自身

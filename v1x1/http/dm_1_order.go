@@ -25,15 +25,33 @@ func init() {
 				Path: rootDir,
 			}
 			go func() {
-				if e := dm_1.TaskSharedList.AddTask( "order_recruit", true, 600, dmRootDir.LsRecruitCount() ); e != nil {
+				if e := dm_1.TaskSharedList.AddTask( "order_recruit", true, 100000, dmRootDir.LsRecruitCount() ); e != nil {
 					return
 				}
 				orTask := &dm_1.TaskSharedList.Lists["order_recruit"][0]
-
 				lsRootRes := dmRootDir.LsRecruit( orTask )
 				e = orm.DMAddResources( lsRootRes, orTask ); orTask.Error( e )
-
 				orTask.Finished()
+
+
+				go func() {
+					if e := dm_1.TaskSharedList.AddTask( "compute_md5", true, 100000, dmRootDir.LsRecruitCount() ); e != nil {
+						return
+					}
+					cmd5Task := &dm_1.TaskSharedList.Lists["compute_md5"][0]
+
+					rs, _ := orm.GetAllMD5NotComputed()
+					cmd5Task.ProgressMax = len(rs)
+					cmd5Task.Progress = 0
+					for _, r := range rs {
+						cmd5Task.ProgressStage = "computing md5s..."
+						cmd5Task.CurrentMsg = r.Path
+						r.ComputeMD5()
+						r.Update()
+						cmd5Task.Progress++
+					}
+					cmd5Task.Finished()
+				} ()
 			} ()
 			return cc.HerOk()
 		} )
