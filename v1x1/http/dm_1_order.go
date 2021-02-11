@@ -11,12 +11,18 @@ import (
 func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
 		// \brief 开始递归所有目录进行资源索引
+		// \arg[path] 要递归索引的目录
 		// \note 会导致并发
 		// \return ok
 		a.GET( "/recruit", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
+
+			rootDir := ap.GetFormValue("d")
+			if rootDir == "" {
+				rootDir = dm_1.DMRootPath()
+			}
 			dmRootDir := &dm_1.DMResource{
-				Path: dm_1.DMRootPath(),
+				Path: rootDir,
 			}
 			go func() {
 				if e := dm_1.TaskSharedList.AddTask( "order_recruit", true, 600, dmRootDir.LsRecruitCount() ); e != nil {

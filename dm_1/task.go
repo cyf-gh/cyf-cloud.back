@@ -61,18 +61,18 @@ func ( R DMTaskStatus) IsTimeout() bool {
 	return R.UsedTime().Seconds() >= R.TimeoutSec
 }
 
-func ( R DMTaskStatus ) Msg( msg string ) {
+func ( pR* DMTaskStatus ) Msg( msg string ) {
 	if cfg.IsRunModeDev() {
-		glg.Log( R.TaskName + "->" + msg )
+		glg.Log( pR.TaskName + "->" + msg )
 	}
-	R.CurrentMsg = msg
+	pR.CurrentMsg = msg
 }
 
-func ( R DMTaskStatus ) MsgStage( msg string ) {
+func ( pR* DMTaskStatus ) MsgStage( msg string ) {
 	if cfg.IsRunModeDev() {
-		glg.Log( R.TaskName + "->" + msg )
+		glg.Log( pR.TaskName + "->" + msg )
 	}
-	R.ProgressStage = msg
+	pR.ProgressStage = msg
 }
 
 // 尝试创建一个unique的任务时返回错误
