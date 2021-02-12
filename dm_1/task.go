@@ -16,11 +16,13 @@ type (
 		ProgressMax int
 		ProgressStage string
 
-		IsFinished bool
+		IsFinished, Pause bool
 		StartTime time.Time
 		TimeoutSec float64
 		CurrentMsg string // 当前工作的信息
 		Errors []error // bad design
+
+		Terminal bool
 	}
 	DMTaskStatusList struct {
 		Lists map[string] []DMTaskStatus
@@ -102,13 +104,18 @@ func ( pR *DMTaskStatusList ) AddTask( taskName string, isUni bool, timeout floa
 		pR.Lists[taskName] = []DMTaskStatus{}
 	}
 	pR.Lists[taskName] = append( pR.Lists[taskName], DMTaskStatus{
-		TaskName: 	taskName,
-		IsUni:      isUni,
-		Progress:   0,
-		IsFinished: false,
-		StartTime:  time.Now(),
-		TimeoutSec: timeout,
-		ProgressMax: progressMax,
+		TaskName:      taskName,
+		IsUni:         isUni,
+		Progress:      0,
+		ProgressMax:   progressMax,
+		ProgressStage: "",
+		IsFinished:    false,
+		StartTime:     time.Now(),
+		TimeoutSec:    timeout,
+		CurrentMsg:    "",
+		Errors:        []error{},
+		Terminal:      false,
+		Pause:		   false,
 	} )
 	return nil
 }

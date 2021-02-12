@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/kpango/glg"
 	"sync"
+	"time"
 )
 
 var (
@@ -131,6 +132,11 @@ func DMAddResources( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error
 		status.ProgressMax = len(rs)
 	}
 	for _, rr := range rs {
+		if status != nil {
+			for status.Pause {
+				time.Sleep( 1000 )
+			}
+		}
 		addDMRes( rr, status )
 	}
 	return

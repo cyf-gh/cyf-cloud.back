@@ -64,7 +64,11 @@ func init() {
 }
 
 func ( R ActionPackage ) GetFormValue( key string ) string {
-	return R.R.FormValue(key)
+	v := R.R.FormValue(key)
+	if v == "" {
+		glg.Warn("ActionPackage.GetFormValue try to get value from[" + key + "] but result is empty. this may be invalid")
+	}
+	return v
 }
 
 func ( R ActionPackage ) GetBodyUnmarshal( v interface{} ) error {

@@ -6,13 +6,36 @@ import (
 	"../../cc/err"
 	"../../dm_1"
 	"../orm"
+	"time"
 )
+
+func ComputeAllMD5() {
+	rs, _ := orm.GetAllMD5NotComputed()
+	if e := dm_1.TaskSharedList.AddTask( "compute_md5", true, 100000, len(rs) ); e != nil {
+		return
+	}
+	cmd5Task := &dm_1.TaskSharedList.Lists["compute_md5"][0]
+
+	cmd5Task.ProgressMax = len(rs)
+	cmd5Task.Progress = 0
+	for _, r := range rs {
+		for cmd5Task.Pause {
+			time.Sleep( 1000 )
+		}
+		cmd5Task.ProgressStage = "computing md5s..."
+		cmd5Task.CurrentMsg = r.Path
+		r.ComputeMD5()
+		r.Update()
+		cmd5Task.Progress++
+	}
+	cmd5Task.Finished()
+}
 
 func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
 		// \brief 开始递归所有目录进行资源索引
 		// \arg[path] 要递归索引的目录
-		// \note 会导致并发
+		// \note 会导致并发 任务名 order_recruit；可暂停；自旋间隔 1s
 		// \return ok
 		a.GET( "/recruit", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			e := DM1CheckPermission( ap.R ); err.Check( e )
@@ -32,27 +55,14 @@ func init() {
 				lsRootRes := dmRootDir.LsRecruit( orTask )
 				e = orm.DMAddResources( lsRootRes, orTask ); orTask.Error( e )
 				orTask.Finished()
-
-
-				go func() {
-					if e := dm_1.TaskSharedList.AddTask( "compute_md5", true, 100000, dmRootDir.LsRecruitCount() ); e != nil {
-						return
-					}
-					cmd5Task := &dm_1.TaskSharedList.Lists["compute_md5"][0]
-
-					rs, _ := orm.GetAllMD5NotComputed()
-					cmd5Task.ProgressMax = len(rs)
-					cmd5Task.Progress = 0
-					for _, r := range rs {
-						cmd5Task.ProgressStage = "computing md5s..."
-						cmd5Task.CurrentMsg = r.Path
-						r.ComputeMD5()
-						r.Update()
-						cmd5Task.Progress++
-					}
-					cmd5Task.Finished()
-				} ()
 			} ()
+			return cc.HerOk()
+		} )
+		// \brief 开始计算数据库中的md5值
+		// \note 会导致并发 任务名 compute_md5；可暂停；自旋间隔 1s
+		// \return ok
+		a.GET("/compute/md5", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			go ComputeAllMD5()
 			return cc.HerOk()
 		} )
 		// \brief 添加某个目录下的所有资源
