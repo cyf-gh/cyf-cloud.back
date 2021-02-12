@@ -5,6 +5,7 @@ import (
 	"../../cc"
 	"../../cc/err"
 	orm "../orm"
+	"encoding/json"
 	"errors"
 	"stgogo/comn/convert"
 	"stgogo/comn/refactor"
@@ -55,10 +56,12 @@ func init() {
 		a.GET( "/by/tag", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				e error
+				tgs []string
 			)
 			r := ap.R
+
 			tags := r.FormValue("tags")
-			tgs := strings.Split( tags, ",")
+			e = json.Unmarshal( []byte(tags), &tgs ); err.Check( e )
 			pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
 
 			ps, e := extendPostInfo( pis )

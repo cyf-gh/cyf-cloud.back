@@ -234,7 +234,7 @@ func GetPostInfosByTags( tags []string ) ( []PostInfo, error ) {
 		// tag_ids like '[1,%' or like '%,1,%' or like '%,1]'
 		findEx += fmt.Sprintf( "(tag_ids like '[%s,%%' or tag_ids like '%%,%s,%%' or tag_ids like '%%,%s]')", sid, sid, sid )
 		if len(tagIds) == 1 {
-			findEx += fmt.Sprintf( "and (tag_ids like '[%s]')", sid )
+			findEx += fmt.Sprintf( "or (tag_ids like '[%s]')", sid )
 		}
 		if i != len(tagIds) - 1 {
 			findEx += "and"
