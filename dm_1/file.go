@@ -36,7 +36,7 @@ type (
 	// 详见os包中的 types.go
 	// 用于方便转化为json对象
 	DMFileInfoViewModel struct {
-		Name, Path string
+		Name string
 		Size int64
 		Mode string
 		ModTime string
@@ -47,7 +47,6 @@ type (
 
 func ( R DMResource ) ToReadable() *DMFileInfoViewModel {
 	return &DMFileInfoViewModel{
-		Path: 	 R.Path,
 		Name:    R.Name,
 		Size:    R.Size,
 		Mode:    R.Mode.String(),

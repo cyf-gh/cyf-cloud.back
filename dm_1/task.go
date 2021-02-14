@@ -23,6 +23,7 @@ type (
 		Errors []error // bad design
 
 		Terminal bool
+		SpanIntervalMSec int64 // 自旋时间间隔
 	}
 	DMTaskStatusList struct {
 		Lists map[string] []DMTaskStatus
@@ -69,6 +70,13 @@ func ( pR *DMTaskStatus ) Finished() {
 	pR.IsFinished = true
 }
 
+// 自旋，直至Pause == false
+func ( R *DMTaskStatus ) TryLock() {
+	for R.Pause {
+		time.Sleep( time.Duration( R.SpanIntervalMSec ) * time.Millisecond )
+	}
+}
+
 func ( R DMTaskStatus) UsedTime() time.Duration {
 	return time.Since( R.StartTime )
 }
@@ -92,7 +100,7 @@ func ( pR* DMTaskStatus ) MsgStage( msg string ) {
 }
 
 // 尝试创建一个unique的任务时返回错误
-func ( pR *DMTaskStatusList ) AddTask( taskName string, isUni bool, timeout float64, progressMax int ) error {
+func ( pR *DMTaskStatusList ) AddTask( taskName string, isUni bool, timeout float64, progressMax int, SpanIntervalMSec int64 ) error {
 	if isUni {
 		if _, exists := pR.Lists[taskName]; exists {
 			e := errors.New("try to create a duplicated unique task:" + taskName)
@@ -116,6 +124,7 @@ func ( pR *DMTaskStatusList ) AddTask( taskName string, isUni bool, timeout floa
 		Errors:        []error{},
 		Terminal:      false,
 		Pause:		   false,
+		SpanIntervalMSec: SpanIntervalMSec,
 	} )
 	return nil
 }

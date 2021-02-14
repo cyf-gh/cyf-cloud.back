@@ -74,3 +74,8 @@ func DMIsTargetResourceExist( path string ) ( exist bool, e error ) {
 	tr, e := DMGetTargetResourceByPath( path )
 	return tr.Id != 0, e
 }
+
+func DMGetAllMusicResources() ( dms []DMTargetResource, e error ) {
+	e = engine_dm.Table("d_m_target_resource").Where("child_genre = ?", "music").Find( &dms )
+	return
+}

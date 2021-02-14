@@ -32,7 +32,7 @@ func Init( rc config.RedisConfig ) {
 			glg.Success( "redis ping" )
 			return
 		}
-		time.Sleep( 1000 )
+		time.Sleep( time.Duration( 1 ) * time.Second )
 		glg.Warn("redis ping failed, retry after 1 second..")
 		glg.Warn("retry time" + strconv.Itoa(i))
 	}

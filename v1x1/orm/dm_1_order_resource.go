@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/kpango/glg"
 	"sync"
-	"time"
 )
 
 var (
@@ -80,6 +79,7 @@ func addDMRes( r dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error ) {
 		ChildGenre:   r.GetGenre(),
 		Rating: 0,
 		Dead: false,
+		Size: r.Size,
 	} ); if e != nil { goto END }
 	rrr, e = DMGetTargetResourceByPath( r.Path ); if e != nil { goto END }
 	if r.GetGenre() != "backup" {
@@ -133,9 +133,7 @@ func DMAddResources( rs []dm_1.DMResource, status *dm_1.DMTaskStatus ) ( e error
 	}
 	for _, rr := range rs {
 		if status != nil {
-			for status.Pause {
-				time.Sleep( 1000 )
-			}
+			status.TryLock()
 		}
 		addDMRes( rr, status )
 	}

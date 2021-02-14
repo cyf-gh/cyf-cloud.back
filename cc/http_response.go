@@ -54,6 +54,13 @@ func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode Statu
 	bs, e := json.Marshal(*her); err.Check(e)
 	_, e = (*w).Write(bs); err.Check(e)
 
+	// 保证her长度不会爆日志
+	// TODO: 压缩，而不是截断
+	// TODO: 将1024放入server.cfg中
+	if len(her.Data) > 1024 {
+		her.Data = her.Data[1 : 1024]
+	}
+
 	glg.Log( fmt.Sprintf( "[HttpReturn] {%s} - StatusCode:(%d) - HER (%s)", url, statusCode, her ))
 }
 

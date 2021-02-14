@@ -16,12 +16,14 @@ type (
 		ChildGenre string
 		Rating int
 		Dead bool
+		Size int64
 	}
 	DMTargetResourceEx struct {
 		Id int64
 		ParentId int64 `xorm:"unique"`
 		CompatibilityDescription string
 		Commentary string
+		Data string
 	}
 	// backup
 	DMBackupResource struct {
@@ -88,7 +90,6 @@ func ( pR *DMTargetResource ) ComputeMD5() error {
 	pR.MD5 = md5
 	return e
 }
-
 
 // 返回与 R md5相同的资源
 // 包含自身
