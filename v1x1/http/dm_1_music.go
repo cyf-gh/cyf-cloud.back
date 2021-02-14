@@ -34,6 +34,8 @@ func init() {
 		// 	"totalCount" 音乐总个数
 		// }
 		a.GET( "/ex", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			_, e := GetIdByAtk( ap.R ); err.Check( e )
+
 			var exs []orm.DMTargetResourceEx
 			ms, e := orm.DMGetAllMusicResources(); err.Check( e )
 			strhead := ap.GetFormValue( "head" )
@@ -60,11 +62,30 @@ func init() {
 				exs = append( exs, *ex )
 			}
 
-
 			return cc.HerOkWithData( cc.H{
 				"musics": exs,
 				"totalCount": count,
 			} )
+		} )
+		//
+		a.WS( "/raw", func( ap cc.ActionPackage, aws cc.ActionPackageWS ) ( e error ) {
+			type (
+				BufferInfo struct {
+					CurrentPath string // 当前音乐文件路径，前端需要先通过id询问path
+					ByteIndex int64 // 字节偏移
+					FrameIndex int64 // 帧字节偏移
+				}
+			)
+			for {
+				ti := TaskInfo{}
+				e = aws.ReadJson( &ti ); if e != nil { break }
+				if ti.Index != -1 {
+					e = aws.WriteJson( dm_1.TaskSharedList.Lists[ti.Name][ti.Index] ); if e != nil { break }
+				} else {
+					e = aws.WriteJson( dm_1.TaskSharedList.ToForable() ); if e != nil { break }
+				}
+			}
+			return nil
 		} )
 		return nil
 	} )
