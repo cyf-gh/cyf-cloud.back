@@ -11,6 +11,32 @@ import (
 	"os"
 )
 
+type ID3 struct {
+	Album       string `json:"album"`
+	AlbumArtist string `json:"albumArtist"`
+	Artist      string `json:"artist"`
+	Comment     string `json:"comment"`
+	Composer    string `json:"composer"`
+	DiscNum     int    `json:"disc_num"`
+	DiscTotal   int    `json:"disc_total"`
+	FileType    string `json:"fileType"`
+	Format      string `json:"format"`
+	Genre       string `json:"genre"`
+	Lyrics      string `json:"lyrics"`
+	Picture     struct {
+		Ext         string `json:"Ext"`
+		MIMEType    string `json:"MIMEType"`
+		Type        string `json:"Type"`
+		Description string `json:"Description"`
+		Data        string `json:"Data"`
+	} `json:"picture"`
+	Raw string `json:"raw"`
+	Title      string `json:"title"`
+	TrackNum   int    `json:"track_num"`
+	TrackTotal int    `json:"track_total"`
+	Year       int    `json:"year"`
+}
+
 func ComputeAllMD5() {
 	rs, _ := orm.GetAllMD5NotComputed()
 	if e := dm_1.TaskSharedList.AddTask( "compute_md5", true, 100000, len(rs), 1000 ); e != nil {
