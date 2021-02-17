@@ -52,10 +52,10 @@ func init() {
 			var registerModel RegisterModel
 
 			b, e := ioutil.ReadAll(ap.R.Body)
-			err.Check(e)
+			err.Assert(e)
 			e = json.Unmarshal(b, &registerModel)
 			glg.Log(registerModel)
-			err.Check(e)
+			err.Assert(e)
 
 			if len(registerModel.Cap) != 4 {
 				return cc.HttpErrReturn{
@@ -78,7 +78,7 @@ func init() {
 			if registerModel.Phone == "" {
 				registerModel.Phone = sec.GetRandom();
 			}
-			e = orm.NewAccount(registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd); err.Check(e)
+			e = orm.NewAccount(registerModel.Name, registerModel.Email, registerModel.Phone, cryPswd); err.Assert(e)
 			return cc.HerOk()
 		})
 		// \brief 登陆账户
@@ -91,17 +91,17 @@ func init() {
 				maxAge     int
 				tokenCl    http.Cookie
 			)
-			b, e := ioutil.ReadAll(ap.R.Body); err.Check(e)
-			e = json.Unmarshal(b, &loginModel); err.Check(e)
+			b, e := ioutil.ReadAll(ap.R.Body); err.Assert(e)
+			e = json.Unmarshal(b, &loginModel); err.Assert(e)
 
-			account, e := orm.GetAccountByLoginType(loginModel.Login, sec.CryptoPasswd(loginModel.Pswd), loginModel.LoginType);err.Check(e)
+			account, e := orm.GetAccountByLoginType(loginModel.Login, sec.CryptoPasswd(loginModel.Pswd), loginModel.LoginType);err.Assert(e)
 
 			if loginModel.KeepLogin {
 				maxAge = orm.TIME_EXPIRE_ONE_MONTH
 			} else {
 				maxAge = orm.TIME_EXPIRE_ONE_DAY
 			}
-			token, e := CreateAtk(account.Id, maxAge); err.Check(e)
+			token, e := CreateAtk(account.Id, maxAge); err.Assert(e)
 			tokenCl = http.Cookie{Name: "atk", Value: token, Path: "/", MaxAge: maxAge}
 
 			ap.SetCookie( &tokenCl )
@@ -109,46 +109,46 @@ func init() {
 		})
 
 		a.POST( "/logout", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			atk, e := ap.GetCookie( "atk" ); err.Check( e )
+			atk, e := ap.GetCookie( "atk" ); err.Assert( e )
 
 			tokenCl := http.Cookie{ Name:"atk", Path:"/", MaxAge: -1 }
 			ap.SetCookie( &tokenCl )
-			e = cache.Del( atk ); err.Check( e )
+			e = cache.Del( atk ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
 		a.GET("/private/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
-			info, e := getRawInfoByAtk(ap.R); err.Check(e)
+			info, e := getRawInfoByAtk(ap.R); err.Assert(e)
 			return cc.HerOkWithData(info)
 		})
 
 		a.GET("/public/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
 			user := ap.R.FormValue("user")
-			info, mask, e := getRawInfoByName(ap.R, user); err.Check(e)
+			info, mask, e := getRawInfoByName(ap.R, user); err.Assert(e)
 
-			b, e := json.Marshal(info); err.Check(e)
-			pInfo, e := createInfoMask(b, mask); err.Check(e)
+			b, e := json.Marshal(info); err.Assert(e)
+			pInfo, e := createInfoMask(b, mask); err.Assert(e)
 			return cc.HerOkWithString(pInfo)
 		})
 
 		a.POST("/upload/avatar", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
-			b, e := ioutil.ReadAll( ap.R.Body ); err.Check(e)
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			e = orm.SetAccountExAvatar( string( b ), id ); err.Check( e )
+			b, e := ioutil.ReadAll( ap.R.Body ); err.Assert(e)
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			e = orm.SetAccountExAvatar( string( b ), id ); err.Assert( e )
 			return cc.HerOk()
 		})
 
 		a.POST( "/update/phone", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			phone := ap.R.FormValue("phone")
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			e = orm.SetAccountPhone( phone, id ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			e = orm.SetAccountPhone( phone, id ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
 		a.GET( "/update/description", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			info := ap.R.FormValue("info")
 			atk, e := GetIdByAtk( ap.R )
-			e = orm.SetAccountExInfo( info, atk ); err.Check( e )
+			e = orm.SetAccountExInfo( info, atk ); err.Assert( e )
 			return cc.HerOk()
 		} )
 		
@@ -181,7 +181,7 @@ func getRawInfoByName( r *http.Request, userName string ) (*InfoModel, string, e
 		return nil, "", e
 	}
 
-	info, e := copyInfoFromAAE( a ,ae ); err.Check( e )
+	info, e := copyInfoFromAAE( a ,ae ); err.Assert( e )
 	return info, ae.PrivateInfoMask, e
 }
 
@@ -196,7 +196,7 @@ func getRawInfoByAtk( r *http.Request ) (*InfoModel, error) {
 		return nil, e
 	}
 
-	info, e := copyInfoFromAAE( a ,ae ); err.Check( e )
+	info, e := copyInfoFromAAE( a ,ae ); err.Assert( e )
 	return info, e
 }
 

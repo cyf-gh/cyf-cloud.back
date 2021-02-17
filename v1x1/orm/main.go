@@ -23,7 +23,7 @@ var (
 func connectDb( ppEnginePost **xorm.Engine, dbName, dbPath string ) {
 	var e error
 	*ppEnginePost, e = xorm.NewEngine("sqlite3", dbPath + dbName )
-	err.Check( e )
+	err.Assert( e )
 	glg.Success("orm to " + dbName + " (sqlite3)")
 }
 
@@ -50,6 +50,6 @@ func InitEngine( dbPath string ) {
 	connectDb( &engine_vp, "vp.db", dbPath )
 	Sync2VP()
 	// e = NewAccount("cyf","cyf-ms@hotmail.com","18217203406","19990908cyfcyfcyfcyf")
-	// err.Check( e )
+	// err.Assert( e )
 	glg.Log("orm finished loading...")
 }

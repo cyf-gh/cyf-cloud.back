@@ -51,8 +51,8 @@ func HttpReturnHER( w* http.ResponseWriter, her *HttpErrReturn, statusCode Statu
 	(*w).WriteHeader( int(statusCode) )
 
 	// 将her结构体转化为json
-	bs, e := json.Marshal(*her); err.Check(e)
-	_, e = (*w).Write(bs); err.Check(e)
+	bs, e := json.Marshal(*her); err.Assert(e)
+	_, e = (*w).Write(bs); err.Assert(e)
 
 	// 保证her长度不会爆日志
 	// TODO: 压缩，而不是截断
@@ -104,8 +104,8 @@ func HttpReturn( w* http.ResponseWriter, desc, errCode, data string, MakeHERxxx 
 
 	// 将her结构体转化为json
 
-	bs, e := json.Marshal(her); err.Check(e)
-	_, e = (*w).Write(bs); err.Check(e)
+	bs, e := json.Marshal(her); err.Assert(e)
+	_, e = (*w).Write(bs); err.Assert(e)
 
 	// 保证her长度不会爆日志
 	// TODO: 将1024放入server.cfg中

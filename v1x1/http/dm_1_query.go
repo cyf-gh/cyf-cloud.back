@@ -13,25 +13,25 @@ func init() {
 		// \body orm.DMTargetResource
 		// \return []DMTargetResource
 		a.POST( "/clones", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dmRes := &orm.DMTargetResource{}
-			e = ap.GetBodyUnmarshal( dmRes ); err.Check( e )
+			e = ap.GetBodyUnmarshal( dmRes ); err.Assert( e )
 			start := time.Now()
-			clones, e := dmRes.GetClones(); err.Check( e )
+			clones, e := dmRes.GetClones(); err.Assert( e )
 			return cc.HerOkWithDataAndUsedTime( clones, time.Since( start ) )
 		} )
 		// \brief 获取某个目录下的所有目标资源
 		// \arg[d] 目录
 		// \return []DMTargetResource
 		a.GET( "/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dir := ap.GetFormValue( "d" )
-			dmDir, e := checkDir( dir ); err.Check( e )
-			lsRes, e := dmDir.Ls(); err.Check( e )
+			dmDir, e := checkDir( dir ); err.Assert( e )
+			lsRes, e := dmDir.Ls(); err.Assert( e )
 
 			var trs []orm.DMTargetResource
 			for _, r := range lsRes {
-				tr, e := orm.DMGetTargetResourceByPath( r.Path ); err.Check( e )
+				tr, e := orm.DMGetTargetResourceByPath( r.Path ); err.Assert( e )
 				if tr != nil {
 					trs = append(trs, *tr)
 				}

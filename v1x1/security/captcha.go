@@ -33,7 +33,7 @@ func GenerateCaptcha(w http.ResponseWriter, r *http.Request) {
 	cid := r.FormValue("cid")
 	time := r.FormValue("time")
 	t, e := strconv.Atoi( time )
-	err.Check( e )
+	err.Assert( e )
 
 	if t >= 7 {
 		cc.HttpReturn( &w, "too much times", err_code.ERR_SECURITY, "", cc.MakeHER200 )

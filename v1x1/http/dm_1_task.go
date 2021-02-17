@@ -37,10 +37,10 @@ func init() {
 		// \arg[i] 任务索引位置
 		// \return ok
 		a.GET( "/abort", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			name := ap.GetFormValue("name")
 			index := ap.GetFormValue( "i" )
-			i, e := strconv.Atoi( index ); err.Check( e )
+			i, e := strconv.Atoi( index ); err.Assert( e )
 			dm_1.TaskSharedList.Lists[name][i].Terminal = true
 			return cc.HerOk()
 		} )
@@ -51,10 +51,10 @@ func init() {
 		// \arg[i] 任务索引位置
 		// \return ok
 		a.GET( "/pause", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			name := ap.GetFormValue("name")
 			index := ap.GetFormValue( "i" )
-			i, e := strconv.Atoi( index ); err.Check( e )
+			i, e := strconv.Atoi( index ); err.Assert( e )
 			dm_1.TaskSharedList.Lists[name][i].Pause = true
 			return cc.HerOk()
 		} )
@@ -64,10 +64,10 @@ func init() {
 		// \arg[i] 任务索引位置
 		// \return ok
 		a.GET( "/resume", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			name := ap.GetFormValue("name")
 			index := ap.GetFormValue( "i" )
-			i, e := strconv.Atoi( index ); err.Check( e )
+			i, e := strconv.Atoi( index ); err.Assert( e )
 			dm_1.TaskSharedList.Lists[name][i].Pause = false
 			return cc.HerOk()
 		} )

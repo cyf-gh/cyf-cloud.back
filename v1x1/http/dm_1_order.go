@@ -23,14 +23,8 @@ type ID3 struct {
 	Format      string `json:"format"`
 	Genre       string `json:"genre"`
 	Lyrics      string `json:"lyrics"`
-	Picture     struct {
-		Ext         string `json:"Ext"`
-		MIMEType    string `json:"MIMEType"`
-		Type        string `json:"Type"`
-		Description string `json:"Description"`
-		Data        string `json:"Data"`
-	} `json:"picture"`
-	Raw string `json:"raw"`
+	Picture     interface{} `json:"picture"`
+	Raw interface{} `json:"raw"`
 	Title      string `json:"title"`
 	TrackNum   int    `json:"track_num"`
 	TrackTotal int    `json:"track_total"`
@@ -58,7 +52,7 @@ func ComputeAllMD5() {
 }
 
 func GetAllID3() {
-	ms, e := orm.DMGetAllMusicResources(); err.Check( e )
+	ms, e := orm.DMGetAllMusicResources(); err.Assert( e )
 	if e := dm_1.TaskSharedList.AddTask( "load_id3", true, 100000, len(ms), 1000 ); e != nil {
 		return
 	}
@@ -120,7 +114,7 @@ func init() {
 		// \note 会导致并发 任务名 order_recruit；可暂停；自旋间隔 1s
 		// \return ok
 		a.GET( "/recruit", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 
 			rootDir := ap.GetFormValue("d")
 			if rootDir == "" {
@@ -157,20 +151,20 @@ func init() {
 		// \brief 添加某个目录下的所有资源
 		// \return ok
 		a.GET( "/ls", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dir := ap.GetFormValue( "d" )
-			dmDir, e := checkDir( dir ); err.Check( e )
-			lsRes, e := dmDir.Ls(); err.Check( e )
-			e = orm.DMAddResources( lsRes, nil ); err.Check( e )
+			dmDir, e := checkDir( dir ); err.Assert( e )
+			lsRes, e := dmDir.Ls(); err.Assert( e )
+			e = orm.DMAddResources( lsRes, nil ); err.Assert( e )
 			return cc.HerOk()
 		} )
 		// \brief 添加一个或多个资源
 		// \return ok
 		a.POST( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			var dmRes []dm_1.DMResource
-			e = ap.GetBodyUnmarshal( &dmRes ); err.Check( e )
-			e = orm.DMAddResources( dmRes, nil ); err.Check( e )
+			e = ap.GetBodyUnmarshal( &dmRes ); err.Assert( e )
+			e = orm.DMAddResources( dmRes, nil ); err.Assert( e )
 			return cc.HerOk()
 		} )
 		return nil

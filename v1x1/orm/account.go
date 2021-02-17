@@ -47,9 +47,9 @@ const (
 
 func Sync2Account() {
 	e := engine_account.Sync2(new(Account))
-	err.Check( e )
+	err.Assert( e )
 	e = engine_account.Sync2(new(AccountEx))
-	err.Check( e )
+	err.Assert( e )
 }
 
 func NewAccount( name, email, phone, passwd string ) error {

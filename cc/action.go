@@ -51,7 +51,7 @@ var (
 	postHandlers map[string] *ActionFunc
 	getHandlers map[string] *ActionFunc
 	wsHandlers map[string] *ActionFuncWS
-
+	ContentType map[string] string
 	actionGroupHandlers map[string] ActionGroupFunc
 )
 
@@ -61,6 +61,11 @@ func init() {
 	wsHandlers = make( map[string] *ActionFuncWS )
 
 	actionGroupHandlers = make(map[string]ActionGroupFunc)
+	ContentType = map[string]string{
+		"wav": "audio/wav",
+		"mp3": "audio/mp3",
+		"flac": "audio/x-flac,audio/flac",
+	}
 }
 
 func ( R ActionPackage ) GetFormValue( key string ) string {
@@ -187,6 +192,16 @@ func ( a ActionGroup ) POST_CONTENT( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+// 用于返回content内容
+func ( a ActionGroup ) GET_CONTENT( path string, handler ActionFunc ) {
+	glg.Log( "[action] GET_CONTENT: ", a.Path + path )
+	http.HandleFunc( a.Path + path, mwh.WrapGet(
+		func( w http.ResponseWriter, r *http.Request ) {
+			_, _ = handler(ActionPackage{R: r, W: &w})
+		} ) )
+	getHandlers[path] = &handler
+}
+
 func ( pap *ActionPackage )SetCookie( cookie *http.Cookie ) {
 	http.SetCookie( *pap.W, cookie )
 }
@@ -210,8 +225,8 @@ func ( pR *ActionPackageWS ) ReadJson( v interface{} ) ( e error ) {
 	case websocket.BinaryMessage:
 		glg.Warn("WS: reading binary message but try to unmarshal it")
 	case websocket.CloseMessage:
-		glg.Log("WS closed")
-		return errors.New("WS closed")
+		glg.Log("WS closed from cc client")
+		return errors.New("WS closed from cc client")
 	}
 	e = json.Unmarshal( b, v ); if e != nil { return e }
 	return nil
@@ -224,8 +239,8 @@ func ( pR *ActionPackageWS ) ReadString() ( string, error ) {
 	case websocket.BinaryMessage:
 		glg.Warn("WS: reading binary message but try to stringify it")
 	case websocket.CloseMessage:
-		glg.Log("WS closed")
-		return "", errors.New("WS closed")
+		glg.Log("WS closed from cc client")
+		return "", errors.New("WS closed from cc client")
 	}
 	return string( b ), nil
 }
@@ -234,8 +249,8 @@ func ( pR *ActionPackageWS ) ReadBinary() ( []byte, error ) {
 	mt, b, e := pR.C.ReadMessage(); if e != nil { return nil, e }
 	switch mt {
 	case websocket.CloseMessage:
-		glg.Log("WS closed")
-		return nil, errors.New("WS closed")
+		glg.Log("WS closed from cc client")
+		return nil, errors.New("WS closed from cc client")
 	}
 	return b, nil
 }

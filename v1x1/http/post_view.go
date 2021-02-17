@@ -22,7 +22,7 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id ")
 			}
-			e := doPostView( pid ); err.Check( e )
+			e := doPostView( pid ); err.Assert( e )
 			return cc.HerOk()
 		} )
 		return nil

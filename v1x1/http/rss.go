@@ -20,7 +20,7 @@ func posts2FeedItems( ps []orm.Post, pfeed **feeds.Feed ) {
 			tl = 30
 		}
 
-		a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
+		a, e := orm.GetAccount( p.OwnerId ); err.Assert( e )
 		(*pfeed).Items = append((*pfeed).Items, &feeds.Item{
 			Title:       p.Title,
 			Link:        &feeds.Link{ Href:"https://se.cyf-cloud.cn:8888/post/reader?id="+ convert.I64toa( p.Id ) },
@@ -55,12 +55,12 @@ func init() {
 					Author:      &feeds.Author{Name: "everyone", Email: "nil"},
 					Created:     time.Now(),
 				}
-				ps, e := orm.GetPostsPublicAll(); err.Check( e )
+				ps, e := orm.GetPostsPublicAll(); err.Assert( e )
 				posts2FeedItems( ps, &pfeed )
 			} else {
 				// 订阅某人的文章
-				id, e := convert.Atoi64( uid ); err.Check( e )
-				a, e := orm.GetAccount( id ); err.Check( e )
+				id, e := convert.Atoi64( uid ); err.Assert( e )
+				a, e := orm.GetAccount( id ); err.Assert( e )
 				pfeed = &feeds.Feed {
 					Title:       "["+ a.Name + "] cyf-cloud blog",
 					Link:        &feeds.Link{Href: "https://se.cyf-cloud.cn:8888/user/home?id="+ convert.I64toa( a.Id ) },
@@ -68,18 +68,18 @@ func init() {
 					Author:      &feeds.Author{Name: a.Name, Email: a.Email},
 					Created:     time.Now(),
 				}
-				ps, e := orm.GetPostsByOwnerPublic( id ); err.Check( e )
+				ps, e := orm.GetPostsByOwnerPublic( id ); err.Assert( e )
 				posts2FeedItems( ps, &pfeed )
 			}
 			switch ap.R.FormValue("a") {
 			case "rss":
-				pfeedData, e = pfeed.ToRss(); err.Check( e )
+				pfeedData, e = pfeed.ToRss(); err.Assert( e )
 				break
 			case "atom":
-				pfeedData, e = pfeed.ToAtom(); err.Check( e )
+				pfeedData, e = pfeed.ToAtom(); err.Assert( e )
 				break
 			case "json":
-				pfeedData, e = pfeed.ToJSON(); err.Check( e )
+				pfeedData, e = pfeed.ToJSON(); err.Assert( e )
 				break
 			default:
 				pfeedData = "please choose rss/atom/json"

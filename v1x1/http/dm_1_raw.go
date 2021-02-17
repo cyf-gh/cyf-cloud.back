@@ -32,7 +32,7 @@ func init() {
 	cc.AddActionGroup( "/v1x1/dm/1/raw", func( a cc.ActionGroup ) error {
 		// \brief 返回dm根目录
 		a.GET("/root", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
-			e := DM1CheckPermission(ap.R); err.Check(e)
+			e := DM1CheckPermission(ap.R); err.Assert(e)
 			return cc.HerOkWithData(dm_1.DMRootPath())
 		})
 		// \brief 返回dm目录的资源，用于索引数据库
@@ -44,18 +44,18 @@ func init() {
 		// 	"TotalCount" 子项目总个数
 		// }
 		a.GET( "/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dir := ap.GetFormValue( "d" )
 			strhead := ap.GetFormValue( "head" )
 			strend := ap.GetFormValue( "end" )
 			var head, end int
 			if strhead != "" && strend != "" {
-				head, e = strconv.Atoi( strhead ); err.Check( e )
-				end, e = strconv.Atoi( strend ); err.Check( e )
+				head, e = strconv.Atoi( strhead ); err.Assert( e )
+				end, e = strconv.Atoi( strend ); err.Assert( e )
 			}
 
-			dmDir, e := checkDir( dir ); err.Check( e )
-			ttc, lsRes, e := dmDir.LsLimited( head, end ); err.Check( e )
+			dmDir, e := checkDir( dir ); err.Assert( e )
+			ttc, lsRes, e := dmDir.LsLimited( head, end ); err.Assert( e )
 
 			var fivm []dm_1.DMFileInfoViewModel
 			for _, res := range lsRes  {
@@ -68,11 +68,11 @@ func init() {
 		} )
 		// \brief 返回dm根目录的资源，用于索引数据库
 		a.GET( "/dir/root", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dmRootDir := &dm_1.DMResource{
 				Path: dm_1.DMRootPath(),
 			}
-			lsRootRes, e := dmRootDir.Ls(); err.Check( e )
+			lsRootRes, e := dmRootDir.Ls(); err.Assert( e )
 			fivm := []dm_1.DMFileInfoViewModel{}
 			for _, res := range lsRootRes {
 				fivm = append(fivm, *res.ToReadable())
@@ -83,19 +83,19 @@ func init() {
 		// \arg[d] 路径，附加于root_path之后的路径
 		// \problem[2021.2.5] json文件可能过大，导致前端崩溃
 		a.GET( "/recruit/dir", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dir := ap.GetFormValue( "d" )
-			dmDir, e := checkDir( dir ); err.Check( e )
-			lsRes := dmDir.LsRecruit( nil ); err.Check( e )
+			dmDir, e := checkDir( dir ); err.Assert( e )
+			lsRes := dmDir.LsRecruit( nil ); err.Assert( e )
 			return cc.HerOkWithData( lsRes )
 		} )
 		// \brief 返回该目录的大小
 		// \arg[d] 路径，附加于root_path之后的路径
 		a.GET( "/recruit/dir/size", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			dir := ap.GetFormValue( "d" )
-			dmDir, e := checkDir( dir ); err.Check( e )
-			size, e := dmDir.GetSize(); err.Check( e )
+			dmDir, e := checkDir( dir ); err.Assert( e )
+			size, e := dmDir.GetSize(); err.Assert( e )
 			return cc.HerOkWithData( size )
 		} )
 		return nil

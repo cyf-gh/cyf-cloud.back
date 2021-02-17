@@ -194,7 +194,7 @@ func main() {
 func GenerateDocJson( inputDir, outputDir string ) string {
 	httpGoPath := inputDir
 
-	httpDir, e := ioutil.ReadDir( httpGoPath ); err.Check( e )
+	httpDir, e := ioutil.ReadDir( httpGoPath ); err.Assert( e )
 
 	PthSep := string(os.PathSeparator)
 
@@ -213,7 +213,7 @@ func GenerateDocJson( inputDir, outputDir string ) string {
 	var docModels []Model
 
 	for i, f := range GoFiles {
-		fi, e := os.Open( f ); err.Check( e )
+		fi, e := os.Open( f ); err.Assert( e )
 		br := bufio.NewReader(fi)
 		currentDocModel.File = GoFileNames[i]
 		for {

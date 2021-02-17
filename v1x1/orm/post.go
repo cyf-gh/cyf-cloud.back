@@ -63,9 +63,9 @@ type (
 
 func Sync2Post() {
 	e := engine_post.Sync2(new(Post))
-	err.Check( e )
+	err.Assert( e )
 	e = engine_post.Sync2(new(Tag))
-	err.Check( e )
+	err.Assert( e )
 }
 
 // 通过某一个人获取所有他的文章
@@ -145,7 +145,7 @@ func NewPost( title, text string, owner int64, tags []string, private bool) (int
 	}
 
 	_, e = engine_post.Table("Post").Insert( newPost )
-	// err.Check( e )
+	// err.Assert( e )
 	return newPost.Id, e
 }
 

@@ -14,8 +14,8 @@ func init() {
 		// 返回的infocomponentmodel一定不为空，如果不存在则为""
 	    a.GET( "/home", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			strid := ap.R.FormValue("uid")
-			id, e := convert.Atoi64( strid ); err.Check( e )
-			hi, e := orm.GetUserHomeInfo( id ); err.Check( e )
+			id, e := convert.Atoi64( strid ); err.Assert( e )
+			hi, e := orm.GetUserHomeInfo( id ); err.Assert( e )
 	        return cc.HerOkWithData( hi )
 	    } )
 	    return nil

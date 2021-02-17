@@ -10,7 +10,7 @@ import (
 
 // data将会自动转化为json
 func HerOkWithData( data interface{} ) ( HttpErrReturn, StatusCode ) {
-	jn, e := json.Marshal( data ); err.Check( e )
+	jn, e := json.Marshal( data ); err.Assert( e )
 	return HttpErrReturn{
 		ErrCod: err_code.ERR_OK,
 		Desc:   "ok",
@@ -25,7 +25,7 @@ func HerOkWithDataAndUsedTime( data interface{}, time time.Duration ) ( HttpErrR
 		"raw": data,
 		"usedTime" : time.Seconds(),
 	}
-	jn, e := json.Marshal( d ); err.Check( e )
+	jn, e := json.Marshal( d ); err.Assert( e )
 	return HttpErrReturn{
 		ErrCod: err_code.ERR_OK,
 		Desc:   "ok",

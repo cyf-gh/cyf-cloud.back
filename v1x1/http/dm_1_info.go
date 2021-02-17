@@ -12,9 +12,9 @@ func init() {
 		// \body orm.DMTargetResource
 		// \return ok
 		a.POST( "/modifies", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			tr := orm.DMTargetResource{}
-			e = ap.GetBodyUnmarshal( &tr ); err.Check( e )
+			e = ap.GetBodyUnmarshal( &tr ); err.Assert( e )
 			tr.Update()
 			return cc.HerOk()
 		})
@@ -22,9 +22,9 @@ func init() {
 		// \body orm.DMTargetResource
 		// \return ok
 		a.POST( "/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			var tr []orm.DMTargetResource
-			e = ap.GetBodyUnmarshal( &tr ); err.Check( e )
+			e = ap.GetBodyUnmarshal( &tr ); err.Assert( e )
 			for _, t := range tr {
 				t.Update()
 			}
@@ -34,9 +34,9 @@ func init() {
 		// \body orm.DMTargetResource
 		// \return ok
 		a.POST( "/ex/modifies", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			var tr orm.DMTargetResourceEx
-			e = ap.GetBodyUnmarshal( &tr ); err.Check( e )
+			e = ap.GetBodyUnmarshal( &tr ); err.Assert( e )
 			tr.Update()
 			return cc.HerOk()
 		})
@@ -44,9 +44,9 @@ func init() {
 		// \body orm.DMTargetResourceEx
 		// \return ok
 		a.POST( "/ex/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			var tr []orm.DMTargetResourceEx
-			e = ap.GetBodyUnmarshal( &tr ); err.Check( e )
+			e = ap.GetBodyUnmarshal( &tr ); err.Assert( e )
 			for _, t := range tr {
 				t.Update()
 			}

@@ -6,10 +6,10 @@ import (
 )
 
 func Sync2DM1() {
-	e := engine_dm.Sync2(new(DMTargetResource)); err.Check( e )
-	e = engine_dm.Sync2(new(DMTargetResourceEx)); err.Check( e )
-	e = engine_dm.Sync2(new(DMBackupResource)); err.Check( e )
-	e = engine_dm.Sync2(new(DMTag)); err.Check( e )
+	e := engine_dm.Sync2(new(DMTargetResource)); err.Assert( e )
+	e = engine_dm.Sync2(new(DMTargetResourceEx)); err.Assert( e )
+	e = engine_dm.Sync2(new(DMBackupResource)); err.Assert( e )
+	e = engine_dm.Sync2(new(DMTag)); err.Assert( e )
 }
 
 const (

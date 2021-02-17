@@ -5,7 +5,7 @@ import (
 )
 
 func Sync2VP() {
-	e := engine_vp.Sync2(new(VPModel)); err.Check( e )
+	e := engine_vp.Sync2(new(VPModel)); err.Assert( e )
 }
 
 func VPGetProjectListById( id string ) ( vpis []VPInfoModel, e error) {

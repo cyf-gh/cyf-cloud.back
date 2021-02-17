@@ -9,7 +9,7 @@ import (
 
 func DM1CheckPermission( r *http.Request ) error {
 	id, e := GetIdByAtk( r )
-	has, e := orm.DMCheckPermission( id ); err.Check( e )
+	has, e := orm.DMCheckPermission( id ); err.Assert( e )
 	if !has {
 		return errors.New("no permission to dm" )
 	}

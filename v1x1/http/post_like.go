@@ -20,9 +20,9 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
 
-			e = clickPostLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
+			e = clickPostLikeIt( pid, convert.I64toa( id ) ); err.Assert( e )
 
 			return cc.HerOk()
 	    } )
@@ -35,8 +35,8 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			likes, e := getPostLikeIt( pid ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			likes, e := getPostLikeIt( pid ); err.Assert( e )
 			nid := convert.I64toa( id )
 
 			li := LikeInfoModel{
@@ -59,8 +59,8 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			isLike, e := isLikeIt( pid, convert.I64toa( id ) ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			isLike, e := isLikeIt( pid, convert.I64toa( id ) ); err.Assert( e )
 			return cc.HerOkWithString( convert.Bool2a( isLike ) )
 	    } )
 

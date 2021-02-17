@@ -28,16 +28,16 @@ type (
 func init() {
 	cc.AddActionGroup( "/v1x1/vp", func( a cc.ActionGroup ) error {
 		a.POST( "/update", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
 			vp := &orm.VPModel{}
-			e = ap.GetBodyUnmarshal( vp ); err.Check( e )
+			e = ap.GetBodyUnmarshal( vp ); err.Assert( e )
 			// 无权限
 			if vp.OwnerId != id {
 				panic( errors.New("you have no permission to modify this visual progress project") )
 			}
 			// 不存在该vp，添加
 			if vp.Id == 0 {
-				iid, e := vp.Insert(); err.Check( e )
+				iid, e := vp.Insert(); err.Assert( e )
 				return cc.HerOkWithData( iid )
 			} else {
 				vp.Update()
@@ -45,16 +45,16 @@ func init() {
 			}
 		} )
 		a.GET( "/projects/list", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			// vpid := ap.GetFormValue("id"); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			// vpid := ap.GetFormValue("id"); err.Assert( e )
 
-			vpis, e := orm.VPGetProjectListById( convert.I64toa( id ) ); err.Check( e )
+			vpis, e := orm.VPGetProjectListById( convert.I64toa( id ) ); err.Assert( e )
 			return cc.HerOkWithData( vpis )
 		} )
 		a.GET( "/project", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			vpid := ap.GetFormValue("id"); err.Check( e )
-			exi, vp, e := orm.VPFindProjectById( vpid ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			vpid := ap.GetFormValue("id"); err.Assert( e )
+			exi, vp, e := orm.VPFindProjectById( vpid ); err.Assert( e )
 			if !exi {
 				panic( "specified project does not exist" )
 			}
@@ -64,16 +64,16 @@ func init() {
 			return cc.HerOkWithData( vp )
 		} )
 		a.POST_CONTENT( "/export", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
 			m := &VPExportModel{}
-			e = ap.GetBodyUnmarshal( m ); err.Check( e )
+			e = ap.GetBodyUnmarshal( m ); err.Assert( e )
 
-			exi, v, e := orm.VPFindProjectById( convert.I64toa( m.Id ) ); err.Check( e )
+			exi, v, e := orm.VPFindProjectById( convert.I64toa( m.Id ) ); err.Assert( e )
 
 			// process image
 			// https://stackoverflow.com/questions/31031589/illegal-base64-data-at-input-byte-4-when-using-base64-stdencoding-decodestrings/49413861
 			b64data := m.Base64[strings.IndexByte( m.Base64, ',') + 1 :]
-			ib, e := base64.StdEncoding.DecodeString( b64data ); err.Check( e )
+			ib, e := base64.StdEncoding.DecodeString( b64data ); err.Assert( e )
 
 			if !exi {
 				panic( "specified project does not exist" )
@@ -83,9 +83,9 @@ func init() {
 			}
 			exportPath := cfg.VPTmpPath + "/" + m.Title +".xlsx"
 			e = vp.Export( v.Data, cfg.VPTemplatePath, exportPath, ib )
-			err.Check( e )
+			err.Assert( e )
 
-			downloadBytes, e := ioutil.ReadFile(exportPath); err.Check( e )
+			downloadBytes, e := ioutil.ReadFile(exportPath); err.Assert( e )
 
 			w := *ap.W
 			r := ap.R

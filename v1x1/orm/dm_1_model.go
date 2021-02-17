@@ -74,6 +74,10 @@ func ( PR *DMTargetResource ) GetChildResourceEx() ( ex *DMTargetResourceEx, e e
 	}
 }
 
+func ( PR *DMTargetResourceEx ) GetParentResource() ( p *DMTargetResource, e error ) {
+	return DMGetTargetResourceById( PR.ParentId )
+}
+
 // 退化为DMResource
 // 带文件信息
 func ( R DMTargetResource ) Decay() ( *dm_1.DMResource, error ) {

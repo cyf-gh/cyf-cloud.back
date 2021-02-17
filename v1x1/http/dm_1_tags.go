@@ -12,8 +12,8 @@ func init() {
 		// \brief 获取所有的tag
 		// \return []DMTag
 		a.GET( "/all", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
-			tags, e := orm.DMGetAllTags(); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
+			tags, e := orm.DMGetAllTags(); err.Assert( e )
 			return cc.HerOkWithData( tags )
 		} )
 		// \brief 添加一个tag
@@ -21,12 +21,12 @@ func init() {
 		// \arg[a] tag的名字
 		// \return 新添加的tag的id
 		a.POST( "/add", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			var (
 				tagNames []string
 				tagIds []int64
 			)
-			e = ap.GetBodyUnmarshal(&tagNames); err.Check( e ); if len(tagNames) == 0 { panic(errors.New("empty param: a"))}
+			e = ap.GetBodyUnmarshal(&tagNames); err.Assert( e ); if len(tagNames) == 0 { panic(errors.New("empty param: a"))}
 			for _, tagName := range tagNames {
 				if !orm.DMIsTagExist( tagName ) {
 					t := orm.DMTag{
@@ -44,7 +44,7 @@ func init() {
 		// \arg[a] tag的名字
 		// \return tag id
 		a.GET( "/adds", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			e := DM1CheckPermission( ap.R ); err.Check( e )
+			e := DM1CheckPermission( ap.R ); err.Assert( e )
 			tagName := ap.GetFormValue("a"); if tagName == "" { panic(errors.New("empty param: a"))}
 			if !orm.DMIsTagExist( tagName ) {
 				t := orm.DMTag{

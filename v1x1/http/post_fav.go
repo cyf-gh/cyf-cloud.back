@@ -19,9 +19,9 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			npid, e := convert.Atoi64( pid ); err.Check( e )
-			_, e = orm.AddFav( id, npid ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			npid, e := convert.Atoi64( pid ); err.Assert( e )
+			_, e = orm.AddFav( id, npid ); err.Assert( e )
 
 			return cc.HerOk()
 		} )
@@ -31,11 +31,11 @@ func init() {
 				e error
 				favList []int64
 			)
-			b, e := ioutil.ReadAll( ap.R.Body); err.Check( e )
-			e = json.Unmarshal( b, &favList ); err.Check( e )
+			b, e := ioutil.ReadAll( ap.R.Body); err.Assert( e )
+			e = json.Unmarshal( b, &favList ); err.Assert( e )
 
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			_, e = orm.UpdateFav( id, favList ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			_, e = orm.UpdateFav( id, favList ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
@@ -47,10 +47,10 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			npid, e := convert.Atoi64( pid ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			npid, e := convert.Atoi64( pid ); err.Assert( e )
 
-			_, e = orm.RemoveFav( id, npid ); err.Check( e )
+			_, e = orm.RemoveFav( id, npid ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
@@ -63,10 +63,10 @@ func init() {
 			if pid = ap.R.FormValue("id"); pid == "" {
 				return cc.HerArgInvalid( "id" )
 			}
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			npid, e := convert.Atoi64( pid ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			npid, e := convert.Atoi64( pid ); err.Assert( e )
 
-			isFav, e = orm.IsPostFav( id, npid ); err.Check( e )
+			isFav, e = orm.IsPostFav( id, npid ); err.Assert( e )
 			return cc.HerOkWithString( convert.Bool2a( isFav ) )
 		} )
 

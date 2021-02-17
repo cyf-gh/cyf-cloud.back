@@ -36,19 +36,19 @@ func init() {
 
 			// 如果user参数为空，则获取所有人的文章
 			if user != "" {
-				a, e = orm.GetAccountByName( user )			; err.Check( e )
-				posts, e = orm.GetPostInfosByOwnerPublic( a.Id ); err.Check( e )
+				a, e = orm.GetAccountByName( user )			; err.Assert( e )
+				posts, e = orm.GetPostInfosByOwnerPublic( a.Id ); err.Assert( e )
 			} else {
 				// 如果设定了范围，则取范围
 				if rg != "" {
-					start, count, e := getRange( rg ); err.Check( e )
-					posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Check( e )
+					start, count, e := getRange( rg ); err.Assert( e )
+					posts, e = orm.GetAllPublicPostInfosLimited( start, count ); err.Assert( e )
 				} else {
-					posts, e = orm.GetPostInfosAll(); err.Check( e )
+					posts, e = orm.GetPostInfosAll(); err.Assert( e )
 				}
 			}
 
-			epi, e := extendPostInfo(posts); err.Check( e )
+			epi, e := extendPostInfo(posts); err.Assert( e )
 
 			return cc.HerOkWithData( epi )
 		} )
@@ -61,8 +61,8 @@ func init() {
 			r := ap.R
 
 			tags := r.FormValue("tags")
-			e = json.Unmarshal( []byte(tags), &tgs ); err.Check( e )
-			pis, e := orm.GetPostInfosByTags( tgs ); err.Check( e )
+			e = json.Unmarshal( []byte(tags), &tgs ); err.Assert( e )
+			pis, e := orm.GetPostInfosByTags( tgs ); err.Assert( e )
 
 			ps, e := extendPostInfo( pis )
 			return cc.HerOkWithData( ps )
@@ -74,10 +74,10 @@ func init() {
 			)
 			r := ap.R
 			date := r.FormValue("date")
-			id, e := GetIdByAtk( ap.R ); err.Check( e )
-			ps, e := orm.GetPostInfosByCateDate( id, date ); err.Check( e )
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			ps, e := orm.GetPostInfosByCateDate( id, date ); err.Assert( e )
 
-			eps, e := extendPostInfo( ps ); err.Check( e )
+			eps, e := extendPostInfo( ps ); err.Assert( e )
 			return cc.HerOkWithData( eps )
 		} )
 
@@ -89,16 +89,16 @@ func init() {
 			r := ap.R
 			rg := r.FormValue("range")
 
-			a, e := GetAccountByAtk(r); err.Check(e)
+			a, e := GetAccountByAtk(r); err.Assert(e)
 
 			if rg != "" {
-				start, count, e := getRange(rg); err.Check(e)
-				posts, e = orm.GetAllPublicPostInfosLimited(start, count); err.Check(e)
+				start, count, e := getRange(rg); err.Assert(e)
+				posts, e = orm.GetAllPublicPostInfosLimited(start, count); err.Assert(e)
 			} else {
-				posts, e = orm.GetPostInfosByOwnerAll(a.Id); err.Check(e)
+				posts, e = orm.GetPostInfosByOwnerAll(a.Id); err.Assert(e)
 			}
 
-			epi, e := extendPostInfo(posts); err.Check(e)
+			epi, e := extendPostInfo(posts); err.Assert(e)
 			return cc.HerOkWithData( epi )
 		} )
 		return nil

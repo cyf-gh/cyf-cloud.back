@@ -58,22 +58,22 @@ func init() {
 				id int64
 			)
 
-			b, e := ioutil.ReadAll( ap.R.Body ); err.Check( e )
-			e = json.Unmarshal( b, &post ); err.Check( e )
+			b, e := ioutil.ReadAll( ap.R.Body ); err.Assert( e )
+			e = json.Unmarshal( b, &post ); err.Assert( e )
 
-			account, e := GetAccountByAtk( ap.R ); err.Check( e ); glg.Log( account ); glg.Log( post )
-			id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Check( e )
+			account, e := GetAccountByAtk( ap.R ); err.Assert( e ); glg.Log( account ); glg.Log( post )
+			id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Assert( e )
 			return cc.HerOkWithString( convert.I64toa(id) )
 		} )
 
 		a.POST( "/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var post ModifiedPostModel
 
-			b, e := ioutil.ReadAll( ap.R.Body); err.Check( e )
-			e = json.Unmarshal( b, &post ); err.Check( e )
+			b, e := ioutil.ReadAll( ap.R.Body); err.Assert( e )
+			e = json.Unmarshal( b, &post ); err.Assert( e )
 
-			account, e := GetAccountByAtk( ap.R ); err.Check( e ); glg.Log( account ); glg.Log( post )
-			e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds ); err.Check( e )
+			account, e := GetAccountByAtk( ap.R ); err.Assert( e ); glg.Log( account ); glg.Log( post )
+			e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
@@ -83,11 +83,11 @@ func init() {
 		a.POST( "/modifyNT", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var post ModifyPostNoTextModel
 
-			b, e := ioutil.ReadAll(ap.R.Body); err.Check( e )
-			e = json.Unmarshal( b, &post ); err.Check( e )
+			b, e := ioutil.ReadAll(ap.R.Body); err.Assert( e )
+			e = json.Unmarshal( b, &post ); err.Assert( e )
 
-			account, e := GetAccountByAtk( ap.R ); err.Check( e )
-			e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds ); err.Check( e )
+			account, e := GetAccountByAtk( ap.R ); err.Assert( e )
+			e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds ); err.Assert( e )
 			return cc.HerOk()
 		} )
 
@@ -100,9 +100,9 @@ func init() {
 			)
 			myPost = false
 			strId := ap.R.FormValue("id")
-			id, e = convert.Atoi64( strId ); err.Check( e )
+			id, e = convert.Atoi64( strId ); err.Assert( e )
 			// 获取文章
-			p, e = orm.GetPostById( id ); err.Check( e )
+			p, e = orm.GetPostById( id ); err.Assert( e )
 
 			myId, _ := GetIdByAtk( ap.R ) // 没有权限也可以访问，可以为-1
 			// 只有不是本人的私有文章才不返回
@@ -119,8 +119,8 @@ func init() {
 			}
 
 			// 找出作者名字与tag名字
-			a, e := orm.GetAccount( p.OwnerId ); err.Check( e )
-			tags, e := orm.GetTagNames( p.TagIds ); err.Check( e )
+			a, e := orm.GetAccount( p.OwnerId ); err.Assert( e )
+			tags, e := orm.GetTagNames( p.TagIds ); err.Assert( e )
 
 			tP := &PostReaderModel{
 				Title:  p.Title,
