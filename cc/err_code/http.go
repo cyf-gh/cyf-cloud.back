@@ -8,6 +8,7 @@ const (
 	ERR_OK = "0"		// ok
 	ERR_INVALID_ARGUMENT = "-4" // 参数错误
 	ERR_NO_AUTH = "-5"
+	ERR_DEPRECATED = "-1000"
 )
 
 const (

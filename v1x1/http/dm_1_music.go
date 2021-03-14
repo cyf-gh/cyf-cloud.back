@@ -225,6 +225,7 @@ func init() {
 		// \arg[artist] 歌曲艺术家
 		// \return 见 http://doc.gecimi.com/en/latest/
 		a.GET_DO( "/lyrics", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			return cc.HerDeprecated()
 			type (
 				LyrResult struct {
 					Count  int `json:"count"`

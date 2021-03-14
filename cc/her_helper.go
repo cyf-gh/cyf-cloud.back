@@ -68,6 +68,15 @@ func HerArgInvalid( argName string ) ( HttpErrReturn, StatusCode ) {
 	}, http.StatusOK
 }
 
+// 用于在弃用的API中直接返回
+func HerDeprecated() ( HttpErrReturn, StatusCode ) {
+	return HttpErrReturn{
+		ErrCod: err_code.ERR_DEPRECATED,
+		Desc:   "deprecated",
+		Data:   "",
+	}, http.StatusOK
+}
+
 func HerRaw () {
 
 }

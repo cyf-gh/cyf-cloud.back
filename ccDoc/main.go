@@ -30,6 +30,7 @@ type (
 		Return string       `json:"return"`
 		Type string         `json:"type"`
 		NeedValidation bool `json:"needValidation"`
+		IsDeprecated bool 	`json:"isDeprecated"`
 	}
 	Arg struct {
 		Name string `json:"name"`
@@ -46,7 +47,7 @@ func InChildDoc() {
 }
 
 func FinishChildDoc() {
-	currentDocModel.Childs = append(currentDocModel.Childs, *currentChildModel )
+	currentDocModel.Childs = append( currentDocModel.Childs, *currentChildModel )
 	prevChildModel = &currentDocModel.Childs[len(currentDocModel.Childs)-1]
 	currentChildModel = &ChildModel{}
 	inChildDoc = false
@@ -151,6 +152,14 @@ func init() {
 		},
 		// 匹配路由是否需要验证
 		// 一定正确
+		{
+			Pattern: regexp.MustCompile(`^(.*)cc.HerDeprecated(.*)$`),
+			Proc: func( params[]string, i int ) error {
+				prevChildModel.IsDeprecated = true
+				return nil
+			},
+		},
+		// 匹配该函数是否已经弃用
 		{
 			Pattern: regexp.MustCompile(`^(.*)(ByAtk|DM1CheckPermission|MakeClipboardKey)(.*)$`),
 			Proc:    func( params[]string, i int ) error {
