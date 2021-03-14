@@ -41,7 +41,7 @@ type IPInfo struct {
 	Code int    `json:"code"`
 }
 
-func CheckIPInfo(r *http.Request) {
+func CheckIPInfo( r *http.Request ) {
 	AddrStr := GetIP( r )
 	ipp := strings.Split(AddrStr,":")
 	ipStr := ipp[0]

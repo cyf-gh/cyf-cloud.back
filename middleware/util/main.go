@@ -17,7 +17,7 @@ const (
 // 输出请求所用时间
 //
 // 应当最开始注册，避免遗漏中间件的所用时间
-func LogUsedTime()  middleware.MiddewareFunc  {
+func LogUsedTime() 	middleware.MiddewareFunc  {
 	return func( f http.HandlerFunc ) http.HandlerFunc {
 		return func( w http.ResponseWriter, r *http.Request ) {
 			glg.Log( r.URL.Path, "[time started recording]" )
