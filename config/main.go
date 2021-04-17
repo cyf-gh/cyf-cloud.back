@@ -14,6 +14,7 @@ import (
 )
 
 var (
+	ProxyAddr string
 	UdpAddr string
 	TcpAddr string
 	LogAddr string
@@ -83,7 +84,9 @@ func configServerInfo() {
 
 	RunMode = cfg.Section("common").Key("mode").String()
 	V1X1SrcPath = cfg.Section( "common" ).Key( "v1x1_path" ).String()
+	ProxyAddr = cfg.Section("common").Key("proxy").String()
 	println("server start with mode:\"" + RunMode + "\"")
+	println("proxy:\"" + ProxyAddr + "\"")
 
 	SqlitePath =  cfg.Section("sqlite3").Key("path").String()
 

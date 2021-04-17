@@ -34,17 +34,17 @@ func init() {
 
 // map 非线程安全 不允许concurrent读写
 func getRecord( uniType, url string ) *Record {
-	if rec, ok := TGActiveRecorder[uniType]; !ok {
+	if _, ok := TGActiveRecorder[uniType]; !ok {
 		// 无该访问记录，则添加
 		TGActiveRecorder[uniType] = map[string]*Record{}
 		TGActiveRecorder[uniType][url] = &Record{
 			Mutex: sync.Mutex{},
 			Q:     []time.Time{},
 		}
-		rr := rec[url]
+		rr := TGActiveRecorder[uniType][url]
 		return rr
 	} else {
-		rr := rec[url]
+		rr := TGActiveRecorder[uniType][url]
 		return rr
 	}
 }
@@ -59,11 +59,10 @@ func TGRecordAccess( uniType, url string, prepFreq float64 ) ( nowFreq float64, 
 		dura int64
 	)
 	_continue = true
-	getRecord( uniType, url )
-	r := TGActiveRecorder[uniType][url]
+	r := getRecord( uniType, url )
 	TGMutex.Unlock()
 
-	(TGActiveRecorder[uniType][url].Mutex).Lock()
+	r.Mutex.Lock()
 	// 当只有一个时必能通过
 	if len( r.Q ) == 0 || len( r.Q ) == 1 {
 		r.Q = append( r.Q, time.Now() )
@@ -82,8 +81,7 @@ func TGRecordAccess( uniType, url string, prepFreq float64 ) ( nowFreq float64, 
 		_continue = false
 	}
 	UNLOCK:
-	TGActiveRecorder[uniType][url] = r
-	(TGActiveRecorder[uniType][url].Mutex).Unlock()
+	r.Mutex.Unlock()
 
 	return
 }

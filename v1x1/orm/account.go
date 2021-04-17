@@ -29,6 +29,9 @@ type (
 		PrivateInfoMask string // 用于遮罩哪些信息不可被外部访问
 
 		FavPosts []int64 // 收藏文章
+
+		SteamId string
+		SteamApi string
 	}
 )
 
