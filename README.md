@@ -2,6 +2,9 @@
 
 cyf-cloud的服务器端，使用Golang编写。
 
+### SCHEMA
+[编码规范](https://github.com/cyf-gh/api.cyf-cloud/blob/master/SCHEMA.md)
+
 ## 基本
 
 [编码规范](https://github.com/cyf-gh/api.cyf-cloud/blob/master/CodeStandard.md)

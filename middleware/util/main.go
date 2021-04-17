@@ -77,3 +77,20 @@ func AccessRecord() middleware.MiddewareFunc {
 		}
 	}
 }
+
+func TrafficGuard() middleware.MiddewareFunc {
+	return func(f http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			ip := GetIP( r )
+			freq, res := TGRecordAccess( ip, r.URL.Path, 10 )
+			if !res {
+				glg.Error("[TG]IP: ", ip, " Path: ", r.URL.Path, "jam", " Current freq: ", freq )
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			} else {
+				glg.Log("[TG]IP: ", ip, " Path: ", r.URL.Path, "record", " Current freq: ", freq )
+			}
+			f( w, r )
+		}
+	}
+}
