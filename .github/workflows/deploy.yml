@@ -1,46 +1,47 @@
 name: Deploy cyf-cloud.back
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-      - README.md
+    push:
+        branches:
+            - master
+        paths-ignore:
+            - README.md
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+    deploy:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Pull and redeploy
-        uses: garygrossgarten/github-action-ssh@release
-        with:
-          command: |
-            whoami
-            cd ~/.web/cyf-cloud.back/
-            git fetch --all
-            git reset --hard origin/master
-            git pull
+        steps:
+            - name: Pull and redeploy
+              uses: garygrossgarten/github-action-ssh@release
+              with:
+                  command: |
+                      whoami
+                      cd ~/.web/cyf-cloud.back/
+                      git stash
+                      git fetch --all
+                      git reset --hard origin/master
+                      git pull
 
-            # 修改配置文件为部署配置文件
-            # 如果存在dep文件，说明还没有修改配置文件为部署版本
-            if [ -f "./server_dep.cfg" ]; then
-              echo "switch server.cfg to deploy version."
-              mv ./server.cfg ./server_dev.cfg
-              mv ./server_dep.cfg ./server.cfg
-            fi
+                      # 修改配置文件为部署配置文件
+                      # 如果存在dep文件，说明还没有修改配置文件为部署版本
+                      if [ -f "./server_dep.cfg" ]; then
+                        echo "switch server.cfg to deploy version."
+                        mv ./server.cfg ./server_dev.cfg
+                        mv ./server_dep.cfg ./server.cfg
+                      fi
 
-            # 重新启动服务器
-            if ! screen -list | grep -q "go"; then
-              echo "create new screen."
-              screen -dmS go bash -c "cd ~/.web/cyf-cloud.back/; go run ./main.go; bash"
-            else
-              echo "screen already exists."
-              screen -S go -p 0 -X stuff "^C^M"
-              screen -S go -p 0 -X stuff "cd ~/.web/cyf-cloud.back/^M"
-              screen -S go -p 0 -X stuff "go run ./main.go^M"
-            fi
-          host: jp-tyo-dvm-2.sakurafrp.com
-          username: cyf
-          password: ${{ secrets.PSWD }}
-          port: 16661
+                      # 重新启动服务器
+                      if ! screen -list | grep -q "go"; then
+                        echo "create new screen."
+                        screen -dmS go bash -c "cd ~/.web/cyf-cloud.back/; go run ./main.go; bash"
+                      else
+                        echo "screen already exists."
+                        screen -S go -p 0 -X stuff "^C^M"
+                        screen -S go -p 0 -X stuff "cd ~/.web/cyf-cloud.back/^M"
+                        screen -S go -p 0 -X stuff "go run ./main.go^M"
+                      fi
+                  host: jp-tyo-dvm-2.sakurafrp.com
+                  username: cyf
+                  password: ${{ secrets.PSWD }}
+                  port: 16661
