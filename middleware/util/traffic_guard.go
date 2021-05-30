@@ -35,18 +35,19 @@ func init() {
 // map 非线程安全 不允许concurrent读写
 func getRecord( uniType, url string ) *Record {
 	if _, ok := TGActiveRecorder[uniType]; !ok {
-		// 无该访问记录，则添加
+		// 无uniType访问记录访问记录，则添加
 		TGActiveRecorder[uniType] = map[string]*Record{}
+
+	}
+	if _, ok := TGActiveRecorder[uniType][url]; !ok {
+		// 无url访问记录，则添加
 		TGActiveRecorder[uniType][url] = &Record{
 			Mutex: sync.Mutex{},
 			Q:     []time.Time{},
 		}
-		rr := TGActiveRecorder[uniType][url]
-		return rr
-	} else {
-		rr := TGActiveRecorder[uniType][url]
-		return rr
 	}
+	rr := TGActiveRecorder[uniType][url]
+	return rr
 }
 
 // uniType 唯一标识符的一种，可为ip，user，或global
@@ -55,14 +56,14 @@ func getRecord( uniType, url string ) *Record {
 // 本算法无需出栈，只需要按时释放time队列即可
 func TGRecordAccess( uniType, url string, prepFreq float64 ) ( nowFreq float64, _continue bool ) {
 	TGMutex.Lock()
-	var (
-		dura int64
-	)
 	_continue = true
 	r := getRecord( uniType, url )
 	TGMutex.Unlock()
 
 	r.Mutex.Lock()
+	var (
+		dura int64
+	)
 	// 当只有一个时必能通过
 	if len( r.Q ) == 0 || len( r.Q ) == 1 {
 		r.Q = append( r.Q, time.Now() )
