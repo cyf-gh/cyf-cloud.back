@@ -23,7 +23,7 @@ func LogUsedTime() 	middleware.MiddewareFunc  {
 			glg.Log( r.URL.Path, "[time started recording]" )
 			start := time.Now()
 			defer func() {
-				glg.Log( r.URL.Path, "[time used]", time.Since( start ) )
+			glg.Log( r.URL.Path, "[time used]", time.Since( start ) )
 			}()
 			f(w, r)
 		}

@@ -122,7 +122,7 @@ func init() {
 			return cc.HerOkWithData(info)
 		})
 
-		a.GET("/public/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
+		a.Deprecated("/v1x1/account/info/home?uid=").GET("/public/info", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
 			user := ap.R.FormValue("user")
 			info, mask, e := getRawInfoByName(ap.R, user); err.Assert(e)
 

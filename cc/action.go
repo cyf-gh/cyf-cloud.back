@@ -34,6 +34,8 @@ import (
 type (
 	ActionGroup struct {
 		Path string
+		Deprecate bool
+		NewPath string
 	}
 	ActionPackage struct {
 		R *http.Request
@@ -115,9 +117,28 @@ func checkPathWarning( path string ) {
 	}
 }
 
+func (a ActionGroup) IsDeprecated( path string ) bool {
+	if a.Deprecate {
+		glg.Warn("[action] GET: ", a.Path + path, " was deprecated" )
+		http.HandleFunc( a.Path + path, mwh.WrapGet(
+			func( w http.ResponseWriter, r *http.Request ) {
+				HttpReturnHER( &w, &HttpErrReturn{
+					ErrCod: "-8",
+					Desc:   "deprecated. use " + a.NewPath + " instead",
+					Data:   "",
+				}, 200, r.URL.Path	)
+			} ) )
+		return true
+	}
+	return false
+}
+
 // 添加一个Post请求
 func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 	checkPathWarning( path )
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] POST: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -130,6 +151,9 @@ func ( a ActionGroup ) POST( path string, handler ActionFunc ) {
 // 添加一个Get请求
 func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	checkPathWarning( path )
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] GET: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -139,11 +163,21 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+func ( a ActionGroup ) Deprecated( substitute string ) ActionGroup {
+	glg.Warn("[action] API below was deprecated. Please use " + substitute + " instead")
+	a.Deprecate = true
+	a.NewPath = substitute
+	return a
+}
+
 // 添加一个websocket请求
 // cc规范：必须在请求路径末端添加ws字段来提示这一请求为websocket请求
 // 例：/imai_mami/no/koto/ga/suki/ws
 func ( a ActionGroup ) WS( path string, handler ActionFuncWS ) {
 	checkPathWarning( path )
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] WS: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapWS( func( w http.ResponseWriter, r *http.Request ) {
 			glg.Log("["+ a.Path + path  +"] "+ "WS: START UPGRADE")
@@ -173,6 +207,9 @@ func resp(w* http.ResponseWriter, msg string) {
 // 只返回data，不返回其他的任何信息
 // DO: DATA ONLY
 func ( a ActionGroup ) GET_DO( path string, handler ActionFunc ) {
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] GET_DO: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -184,6 +221,9 @@ func ( a ActionGroup ) GET_DO( path string, handler ActionFunc ) {
 
 // 用于返回content内容
 func ( a ActionGroup ) POST_CONTENT( path string, handler ActionFunc ) {
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] POST_CONTENT: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapPost(
 		func( w http.ResponseWriter, r *http.Request ) {
@@ -194,6 +234,9 @@ func ( a ActionGroup ) POST_CONTENT( path string, handler ActionFunc ) {
 
 // 用于返回content内容
 func ( a ActionGroup ) GET_CONTENT( path string, handler ActionFunc ) {
+	if a.IsDeprecated( path ) {
+		return
+	}
 	glg.Log( "[action] GET_CONTENT: ", a.Path + path )
 	http.HandleFunc( a.Path + path, mwh.WrapGet(
 		func( w http.ResponseWriter, r *http.Request ) {
