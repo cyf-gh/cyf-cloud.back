@@ -20,6 +20,7 @@ type (
 		IsPrivate bool
 		Date string
 		CreateDate string
+		Path string
 	}
 	PostInfo struct {
 		Id int64
@@ -28,6 +29,7 @@ type (
 		Date string
 		IsPrivate bool
 		OwnerId int64
+		Path string
 		TagIds[] int64
 	}
 	CountOf struct {
@@ -161,6 +163,14 @@ func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags
 		Date: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	_, e = engine_post.Table("Post").Cols().ID(id).Update(mp)
+	return e
+}
+
+func ModifyPostPath( id int64, path string) error {
+	mp := &Post{
+		Path: path,
+	}
+	_, e := engine_post.Table("Post").Cols().ID(id).Update(mp)
 	return e
 }
 

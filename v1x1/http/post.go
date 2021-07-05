@@ -7,6 +7,7 @@ import (
 	"../../cc/err_code"
 	orm "../orm"
 	"encoding/json"
+	"errors"
 	"github.com/kpango/glg"
 	"io/ioutil"
 	"net/http"
@@ -64,6 +65,20 @@ func init() {
 			account, e := GetAccountByAtk( ap.R ); err.Assert( e ); glg.Log( account ); glg.Log( post )
 			id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Assert( e )
 			return cc.HerOkWithString( convert.I64toa(id) )
+		} )
+
+		a.GET("/modify/path", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+			path := ap.R.FormValue("path")
+			pid := ap.R.FormValue("pid")
+			uid, e := GetIdByAtk( ap.R ); err.Assert( e )
+			npid, e := convert.Atoi64( pid ); err.Assert( e )
+
+			post, e := orm.GetPostById( npid ); err.Assert( e )
+			if post.OwnerId != uid {
+				err.Assert( errors.New("cannot modify path of others' post") )
+			}
+			e = orm.ModifyPostPath( post.Id, path )
+			return cc.HerOk()
 		} )
 
 		a.POST( "/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {

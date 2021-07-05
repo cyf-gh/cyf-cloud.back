@@ -224,8 +224,7 @@ func init() {
 		// \arg[title] 歌曲标题（必填）
 		// \arg[artist] 歌曲艺术家
 		// \return 见 http://doc.gecimi.com/en/latest/
-		a.GET_DO( "/lyrics", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
-			return cc.HerDeprecated()
+		a.Deprecated("/lyrics/ex").GET_DO( "/lyrics", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			type (
 				LyrResult struct {
 					Count  int `json:"count"`
