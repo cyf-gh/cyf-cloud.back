@@ -22,7 +22,9 @@ Example:
  */
 
 import (
+	middleware "../middleware"
 	mwh "../middleware/helper"
+	mwu "../middleware/util"
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/websocket"
@@ -36,6 +38,7 @@ type (
 		Path string
 		Deprecate bool
 		NewPath string
+		Freq float64
 	}
 	ActionPackage struct {
 		R *http.Request
@@ -50,18 +53,19 @@ type (
 )
 
 var (
-	postHandlers map[string] *ActionFunc
-	getHandlers map[string] *ActionFunc
-	wsHandlers map[string] *ActionFuncWS
-	ContentType map[string] string
+	postHandlers        map[string] *ActionFunc
+	getHandlers         map[string] *ActionFunc
+	wsHandlers          map[string] *ActionFuncWS
+	ContentType         map[string] string
 	actionGroupHandlers map[string] ActionGroupFunc
+	ActionGroups        map[string] ActionGroup
 )
 
 func init() {
 	postHandlers = make( map[string] *ActionFunc )
 	getHandlers = make( map[string] *ActionFunc )
 	wsHandlers = make( map[string] *ActionFuncWS )
-
+	ActionGroups = make( map[string] ActionGroup )
 	actionGroupHandlers = make(map[string]ActionGroupFunc)
 	ContentType = map[string]string{
 		"wav": "audio/wav",
@@ -117,7 +121,17 @@ func checkPathWarning( path string ) {
 	}
 }
 
+func ( a ActionGroup ) SetFreq( freqPerSec float64 ) ActionGroup {
+	a.Freq = freqPerSec
+	return a
+}
+
 func (a ActionGroup) IsDeprecated( path string ) bool {
+	ActionGroups[a.Path] = a
+	if a.Freq <= 0 {
+		a.Freq = 30
+	}
+	glg.Log("Freq = ", a.Freq)
 	if a.Deprecate {
 		glg.Warn("[action] GET: ", a.Path + path, " was deprecated" )
 		http.HandleFunc( a.Path + path, mwh.WrapGet(
@@ -329,3 +343,35 @@ func RegisterAction( action *ActionGroup ) {
 	}
 }
 */
+
+func TrafficGuard() middleware.MiddewareFunc {
+	return func(f http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if e := recover(); e != nil {
+					glg.Error(" === TG Panic!!! === ")
+					glg.Error(r.URL.Path, mwu.TGActiveRecorder, mwu.TGActiveRecorder[mwu.GetIP( r )][r.URL.Path])
+				}
+			}()
+			var freq float64
+			if a, ok := ActionGroups[r.URL.Path]; ok {
+				freq = a.Freq
+			} else {
+				freq = 30 // global default
+			}
+			if freq <= 0 {
+				freq = 30
+			}
+			ip := mwu.GetIP( r )
+			freq, res := mwu.TGRecordAccess( ip, r.URL.Path, freq )
+			if !res {
+				glg.Error("[TG]IP: ", ip, " Path: ", r.URL.Path, "jam", " Current freq: ", freq )
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			} else {
+				glg.Log("[TG]IP: ", ip, " Path: ", r.URL.Path, "record", " Current freq: ", freq )
+			}
+			f( w, r )
+		}
+	}
+}

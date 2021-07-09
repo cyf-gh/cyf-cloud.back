@@ -23,6 +23,7 @@ type (
 		IsPrivate bool
 	}
 	PostReaderModel struct {
+		Id int64
 		Title string
 		Text string
 		Tags[] string
@@ -81,13 +82,13 @@ func init() {
 			return cc.HerOk()
 		} )
 
-		a.POST( "/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
+		a.SetFreq(100).POST( "/modify", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var post ModifiedPostModel
 
 			b, e := ioutil.ReadAll( ap.R.Body); err.Assert( e )
 			e = json.Unmarshal( b, &post ); err.Assert( e )
 
-			account, e := GetAccountByAtk( ap.R ); err.Assert( e ); glg.Log( account ); glg.Log( post )
+			account, e := GetAccountByAtk( ap.R ); err.Assert( e )
 			e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds ); err.Assert( e )
 			return cc.HerOk()
 		} )
@@ -138,6 +139,7 @@ func init() {
 			tags, e := orm.GetTagNames( p.TagIds ); err.Assert( e )
 
 			tP := &PostReaderModel{
+				Id: 	p.Id,
 				Title:  p.Title,
 				Text:   p.Text,
 				Tags:    tags,

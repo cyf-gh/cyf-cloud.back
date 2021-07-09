@@ -37,7 +37,7 @@ func InitMiddlewares() {
 	glg.Log( "middleware loading..." )
 	mw.Register( mwu.LogUsedTime() )
 	mw.Register( cc.ErrorFetcher() )
-	mw.Register( mwu.TrafficGuard() )
+	mw.Register( cc.TrafficGuard() )
 	mw.Register( mwu.AccessRecord() )
 	// mw.Register( mwu.EnableCookie() )
 	// mw.Register( mwu.EnableAllowOrigin() )
