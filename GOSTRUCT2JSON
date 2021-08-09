@@ -1,0 +1,27 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type (
+	PostModel struct {
+		Title     string
+		Text      string
+		TagIds    []string
+		IsPrivate bool
+		Path      string
+	}
+)
+
+func main() {
+p2:= PostModel{
+	Title: "123",
+	Text: "",
+	IsPrivate: false,
+}
+	bb1,_:=json.Marshal(p2)
+	fmt.Println(string(bb1))
+
+}

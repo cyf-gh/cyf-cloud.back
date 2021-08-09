@@ -134,7 +134,7 @@ func GetPostInfosByIds( ids []int64 ) ( []PostInfo, error ) {
 }
 
 // 向数据库添加一笔新文章
-func NewPost( title, text string, owner int64, tags []string, private bool) (int64, error) {
+func NewPost( title, text string, owner int64, tags []string, private bool, path string) (int64, error) {
 	tagIds, e  := GetTagIds( tags )
 	newPost := &Post{
 		Title:     title,
@@ -144,6 +144,7 @@ func NewPost( title, text string, owner int64, tags []string, private bool) (int
 		IsPrivate: private,
 		Date: time.Now().Format("2006-01-02 15:04:05"),
 		CreateDate: time.Now().Format("2006-01-02 15:04:05"),
+		Path: path,
 	}
 
 	_, e = engine_post.Table("Post").Insert( newPost )
@@ -152,7 +153,7 @@ func NewPost( title, text string, owner int64, tags []string, private bool) (int
 }
 
 // 修改文章
-func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags []string) error {
+func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags []string, path string) error {
 	tagIds, e := GetTagIds( tags )
 	mp := &Post{
 		Title:     title,
@@ -161,6 +162,7 @@ func ModifyPost( id int64, title, text string, owner int64, isPrivate bool, tags
 		OwnerId:   owner,
 		IsPrivate: isPrivate,
 		Date: time.Now().Format("2006-01-02 15:04:05"),
+		Path: path,
 	}
 	_, e = engine_post.Table("Post").Cols().ID(id).Update(mp)
 	return e

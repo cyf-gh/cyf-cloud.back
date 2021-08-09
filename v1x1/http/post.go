@@ -8,7 +8,6 @@ import (
 	orm "../orm"
 	"encoding/json"
 	"errors"
-	"github.com/kpango/glg"
 	"io/ioutil"
 	"net/http"
 	"stgogo/comn/convert"
@@ -21,6 +20,7 @@ type (
 		Text string
 		TagIds[] string
 		IsPrivate bool
+		Path string
 	}
 	PostReaderModel struct {
 		Id int64
@@ -40,6 +40,7 @@ type (
 		Text string
 		TagIds[] string
 		IsPrivate bool
+		Path string
 	}
 	// 更改文章，没有文本内容
 	// 应对流量节约的情况
@@ -63,8 +64,8 @@ func init() {
 			b, e := ioutil.ReadAll( ap.R.Body ); err.Assert( e )
 			e = json.Unmarshal( b, &post ); err.Assert( e )
 
-			account, e := GetAccountByAtk( ap.R ); err.Assert( e ); glg.Log( account ); glg.Log( post )
-			id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate ); err.Assert( e )
+			account, e := GetAccountByAtk( ap.R ); err.Assert( e )
+			id, e = orm.NewPost( post.Title, post.Text, account.Id, post.TagIds, post.IsPrivate, post.Path ); err.Assert( e )
 			return cc.HerOkWithString( convert.I64toa(id) )
 		} )
 
@@ -89,7 +90,7 @@ func init() {
 			e = json.Unmarshal( b, &post ); err.Assert( e )
 
 			account, e := GetAccountByAtk( ap.R ); err.Assert( e )
-			e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds ); err.Assert( e )
+			e = orm.ModifyPost( post.Id, post.Title, post.Text, account.Id, post.IsPrivate, post.TagIds, post.Path ); err.Assert( e )
 			return cc.HerOk()
 		} )
 

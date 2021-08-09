@@ -105,7 +105,7 @@ func init() {
 			tokenCl = http.Cookie{Name: "atk", Value: token, Path: "/", MaxAge: maxAge}
 
 			ap.SetCookie( &tokenCl )
-			return cc.HerOk()
+			return cc.HerOkWithData(token)
 		})
 
 		a.POST( "/logout", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
