@@ -137,6 +137,7 @@ func GetPostInfosByIds( ids []int64 ) ( []PostInfo, error ) {
 func NewPost( title, text string, owner int64, tags []string, private bool, path string) (int64, error) {
 	tagIds, e  := GetTagIds( tags )
 	newPost := &Post{
+		Id: 0,
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
