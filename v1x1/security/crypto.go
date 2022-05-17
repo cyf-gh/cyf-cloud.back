@@ -20,11 +20,11 @@ func CryptoPasswd( raw string ) string {
 
 // $atk${{uuid}}
 func GenerateAtk() string {
-	return "$atk$"+uuid.New().String()
+	return uuid.New().String()
 }
 
 func GenerateAtkSession() string {
-	return "$atk$"+uuid.New().String() + "$session$"
+	return uuid.New().String()
 }
 
 func GetRandom() string {
