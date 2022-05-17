@@ -12,7 +12,7 @@ import (
 // 上传的文章
 type (
 	Post struct {
-		Id int64 `xorm:"'id' pk autoincr"`
+		Id int64 `xorm:"autoincr"`
 		Title string
 		Text string
 		TagIds[] int64
@@ -23,7 +23,7 @@ type (
 		Path string
 	}
 	PostInfo struct {
-		Id int64 `xorm:"'id' pk autoincr"`
+		Id int64 `xorm:"autoincr"`
 		Title string
 		CreateDate string
 		Date string
@@ -37,7 +37,7 @@ type (
 		Count int
 	}
 	PostInfoMono struct {
-		Id int64 `xorm:"'id' pk autoincr"`
+		Id int64 `xorm:"autoincr"`
 		Title string
 	}
 )
