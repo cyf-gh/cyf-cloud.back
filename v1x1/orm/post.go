@@ -12,7 +12,7 @@ import (
 // 上传的文章
 type (
 	Post struct {
-		Id int64 `xorm:"autoincr"`
+		Id int64
 		Title string
 		Text string
 		TagIds[] int64
@@ -23,7 +23,7 @@ type (
 		Path string
 	}
 	PostInfo struct {
-		Id int64 `xorm:"autoincr"`
+		Id int64
 		Title string
 		CreateDate string
 		Date string
@@ -37,7 +37,7 @@ type (
 		Count int
 	}
 	PostInfoMono struct {
-		Id int64 `xorm:"autoincr"`
+		Id int64
 		Title string
 	}
 )
@@ -137,7 +137,6 @@ func GetPostInfosByIds( ids []int64 ) ( []PostInfo, error ) {
 func NewPost( title, text string, owner int64, tags []string, private bool, path string) (int64, error) {
 	tagIds, e  := GetTagIds( tags )
 	newPost := &Post{
-		Id: 0,
 		Title:     title,
 		Text:      text,
 		TagIds:    tagIds,
@@ -147,9 +146,7 @@ func NewPost( title, text string, owner int64, tags []string, private bool, path
 		CreateDate: time.Now().Format("2006-01-02 15:04:05"),
 		Path: path,
 	}
-
 	_, e = engine_post.Table("Post").Insert( newPost )
-	// err.Assert( e )
 	return newPost.Id, e
 }
 
