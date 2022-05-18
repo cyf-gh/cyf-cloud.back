@@ -17,7 +17,7 @@ jobs:
               with:
                   command: |
                       whoami
-                      bash ${{ secrets.SCRIPT }}
+                      bash /root/backredploy.sh
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PSWD }}
