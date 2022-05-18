@@ -29,7 +29,7 @@ func checkDir( dir string ) ( dmDir *dm_1.DMResource, e error ) {
 }
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/raw", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/raw", func( a cc.ActionGroup ) error {
 		// \brief 返回dm根目录
 		a.GET("/root", func(ap cc.ActionPackage) (cc.HttpErrReturn, cc.StatusCode) {
 			e := DM1CheckPermission(ap.R); err.Assert(e)

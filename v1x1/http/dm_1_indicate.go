@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/indicate", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/indicate", func( a cc.ActionGroup ) error {
 		// \brief 用于指定某资源为二进制资源，如果某
 		// \arg[id] 资源的id
 		a.GET( "/binary", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {

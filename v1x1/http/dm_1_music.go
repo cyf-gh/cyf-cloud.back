@@ -19,7 +19,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/music", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/music", func( a cc.ActionGroup ) error {
 		// \brief （弃用）获取所有音乐资源的id3信息
 		// \note 一定会有io瓶颈
 		a.GET( "/tag/io", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {

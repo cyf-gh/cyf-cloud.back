@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/tags", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/tags", func( a cc.ActionGroup ) error {
 		// \brief 获取所有的tag
 		// \return []DMTag
 		a.GET( "/all", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {

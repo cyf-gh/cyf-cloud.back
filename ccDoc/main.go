@@ -72,6 +72,15 @@ func init() {
 				return nil
 			},
 		},
+		// 匹配弃用主路由
+		{
+			Pattern: regexp.MustCompile(`^(\s*)cc\.AddActionGroupDeprecated\((\s*)\"(.+)\"(.+)$`),
+			Proc:    func( params[]string, i int ) error {
+				currentDocModel.Path = params[3]
+				currentDocModel.Desc = "Deprecated"
+				return nil
+			},
+		},
 		// 注释
 		// 非cc格式注释
 		{
@@ -150,8 +159,7 @@ func init() {
 				return nil
 			},
 		},
-		// 匹配路由是否需要验证
-		// 一定正确
+		// 匹配该函数是否已经弃用
 		{
 			Pattern: regexp.MustCompile(`^(.*)cc.HerDeprecated(.*)$`),
 			Proc: func( params[]string, i int ) error {
@@ -159,7 +167,8 @@ func init() {
 				return nil
 			},
 		},
-		// 匹配该函数是否已经弃用
+		// 匹配路由是否需要验证
+		// 一定正确
 		{
 			Pattern: regexp.MustCompile(`^(.*)(ByAtk|DM1CheckPermission|MakeClipboardKey)(.*)$`),
 			Proc:    func( params[]string, i int ) error {

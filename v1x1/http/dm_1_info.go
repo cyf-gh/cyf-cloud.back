@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/info", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/info", func( a cc.ActionGroup ) error {
 		// \brief 修改单个资源的信息
 		// \body orm.DMTargetResource
 		// \return ok

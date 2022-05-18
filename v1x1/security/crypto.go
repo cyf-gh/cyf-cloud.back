@@ -18,7 +18,6 @@ func CryptoPasswd( raw string ) string {
 	return ToSHA512( raw )
 }
 
-// $atk${{uuid}}
 func GenerateAtk() string {
 	return uuid.New().String()
 }

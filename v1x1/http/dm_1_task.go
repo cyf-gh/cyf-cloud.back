@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/task", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/task", func( a cc.ActionGroup ) error {
 		// \brief 返回当前任务的情况
 		// \sa dm_1.DMTaskStatus
 		// \arg[TaskInfo] see TaskInfo 如果TaskInfo.Index为-1，则返回所有任务情况

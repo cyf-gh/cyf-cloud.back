@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/query", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/query", func( a cc.ActionGroup ) error {
 		// \brief 获取某个资源的所有克隆资源
 		// \body orm.DMTargetResource
 		// \return []DMTargetResource

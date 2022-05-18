@@ -108,7 +108,7 @@ func GetAllID3() {
 }
 
 func init() {
-	cc.AddActionGroup( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
+	cc.AddActionGroupDeprecated( "/v1x1/dm/1/order", func( a cc.ActionGroup ) error {
 		// \brief 开始递归所有目录进行资源索引
 		// \arg[path] 要递归索引的目录
 		// \note 会导致并发 任务名 order_recruit；可暂停；自旋间隔 1s

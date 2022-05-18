@@ -90,12 +90,16 @@ func ( R ActionPackage ) GetBodyUnmarshal( v interface{} ) error {
 
 // 添加一个业务逻辑组
 // 所有的 action 将在 RegisterActions() 被调用时启用
-func AddActionGroup( groupPath string, actionFunc ActionGroupFunc) {
+func AddActionGroup( groupPath string, actionFunc ActionGroupFunc ) {
 	checkPathWarning( groupPath )
 	if _, ok := actionGroupHandlers[groupPath]; ok {
 		glg.Warn("action group:", groupPath, "already exists, recovered.")
 	}
 	actionGroupHandlers[groupPath] = actionFunc
+}
+
+func AddActionGroupDeprecated( groupPath string, actionFunc ActionGroupFunc ) {
+	glg.Warn( "action group:", groupPath, " is deprecated")
 }
 
 // 启用所有路由
@@ -177,6 +181,7 @@ func ( a ActionGroup ) GET( path string, handler ActionFunc ) {
 	getHandlers[path] = &handler
 }
 
+// 用于弃用某个API并提示使用新API
 func ( a ActionGroup ) Deprecated( substitute string ) ActionGroup {
 	glg.Warn("[action] API below was deprecated. Please use " + substitute + " instead")
 	a.Deprecate = true
