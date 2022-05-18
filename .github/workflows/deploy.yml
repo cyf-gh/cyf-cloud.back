@@ -17,30 +17,7 @@ jobs:
               with:
                   command: |
                       whoami
-                      cd ~/.web/cyf-cloud.back/
-                      git stash
-                      git fetch --all
-                      git reset --hard origin/master
-                      git pull
-
-                      # 修改配置文件为部署配置文件
-                      # 如果存在dep文件，说明还没有修改配置文件为部署版本
-                      if [ -f "./server_dep.cfg" ]; then
-                        echo "switch server.cfg to deploy version."
-                        mv ./server.cfg ./server_dev.cfg
-                        mv ./server_dep.cfg ./server.cfg
-                      fi
-
-                      # 重新启动服务器
-                      if ! screen -list | grep -q "go"; then
-                        echo "create new screen."
-                        screen -dmS go bash -c "cd ~/.web/cyf-cloud.back/; go run ./main.go; bash"
-                      else
-                        echo "screen already exists."
-                        screen -S go -p 0 -X stuff "^C^M"
-                        screen -S go -p 0 -X stuff "cd ~/.web/cyf-cloud.back/^M"
-                        screen -S go -p 0 -X stuff "go run ./main.go^M"
-                      fi
+                      bash ~/.web/backredploy.sh
                   host: ${{ secrets.HOST }}
                   username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PSWD }}
