@@ -41,7 +41,7 @@ jobs:
                         screen -S go -p 0 -X stuff "cd ~/.web/cyf-cloud.back/^M"
                         screen -S go -p 0 -X stuff "go run ./main.go^M"
                       fi
-                  host: jp-tyo-dvm-2.sakurafrp.com
-                  username: cyf
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
                   password: ${{ secrets.PSWD }}
-                  port: 16661
+                  port: ${{ secrets.PORT }}
