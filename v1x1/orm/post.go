@@ -349,8 +349,17 @@ func GetPostInfosByCateDate( id int64, date string ) ( ps []PostInfo, e error ) 
 	return
 }
 
-func GetInfoComponentPost( id int64, name string ) ( p []Post, e error) {
+func GetInfoComponentPost( id int64, name string ) ( p []Post, e error ) {
 	e = engine_post.Table("Post").Where("owner_id = ? and title = ?", id, name ).Find( &p )
+	return
+}
+
+func GetPostCustomStyle( id int64 ) ( css string ) {
+	css = ""
+	ps, _ := GetInfoComponentPost( id, "MyMarkdownStyle" )
+	if len(ps) > 0 {
+		css = "<style>"+ps[0].Text+"</style>"
+	}
 	return
 }
 

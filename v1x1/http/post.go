@@ -108,6 +108,8 @@ func init() {
 			return cc.HerOk()
 		} )
 
+		// \brief 获取文章
+		// \param[style] 为default则不携带自定义样式
 		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				id int64
@@ -117,6 +119,7 @@ func init() {
 			)
 			myPost = false
 			strId := ap.R.FormValue("id")
+			strStyle := ap.GetFormValue("style")
 			id, e = convert.Atoi64( strId ); err.Assert( e )
 			// 获取文章
 			p, e = orm.GetPostById( id ); err.Assert( e )
@@ -139,10 +142,16 @@ func init() {
 			a, e := orm.GetAccount( p.OwnerId ); err.Assert( e )
 			tags, e := orm.GetTagNames( p.TagIds ); err.Assert( e )
 
+			// 添加Markdown CSS Style
+			css := ""
+			if strStyle != "default" && p.Title != "MyMarkdownStyle" {
+				css = orm.GetPostCustomStyle( myId )
+			}
+
 			tP := &PostReaderModel{
 				Id: 	p.Id,
 				Title:  p.Title,
-				Text:   p.Text,
+				Text:   p.Text + css,
 				Tags:    tags,
 				Author: a.Name,
 				Date: p.Date,
