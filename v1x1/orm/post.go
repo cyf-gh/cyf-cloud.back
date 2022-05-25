@@ -354,11 +354,11 @@ func GetInfoComponentPost( id int64, name string ) ( p []Post, e error ) {
 	return
 }
 
-func GetPostCustomStyle( id int64 ) ( css string ) {
+func GetPostCustomStyleById( id int64 ) ( css string ) {
 	css = ""
 	ps, _ := GetInfoComponentPost( id, "MyMarkdownStyle" )
 	if len(ps) > 0 {
-		css = "<style>"+ps[0].Text+"</style>"
+		css = ps[0].Text
 	}
 	return
 }

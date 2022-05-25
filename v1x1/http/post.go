@@ -107,9 +107,15 @@ func init() {
 			e = orm.ModifyPostNoText( post.Id, post.Title, account.Id, post.TagIds ); err.Assert( e )
 			return cc.HerOk()
 		} )
-
+		// \brief 获取自定义样式
+		// \note 如需要创建自定义样式，只需创建一篇名为MyMarkdownStyle为标题的文章即可，若有多篇该标题文章，则使用第一个该标题文章
+		a.GET( "/custom/style", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode) {
+			id, e := GetIdByAtk( ap.R ); err.Assert( e )
+			css := orm.GetPostCustomStyleById( id )
+			return cc.HerOkWithData( css )
+		} )
 		// \brief 获取文章
-		// \param[style] 为default则不携带自定义样式
+		// \params[style] 为force则强制在markdown中加载自定义样式
 		a.GET( "", func( ap cc.ActionPackage ) ( cc.HttpErrReturn, cc.StatusCode ) {
 			var (
 				id int64
@@ -144,8 +150,8 @@ func init() {
 
 			// 添加Markdown CSS Style
 			css := ""
-			if strStyle != "default" && p.Title != "MyMarkdownStyle" {
-				css = orm.GetPostCustomStyle( myId )
+			if strStyle == "force" && p.Title != "MyMarkdownStyle" {
+				css = orm.GetPostCustomStyleById( myId )
 			}
 
 			tP := &PostReaderModel{
