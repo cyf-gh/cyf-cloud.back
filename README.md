@@ -28,3 +28,9 @@ cyf-cloud的服务器端，使用Golang编写。
 ### 配置文件 
 #### [server.cfg](https://github.com/cyf-gh/cyf-cloud.back/blob/master/server.cfg)
 具体查看文件内注释
+
+## Docker
+
+```
+docker run -it cyf-cloud-back/v1x1:0.1 bash -c "service redis-server start && cd  /root/cyf-cloud.back/ && /usr/local/go/bin/go run ./main.go"
+```
